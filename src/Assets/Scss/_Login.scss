@@ -1,0 +1,129 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    padding: 20px;
+  
+    .login-form {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+  
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out forwards;
+  
+      .login-logo {
+        width: 150px; /* Tamaño del logo */
+        margin-bottom: 10px; /* Reducción del espaciado inferior */
+      }
+  
+      .form-group {
+        position: relative; /* Necesario para posicionar el botón de mostrar/ocultar */
+        margin-bottom: 15px;
+        text-align: left;
+  
+        input {
+          width: 100%;
+          padding: 12px;
+          border-radius: 5px;
+          border: 1px solid #d9e2ec;
+          font-size: 16px;
+          color: #333;
+          background-color: #f7f9fc;
+          transition: border-color 0.3s ease;
+  
+          &::placeholder {
+            color: #b0b0b0;
+          }
+  
+          &:focus {
+            outline: none;
+            border-color: #003366;
+            box-shadow: 0 0 5px rgba(0, 51, 102, 0.2);
+          }
+        }
+  
+        .toggle-password {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          font-size: 14px;
+          color: #003366;
+          cursor: pointer;
+  
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+  
+      .forgot-password {
+        display: block;
+        margin: 10px 0 20px 0;
+        font-size: 14px;
+        color: #707070;
+        text-decoration: none;
+  
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+  
+      .login-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #d32f2f; /* Color rojo utilizado en home */
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+  
+        &:hover {
+          background-color: #b02828; /* Un rojo más oscuro para el hover */
+        }
+      }
+  
+      .login-options {
+        margin-top: 10px; /* Reducción del margen superior */
+        font-size: 14px;
+  
+        span {
+          color: #707070;
+        }
+  
+        a {
+          color: #003366;
+          text-decoration: none;
+  
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+  
