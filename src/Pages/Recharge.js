@@ -237,6 +237,8 @@ function Recharge() {
             <button className="another-recharge-button" onClick={handleAnotherRecharge}>
               Realizar otra recarga
             </button>
+            {isAnotherRecharge && <p>Iniciando otra recarga...</p>}
+
             <button className="finish-button" onClick={() => (window.location.href = '/changes')}>
               Finalizar
             </button>
