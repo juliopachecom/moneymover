@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from '../Assets/Images/logo.png'; // Asegúrate de tener tu logo en la carpeta correcta
+import logo from '../Assets/Images/logo.jpeg'; // Asegúrate de tener tu logo en la carpeta correcta
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -48,7 +48,7 @@ function Login() {
             {showPassword ? "Ocultar" : "Mostrar"}
           </button>
         </div>
-        <a href="/forgot-password" className="forgot-password">Olvidé la contraseña</a>
+        <a href="/Recoverpassword" className="forgot-password">Olvidé la contraseña</a>
         <button type="submit" className="login-button">Login</button>
         <div className="login-options">
           <span>¿No tienes una cuenta?</span> <a href="/register">Regístrate</a>

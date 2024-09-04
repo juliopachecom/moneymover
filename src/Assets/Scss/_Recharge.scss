@@ -1,0 +1,384 @@
+.recharge {
+    background-color: #f4f6f9;
+    padding: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s ease;
+  
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+  
+    .balances-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #555;
+  
+      div {
+        text-align: center;
+      }
+    }
+  
+    .step-tracker {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+  
+      .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+  
+        .step-circle {
+          width: 30px;
+          height: 30px;
+          background-color: #ddd;
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 14px;
+          color: #fff;
+          transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+  
+        .step-label {
+          margin-top: 8px;
+          font-size: 14px;
+          color: #555;
+        }
+  
+        &.active .step-circle {
+          background-color: #007bff;
+          transform: scale(1.1);
+        }
+  
+        &.completed .step-circle {
+          background-color: #28a745;
+        }
+  
+        &:not(:last-child)::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          right: -50px;
+          height: 4px;
+          width: 100px;
+          background-color: #ddd;
+          z-index: -1;
+        }
+      }
+    }
+  
+    /* Estilos de animación entre pasos */
+    .fade-enter {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  
+    .fade-enter-active {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+  
+    .fade-exit {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  
+    .fade-exit-active {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+  
+    .currency-selection {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+  
+      .currency-card {
+        width: 30%;
+        padding: 20px;
+        background-color: #f0f0f0;
+        border-radius: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        animation: fadeColor 4s infinite;
+  
+        &:hover {
+          background-color: #e0e0e0;
+          transform: translateY(-5px);
+        }
+  
+        h3 {
+          font-size: 18px;
+          margin-bottom: 10px;
+        }
+  
+        p {
+          font-size: 24px;
+          font-weight: bold;
+        }
+  
+        &.active {
+          background-color: #007bff;
+          color: rgb(20, 13, 13);
+        }
+      }
+    }
+  
+    @keyframes fadeColor {
+      0% {
+        background-color: #fff;
+      }
+      33% {
+        background-color: #ffebee;
+      }
+      66% {
+        background-color: #fff;
+      }
+      100% {
+        background-color: #fff;
+      }
+    }
+  
+    /* Clase form-container-edit para asegurar que no entre en conflicto con otros */
+    .form-container-edit {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+  
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+  
+        label {
+          font-size: 16px;
+          color: #333;
+          margin-bottom: 5px;
+        }
+  
+        .custom-form-input,
+        .custom-method-select,
+        .custom-bank-select {
+          padding: 12px;
+          border-radius: 10px;
+          border: 1px solid #ddd;
+          font-size: 16px;
+          outline: none;
+          background-color: #f4f6f9;
+          transition: border-color 0.3s ease;
+  
+          &:focus {
+            border-color: #007bff;
+          }
+        }
+  
+        /* Estilo para select con icono */
+        select.custom-method-select,
+        select.custom-bank-select {
+          appearance: none;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 12px;
+          padding-right: 30px;
+          background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray" width="24" height="24"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+          background-size: 16px;
+  
+          &:focus {
+            border-color: #007bff;
+          }
+        }
+  
+        .iban-info {
+          margin-top: 10px;
+          font-size: 14px;
+          color: #007bff;
+        }
+      }
+    }
+  
+    .efectivo-movil {
+      margin-top: 20px;
+  
+      p {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+  
+      .custom-form-input {
+        margin-bottom: 10px;
+      }
+    }
+  
+    .efectivo-madrid {
+      margin-top: 20px;
+  
+      p {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+  
+      .contact-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: none;
+  
+        &:hover {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+      }
+    }
+  
+    .file-upload {
+      margin-top: 20px;
+      text-align: center;
+  
+      h4 {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+  
+      input[type="file"] {
+        display: block;
+        margin: 0 auto;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        background-color: #f4f6f9;
+        transition: border-color 0.3s ease;
+  
+        &:hover {
+          border-color: #007bff;
+        }
+      }
+    }
+  
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+  
+      .back-button,
+      .continue-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: none;
+  
+        &:hover {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+      }
+  
+      .back-button {
+        background-color: #6c757d;
+  
+        &:hover {
+          background-color: #5a6268;
+        }
+      }
+    }
+  
+    .step-3 {
+      h2 {
+        margin-bottom: 20px;
+      }
+    }
+  
+    .step-4 {
+      text-align: center;
+      margin-top: 20px;
+  
+      p {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+  
+      .another-recharge-button,
+      .finish-button {
+        background-color: #28a745;
+        color: #fff;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: none;
+        margin-top: 20px;
+  
+        &:hover {
+          background-color: #218838;
+          transform: scale(1.05);
+        }
+      }
+  
+      .finish-button {
+        background-color: #007bff;
+  
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+    }
+  
+    @media (max-width: 768px) {
+      .currency-selection {
+        flex-direction: column;
+  
+        .currency-card {
+          width: 100%;
+          margin-bottom: 15px;
+        }
+      }
+  
+      .balances-info {
+        flex-direction: column;
+  
+        div {
+          margin-bottom: 5px;
+        }
+      }
+  
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  }
+  

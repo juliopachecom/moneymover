@@ -3,6 +3,15 @@
 @use 'Footer';
 @use 'Login';   
 @use 'Register';
+@use 'Changes';
+@use 'RecoverPassword';
+@use 'RecoverUpdate';
+@use 'Directory'; 
+@use 'NavBarUser'; 
+@use 'SendMoney';   
+@use 'StepTracker';
+@use 'Recharge' ;
+
 
 *{
     box-sizing: border-box;

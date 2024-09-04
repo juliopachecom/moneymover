@@ -1,0 +1,72 @@
+.step-tracker {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 0 20px;
+  
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+  
+      .step-circle {
+        width: 30px;
+        height: 30px;
+        background-color: #ddd;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        color: #fff;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+  
+      .step-label {
+        margin-top: 8px;
+        font-size: 14px;
+        color: #555;
+      }
+  
+      &.active .step-circle {
+        background-color: #007bff;
+        transform: scale(1.1);
+      }
+  
+      &.completed .step-circle {
+        background-color: #28a745;
+        content: "✓";
+      }
+  
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -50px;
+        height: 4px;
+        width: 100px;
+        background-color: #ddd;
+        z-index: -1;
+      }
+  
+      &:last-child::after {
+        display: none;
+      }
+    }
+  
+    @media (max-width: 768px) {
+      .step {
+        .step-circle {
+          width: 24px;
+          height: 24px;
+          font-size: 12px;
+        }
+        .step-label {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  

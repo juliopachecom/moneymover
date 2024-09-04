@@ -124,7 +124,6 @@ function Home() {
             <video src={featureVideo} autoPlay loop muted playsInline />
           </div>
           <div className="how-it-works-steps" data-aos="fade-left">
-            <h3>En 3 simples pasos</h3>
             <p><img src={arrowIcon} alt="arrow" className="arrow-icon" /> Regístrate con tu email y realiza el proceso de verificación de identidad</p>
             <p><img src={arrowIcon} alt="arrow" className="arrow-icon" /> Selecciona cuánto deseas enviar y realiza el pago</p>
             <p><img src={arrowIcon} alt="arrow" className="arrow-icon" /> Selecciona el beneficiario y ¡LISTO, ENVÍO REALIZADO!</p>
@@ -164,7 +163,7 @@ function Home() {
           </div>
           <h3 className="feature__title">Más opciones</h3>
           <p className="feature__description">
-            Puedes elegir el método de entrega, entre los que se incluyen transferencia a cuenta bancaria o retiro de efectivo, según la ubicación del destinatario.
+            Puedes elegir el metodo de pago, sea una transferencia bancaria o retiro en efectivo
           </p>
         </div>
         <div className="feature" data-aos="fade-up" data-aos-delay="300">
@@ -173,7 +172,7 @@ function Home() {
           </div>
           <h3 className="feature__title">Seguro</h3>
           <p className="feature__description">
-            Envía dinero a tus familiares sabiendo que hay distintos niveles de seguridad diseñados para proteger tus envíos.
+           Tus beneficios pasan por distintos niveles de seguridad diseñados para proteger tus envíos.
           </p>
         </div>
       </div>
@@ -188,7 +187,7 @@ function Home() {
             <button className="start-button">Comenzar ahora</button>
           </div>
           <div className="special-image" data-aos="fade-left">
-            <img src={require('../Assets/Images/abuelo.png')} alt="Abuelo" />
+            <img src={require('../Assets/Images/abuelo1.jpeg')} alt="Abuelo" />
           </div>
         </div>
       </div>
@@ -202,7 +201,7 @@ function Home() {
         <div className="horizontal-section__item" data-aos="fade-up" data-aos-delay="100">
           <img src={require('../Assets/Images/24-7.png')} alt="24/7" className="horizontal-section__icon"/>
           <h3>Envía 24/7</h3>
-          <p>Nuestra plataforma está disponible las 24 horas del día, los 7 días de la semana.</p>
+          <p>Nuestra plataforma está disponible las 24 horas del día, los 7 días de la semana para que puedas realizar tus envios sin interrupciones.</p>
         </div>
         <div className="horizontal-section__item" data-aos="fade-up" data-aos-delay="200">
           <img src={require('../Assets/Images/wallet.png')} alt="Billetera" className="horizontal-section__icon"/>

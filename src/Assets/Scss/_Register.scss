@@ -17,7 +17,7 @@
       text-align: center;
   
       .register-logo {
-        width: 150px;
+        width: 200px;
         margin-bottom: 20px;
       }
   
@@ -59,7 +59,7 @@
   
           .toggle-password {
             position: absolute;
-            top: 8px;
+            top: 12px;
             right: 12px;
             background: none;
             border: none;
@@ -72,16 +72,42 @@
   
       .phone-group {
         display: flex;
-        gap: 10px;
-  
+        flex-direction: column;  /* Asegura que el label y los inputs estén en columna */
+      
+        label {
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: bold;
+        }
+      
+        .phone-container {
+          display: flex;
+          gap: 10px;  /* Espacio entre el select y el input */
+          align-items: center;  /* Asegura que ambos estén alineados verticalmente */
+        }
+      
         .phone-prefix {
           max-width: 100px;
           padding: 12px;
           border-radius: 5px;
           border: 1px solid #d9e2ec;
           background-color: #f7f9fc;
+          height: 48px;  /* Asegura que tenga la misma altura que el input de teléfono */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      
+        input {
+          flex-grow: 1;  /* Asegura que el input ocupe el espacio restante */
+          padding: 12px;
+          border-radius: 5px;
+          border: 1px solid #d9e2ec;
+          background-color: #f7f9fc;
+          height: 48px;  /* Asegura que tenga la misma altura que el select */
         }
       }
+      
   
       .form-check {
         display: flex;
@@ -104,7 +130,7 @@
         margin-top: 20px;
   
         .btn-primary {
-          background-color: #d32f2f;
+          background-color: #cc0704;
           border: none;
           padding: 12px 30px;
           font-size: 16px;
@@ -119,7 +145,7 @@
         }
   
         .btn-secondary {
-          background-color: #6c757d;
+          background-color: #b9bbbd;
           border: none;
           padding: 12px 30px;
           font-size: 16px;
@@ -134,63 +160,63 @@
         }
       }
     }
-  }
   
-  .modal-content {
-    border-radius: 10px;
+    .modal-content {
+      border-radius: 10px;
   
-    .modal-header {
-      background-color: #003366;
-      color: #ffffff;
-      border-bottom: none;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-    }
-  
-    .modal-body {
-      font-size: 16px;
-      color: #333333;
-  
-      p {
-        margin-bottom: 10px;
-  
-        strong {
-          font-weight: 600;
-          color: #003366;
-        }
+      .modal-header {
+        background-color: #003366;
+        color: #ffffff;
+        border-bottom: none;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
       }
-    }
   
-    .modal-footer {
-      border-top: none;
-  
-      .btn-primary {
-        background-color: #d32f2f;
-        border: none;
-        padding: 10px 20px;
+      .modal-body {
         font-size: 16px;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+        color: #333333;
   
-        &:hover {
-          background-color: #b02828;
-          transform: scale(1.05);
+        p {
+          margin-bottom: 10px;
+  
+          strong {
+            font-weight: 600;
+            color: #003366;
+          }
         }
       }
   
-      .btn-secondary {
-        background-color: #6c757d;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+      .modal-footer {
+        border-top: none;
   
-        &:hover {
-          background-color: #5a6268;
-          transform: scale(1.05);
+        .btn-primary {
+          background-color: #cc0704;
+          border: none;
+          padding: 10px 20px;
+          font-size: 16px;
+          border-radius: 25px;
+          cursor: pointer;
+          transition: background-color 0.3s ease, transform 0.3s ease;
+  
+          &:hover {
+            background-color: #b02828;
+            transform: scale(1.05);
+          }
+        }
+  
+        .btn-secondary {
+          background-color: #b9bbbd;
+          border: none;
+          padding: 10px 20px;
+          font-size: 16px;
+          border-radius: 25px;
+          cursor: pointer;
+          transition: background-color 0.3s ease, transform 0.3s ease;
+  
+          &:hover {
+            background-color: #5a6268;
+            transform: scale(1.05);
+          }
         }
       }
     }

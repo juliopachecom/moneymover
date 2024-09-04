@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from 'reactstrap';
-import logo from '../Assets/Images/logo.png';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import logo from '../Assets/Images/logo.jpeg';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -89,34 +84,34 @@ function Register() {
           />
         </div>
         <div className="form-group phone-group">
-          <label htmlFor="phonePrefix">Teléfono</label>
-          <div className="d-flex">
-            <select
-              name="phonePrefix"
-              id="phonePrefix"
-              value={formData.phonePrefix}
-              onChange={handleChange}
-              className="phone-prefix"
-            >
-              <option value="+34">🇪🇸 +34</option>
-              <option value="+1">🇺🇸 +1</option>
-            </select>
-            <input
-              type="text"
-              name="phone"
-              id="phone"
-              placeholder="Número de teléfono"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
+  <label htmlFor="phone">Teléfono</label>
+  <div className="d-flex phone-container">
+    <select
+      name="phonePrefix"
+      id="phonePrefix"
+      value={formData.phonePrefix}
+      onChange={handleChange}
+      className="phone-prefix"
+    >
+      <option value="+34">🇪🇸 +34</option>
+      <option value="+1">🇺🇸 +1</option>
+    </select>
+    <input
+      type="text"
+      name="phone"
+      id="phone"
+      placeholder="Número de teléfono"
+      value={formData.phone}
+      onChange={handleChange}
+      required
+    />
+  </div>
+</div>
         <div className="form-group">
           <label htmlFor="password">Contraseña</label>
           <div className="position-relative">
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               name="password"
               id="password"
               placeholder="Contraseña"
@@ -129,7 +124,7 @@ function Register() {
               className="toggle-password"
               onClick={togglePasswordVisibility}
             >
-              {showPassword ? "Ocultar" : "Mostrar"}
+              {showPassword ? 'Ocultar' : 'Mostrar'}
             </button>
           </div>
         </div>
@@ -137,7 +132,7 @@ function Register() {
           <label htmlFor="confirmPassword">Confirmar Contraseña</label>
           <div className="position-relative">
             <input
-              type={showConfirmPassword ? "text" : "password"}
+              type={showConfirmPassword ? 'text' : 'password'}
               name="confirmPassword"
               id="confirmPassword"
               placeholder="Confirmar contraseña"
@@ -150,7 +145,7 @@ function Register() {
               className="toggle-password"
               onClick={toggleConfirmPasswordVisibility}
             >
-              {showConfirmPassword ? "Ocultar" : "Mostrar"}
+              {showConfirmPassword ? 'Ocultar' : 'Mostrar'}
             </button>
           </div>
         </div>
@@ -163,9 +158,7 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <label htmlFor="termsAccepted" check>
-            Acepto los términos y condiciones
-          </label>
+          <label htmlFor="termsAccepted">Acepto los términos y condiciones</label>
         </div>
         <div className="button-group">
           <button type="button" className="btn-secondary" onClick={() => window.history.back()}>

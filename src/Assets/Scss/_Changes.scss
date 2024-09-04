@@ -1,0 +1,376 @@
+.changes {
+  background-color: #f4f6f9;
+  padding: 30px;
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+
+ 
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-top: 50px; // Agregamos espacio aquí para evitar que el navbar lo cubra
+
+
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .profile-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #e0e0e0;
+      animation: fadeIn 0.8s ease;
+    }
+  }
+
+  &__balances {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+
+    .balance-item {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      width: 30%;
+      transition: transform 0.3s ease;
+      animation: slideUp 0.5s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      h3 {
+        font-size: 16px;
+        color: #333;
+      }
+
+      p {
+        font-size: 20px;
+        font-weight: bold;
+        color: #007bff;
+      }
+    }
+  }
+
+  &__tasa {
+    margin-bottom: 30px;
+
+    .tasa-header {
+      cursor: pointer;
+      background-color: #ffffff; // Color blanco como la tarjeta
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+
+      animation: flashRed 6s ease-in-out infinite;
+    }
+
+    .tasa-content {
+      overflow: hidden;
+      height: 0;
+      transform: scaleY(0); 
+      transform-origin: top; 
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), height 0.5s ease, opacity 0.4s ease-in-out;
+      opacity: 0;
+    
+      &.open {
+        height: auto;
+        transform: scaleY(1);
+        opacity: 1;
+        transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), height 0.5s ease, opacity 0.4s ease-in-out;
+      }
+    
+      &.closed {
+        max-height: 0;
+        opacity: 0;
+        transform: scaleY(0);
+
+        transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), height 0.5s ease, opacity 0.4s ease-in-out;
+      }
+      
+
+      .tasa-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #fff;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+
+        img {
+          width: 24px;
+          height: 24px;
+        }
+
+        p {
+          flex-grow: 1;
+          margin-left: 10px;
+          font-size: 16px;
+        }
+
+        span {
+          font-weight: bold;
+          color: #555;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+
+    .action-button {
+      padding: 12px 30px;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      animation: popIn 0.5s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+
+      &.green {
+        background-color: #4caf50;
+        &:hover {
+          background-color: #388e3c;
+        }
+      }
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .tab {
+      padding: 12px 30px;
+      background-color: #f1f1f1;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+
+      &.active {
+        background-color: #007bff;
+        color: white;
+      }
+
+      &:hover {
+        background-color: #e0e0e0;
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  &__content {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+    }
+  }
+
+  @keyframes flashRed {
+    0%, 80% {
+      color: #333; // Mantener el color normal durante la mayor parte del tiempo
+    }
+    90% {
+      color: #ff6961; // Cambio gradual a rojo suave
+    }
+    100% {
+      color: #333; // Volver al color original
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes popIn {
+    from {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    &__balances {
+      flex-direction: column;
+      align-items: center;
+
+      .balance-item {
+        width: 80%;
+        margin-bottom: 20px;
+
+        h3 {
+          font-size: 14px;
+        }
+
+        p {
+          font-size: 16px;
+        }
+      }
+    }
+
+    &__actions {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    &__tabs {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tasa-header {
+      font-size: 16px;
+    }
+
+    .tasa-item {
+      p {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .movements__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  
+    th, td {
+      text-align: left;
+      padding: 12px 15px;
+    }
+  
+    th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      font-size: 14px;
+      color: #555;
+    }
+  
+    td {
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 14px;
+      color: #333;
+  
+      img {
+        margin-left: 5px;
+        width: 16px;
+        height: 16px;
+      }
+  
+      &.cancelled {
+        color: #f44336;
+        font-weight: bold;
+      }
+  
+      &.completed {
+        color: #4caf50;
+        font-weight: bold;
+      }
+  
+      &.pending {
+        color: #ff9800;
+        font-weight: bold;
+      }
+  
+      .view-details-icon {
+        color: #007bff;
+        cursor: pointer;
+        font-size: 18px;
+        &:hover {
+          color: #0056b3;
+        }
+      }
+    }
+  }
+  
+  .table-responsive {
+    overflow-x: auto; /* Permite el desplazamiento horizontal */
+    -webkit-overflow-scrolling: touch; /* Mejora la experiencia en dispositivos táctiles */
+  }
+  
+  @media (max-width: 768px) {
+    .movements__table {
+      width: 100%;
+      font-size: 12px; /* Ajuste del tamaño de fuente para pantallas pequeñas */
+    }
+  
+    th, td {
+      padding: 10px;
+    }
+  
+    td img {
+      width: 14px; /* Ajusta el tamaño de las imágenes en pantallas pequeñas */
+      height: 14px;
+    }
+  
+    .table-responsive {
+      margin-bottom: 20px;
+    }
+  }
+}
+

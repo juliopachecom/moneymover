@@ -1,8 +1,12 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { NavBar } from "./Components/NavBar";
-import { Footer } from "./Components/Footer";
-import routes from "./Config/routes";
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+} from 'react-router-dom';
+import { NavBar } from './Components/NavBar';
+import { Footer } from './Components/Footer';
+import routes from './Config/routes';
 
 function App() {
   return (
@@ -11,23 +15,13 @@ function App() {
         <Route
           path="/"
           render={({ location }) => {
-            const isLoginRoute =
-              location.pathname === "/Login" ||
-              location.pathname === "/Dashboard" ||
-              location.pathname === "/Register" ||
-              location.pathname === "/Recover" ||
-              location.pathname === "/RecoverUpdate" ||
-              location.pathname === "/AdmEc";
+            const isLoginRoute = location.pathname === "/login" || location.pathname === "/register"  || location.pathname === "/changes" || location.pathname === "/Changes" || location.pathname === "/recoverpassword" || location.pathname === "/recoverupdate" || location.pathname === "/directory"  || location.pathname === "/sendmoney" || location.pathname === "/recharge"; 
             return (
               <>
                 {!isLoginRoute && <NavBar />}
                 <Switch>
                   {routes.map((route) => (
-                    <Route
-                      key={route.path}
-                      path={route.path}
-                      component={route.component}
-                    />
+                    <Route key={route.path} path={route.path} component={route.component} />
                   ))}
                 </Switch>
                 {!isLoginRoute && <Footer />}

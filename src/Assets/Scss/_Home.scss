@@ -271,7 +271,7 @@
         color: #ffffff;
     
         .icon {
-          font-size: 24px;
+          font-size: 30px;
           margin-right: 10px;
           color: #ffffff;
         }
@@ -454,6 +454,7 @@
         padding: 40px 20px;
         text-align: center;
         width: 100%;
+        
       
         .section-title {
           font-size: 28px;
@@ -503,10 +504,10 @@
           }
       
           p {
-            font-size: 16px;
+            font-size: 20px;
             margin-bottom: 15px;
-            padding-top: 30px;
-            padding-left: 15px;
+            padding-top: 45px;
+            padding-left: 18px;
             display: flex;
             align-items: center;
       
@@ -581,9 +582,10 @@
           text-align: right;
       
           img {
-            max-width: 100%;
+            max-width: 80%;
             height: auto;
             border-radius: 10px;
+            margin-right: 80px;
           }
       
           @media (max-width: 768px) {
