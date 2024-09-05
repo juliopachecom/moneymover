@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { Link } from 'react-router-dom';
 import comisionesIcon from '../Assets/Images/0-percent.png';
 import rapidaIcon from '../Assets/Images/rush.png';
 import opcionesIcon from '../Assets/Images/menu.png';
@@ -79,7 +80,7 @@ function Home() {
               <option value={ecuadorFlag}>🇪🇨 USD</option>
             </select>
           </div>
-          <a href="/changes">  <button className="start-button"> Comenzar</button></a>
+          <Link to="/changes">  <button className="start-button"> Comenzar</button></Link>
         </div>
       </div>
 
@@ -183,7 +184,7 @@ function Home() {
             <h2>Sabemos que cuando envías dinero, lo haces para ayudar a quien para ti es alguien especial.</h2>
             <p>
             Enviar dinero a tus seres queridos puede ser un poco complicado, en algunos casos con largos tiempos de espera para que puedan recibir el dinero y en ocasiones deben desplazarse para hacer el retiro. En Money Mover, el proceso de envío es rápido, sin comisiones en transferencia a cuenta bancaria y garantizado. Puedes pagar con transferencias y elegir la forma cómo deseas que tu familiar reciba su remesa. Regístrate y comienza a enviar dinero en línea hoy.            </p>
-            <a href="/changes"><button className="start-button">Comenzar ahora</button></a>
+            <Link to="/changes"><button className="start-button">Comenzar ahora</button></Link>
           </div>
           <div className="special-image" data-aos="fade-left">
             <img src={require('../Assets/Images/abuelo1.jpeg')} alt="Abuelo" />
