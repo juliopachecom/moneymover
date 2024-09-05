@@ -9,6 +9,7 @@ import verification from '../Assets/Images/giphy.gif';
 import usaFlag from '../Assets/Images/usa.png';
 import { FaEye, FaExclamationTriangle } from 'react-icons/fa'; // FaExclamationTriangle para el ícono de advertencia
 import { NavBarUser } from '../Components/NavBarUser';
+import { Link } from 'react-router-dom';
 
 function Changes() {
   const [activeTab, setActiveTab] = useState('recargar');
@@ -109,8 +110,8 @@ function Changes() {
       </div>
 
       <div className="changes__actions">
-        <button onClick={() => (window.location.href = '/recharge')} className="action-button green">Recargar Saldo</button>
-        <button className="action-button green" onClick={() => (window.location.href = '/sendmoney')}>Enviar Remesas</button>
+   <Link to='/recharge'>    <button  className="action-button green">Recargar Saldo</button></Link> 
+   <Link to='/sendmoney'>      <button className="action-button green">Enviar Remesas</button></Link> 
       </div>
 
       <div className="changes__tabs">
