@@ -182,9 +182,8 @@ function Home() {
           <div className="special-text" data-aos="fade-right">
             <h2>Sabemos que cuando envías dinero, lo haces para ayudar a quien para ti es alguien especial.</h2>
             <p>
-              Enviar dinero a tus seres queridos puede ser un poco complicado, en algunos casos con largos tiempos de espera para que puedan recibir el dinero y desplazarse para poder hacer el retiro. En Money Mover, nuestro proceso de envío es rápido, sin comisiones en transferencia a cuenta bancaria y garantizado. Puedes pagar con transferencias y cómo deseas que tu familiar reciba su remesa. Regístrate y comienza a enviar dinero en línea hoy.
-            </p>
-            <button className="start-button">Comenzar ahora</button>
+            Enviar dinero a tus seres queridos puede ser un poco complicado, en algunos casos con largos tiempos de espera para que puedan recibir el dinero y en ocasiones deben desplazarse para hacer el retiro. En Money Mover, el proceso de envío es rápido, sin comisiones en transferencia a cuenta bancaria y garantizado. Puedes pagar con transferencias y elegir la forma cómo deseas que tu familiar reciba su remesa. Regístrate y comienza a enviar dinero en línea hoy.            </p>
+            <a href="/changes"><button className="start-button">Comenzar ahora</button></a>
           </div>
           <div className="special-image" data-aos="fade-left">
             <img src={require('../Assets/Images/abuelo1.jpeg')} alt="Abuelo" />
