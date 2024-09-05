@@ -6,7 +6,154 @@
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
+  .verification-alert {
+    background-color: #f6d4b4;
+    color: #333;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    justify-content: center;
+  
+    .warning-icon {
+      margin-right: 10px;
+      color: #f89514;
+    }
+  
+    &:hover {
+      background-color: #f9cea7;
+    }
+  }
 
+  .custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Para asegurar que esté encima de todo */
+  }
+  
+  .custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .custom-modal-content {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    width: 95%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); /* Sombra más fuerte */
+    animation: fadeInModal 0.5s ease-in-out;
+  
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #007bff;
+      margin-bottom: 20px;
+      font-family: 'Poppins', sans-serif; /* Tipografía moderna */
+    }
+  
+    p {
+      font-size: 16px;
+      color: #333;
+      text-align: justify; /* Texto justificado */
+      line-height: 1.6;
+      margin-bottom: 30px;
+      font-family: 'Roboto', sans-serif; /* Tipografía moderna */
+    }
+  
+    .verification-gif {
+      width: 150px;
+      height: auto;
+      margin-bottom: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra suave para la imagen */
+    }
+  
+    .verify-button, .close-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      width: 100%; /* Botón ancho completo */
+      max-width: 300px; /* Limitar el ancho máximo */
+      font-family: 'Poppins', sans-serif;
+    }
+  
+    .verify-button:hover, .close-button:hover {
+      background-color: #0056b3; /* Azul más oscuro al pasar el mouse */
+    }
+  
+    .close-button {
+      background-color: #6c757d; /* Color gris para el botón de cerrar */
+    }
+  
+    .close-button:hover {
+      background-color: #5a6268;
+    }
+  }
+  
+  .verify-button:hover, .close-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .verification-alert {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .verification-alert:hover {
+    background-color: #ffeeba;
+  }
+  
+  .warning-icon {
+    margin-right: 10px;
+    font-size: 20px;
+  }
+  
+  @keyframes fadeInModal {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
  
   &__header {
     display: flex;
@@ -17,10 +164,23 @@
 
 
     h1 {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       color: #333;
-      animation: fadeIn 0.8s ease;
+      position: relative;
+      display: inline-block;
+
+      // Subrayado moderno
+      &::after {
+        content: '';
+        position: absolute;
+        width: 80%;
+        height: 4px;
+        background-color: #007bff;
+        left: 10%;
+        bottom: -10px;
+        border-radius: 10px;
+      }
     }
 
     .profile-pic {

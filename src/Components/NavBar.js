@@ -29,20 +29,20 @@ function NavBar() {
               <Link to="/skills" className="navbar__link" onClick={closeMenu}>Blog</Link>
             </li>
             <li className="navbar__item">
-              <Link to="/contact" className="navbar__link" onClick={closeMenu}>Log In</Link>
+              <Link to="/login" className="navbar__link" onClick={closeMenu}>Log In</Link>
             </li>
             <li className="navbar__item">
-              <Link to="/portfolio" className="navbar__link navbar__link--highlight" onClick={closeMenu}>Registrate</Link>
+              <Link to="/register" className="navbar__link navbar__link--highlight" onClick={closeMenu}>Registrate</Link>
             </li>
           </ul>
           <div className="navbar__social">
-            <a href="https://linkedin.com" className="navbar__social-icon" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.me/+34602679774" className="navbar__social-icon" target="_blank" rel="noopener noreferrer">
               <FaWhatsapp />
             </a>
-            <a href="https://github.com" className="navbar__social-icon" target="_blank" rel="noopener noreferrer">
+            <a href="https://instagram.com/moneymoveroficial" className="navbar__social-icon" target="_blank" rel="noopener noreferrer">
               <FaInstagram />
             </a>
-            <a href="https://behance.net" className="navbar__social-icon" target="_blank" rel="noopener noreferrer">
+            <a href="https://facebook.com/moneymoveroficial" className="navbar__social-icon" target="_blank" rel="noopener noreferrer">
               <FaFacebook />
             </a>
           </div>

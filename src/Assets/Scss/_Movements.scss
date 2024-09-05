@@ -1,0 +1,119 @@
+.movements {
+    background-color: #f4f6f9;
+    padding: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+  
+    &__tabs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+  
+      .tab {
+        padding: 12px 30px;
+        background-color: #f1f1f1;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+  
+        &.active {
+          background-color: #007bff;
+          color: white;
+        }
+  
+        &:hover {
+          background-color: #e0e0e0;
+          transform: scale(1.05);
+        }
+      }
+    }
+  
+    .table-responsive {
+      overflow-x: auto;
+  
+      .movements__table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+  
+        th,
+        td {
+          text-align: left;
+          padding: 12px 15px;
+        }
+  
+        th {
+          background-color: #f4f4f4;
+          font-weight: bold;
+          font-size: 14px;
+          color: #555;
+        }
+  
+        td {
+          background-color: #fff;
+          border-bottom: 1px solid #e0e0e0;
+          font-size: 14px;
+          color: #333;
+  
+          img {
+            margin-left: 5px;
+            width: 16px;
+            height: 16px;
+          }
+  
+          &.aprobada {
+            color: #4caf50;
+            font-weight: bold;
+          }
+  
+          &.rechazada {
+            color: #f44336;
+            font-weight: bold;
+          }
+  
+          &.en {
+            color: #ff9800;
+            font-weight: bold;
+          }
+  
+          .view-details-icon {
+            color: #007bff;
+            cursor: pointer;
+            font-size: 18px;
+  
+            &:hover {
+              color: #0056b3;
+            }
+          }
+        }
+      }
+    }
+  
+    @media (max-width: 768px) {
+      .movements__table {
+        width: 100%;
+        font-size: 12px;
+      }
+  
+      th,
+      td {
+        padding: 10px;
+      }
+  
+      td img {
+        width: 14px;
+        height: 14px;
+      }
+  
+      .table-responsive {
+        margin-bottom: 20px;
+      }
+    }
+  }
+  

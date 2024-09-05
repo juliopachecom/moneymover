@@ -79,7 +79,7 @@ function Home() {
               <option value={ecuadorFlag}>🇪🇨 USD</option>
             </select>
           </div>
-          <button className="start-button">Comenzar</button>
+          <a href="/changes">  <button className="start-button"> Comenzar</button></a>
         </div>
       </div>
 

@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavBarUser } from '../Components/NavBarUser';
-import { FaCheckCircle } from 'react-icons/fa';
-import { CSSTransition } from 'react-transition-group'; // Para las animaciones de transición
+import { FaCheck,FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // FaTimesCircle para el ícono de error
+import { CSSTransition } from 'react-transition-group';
 
 function Recharge() {
   const [step, setStep] = useState(1);
   const [selectedCurrency, setSelectedCurrency] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [bankDetails, setBankDetails] = useState('');
+  const [amount, setAmount] = useState(''); // Nuevo campo para el monto
   const [file, setFile] = useState(null);
-  const [isAnotherRecharge, setIsAnotherRecharge] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(''); // Para manejar el error en el paso 4
+  const [transactionError, setTransactionError] = useState(false); // Controla si hubo un problema
+  const [transactionDone, setTransactionDone] = useState(false); // Controla si la transacción ya fue intentada
+
+  const totalSteps = 4;
 
   const balances = {
     EUR: 2500,
@@ -35,25 +40,84 @@ function Recharge() {
     setBankDetails(e.target.value);
   };
 
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+  };
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
+  const validateStep = () => {
+    if (step === 2) {
+      if (!selectedMethod) {
+        setErrorMessage('Por favor, selecciona un método de recarga.');
+        return false;
+      }
+
+      if (selectedMethod === 'transferencia' && (!bankDetails || !amount)) {
+        setErrorMessage('Por favor, selecciona un banco y un monto.');
+        return false;
+      }
+
+      if (
+        (selectedMethod === 'efectivoBBVA' || selectedMethod === 'efectivoSantander') &&
+        (!document.querySelector('input[placeholder="Nombre"]').value ||
+          !document.querySelector('input[placeholder="Teléfono"]').value ||
+          !document.querySelector('input[placeholder="Código"]').value)
+      ) {
+        setErrorMessage('Por favor, completa todos los campos de Efectivo Móvil.');
+        return false;
+      }
+    }
+
+    if (step === 3 && !file) {
+      setErrorMessage('Por favor, selecciona un archivo de comprobante.');
+      return false;
+    }
+
+    setErrorMessage(''); // Resetear el mensaje de error
+    return true;
+  };
+
   const handleNextStep = () => {
-    setStep(step + 1);
+    if (validateStep()) {
+      if (step < totalSteps) {
+        setStep(step + 1);
+      }
+    }
   };
 
   const handlePreviousStep = () => {
-    setStep(step - 1);
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
 
-  const handleAnotherRecharge = () => {
-    setIsAnotherRecharge(true);
+  const goToStep = (targetStep) => {
+    if (step < totalSteps && targetStep < step) {
+      setStep(targetStep);
+    }
+  };
+
+  // Simulación de transacción aleatoria
+  useEffect(() => {
+    if (step === 4 && !transactionDone) {
+      const isSuccess = Math.random() > 0.5; // Generar aleatoriamente si la transacción es exitosa o fallida
+      setTransactionError(!isSuccess); // true si falla, false si es exitosa
+      setTransactionDone(true); // Marcar como que la transacción ya fue intentada
+    }
+  }, [step, transactionDone]);
+
+  const resetRecharge = () => {
     setStep(1);
     setSelectedCurrency('');
     setSelectedMethod('');
     setBankDetails('');
+    setAmount('');
     setFile(null);
+    setTransactionError(false);
+    setTransactionDone(false);
   };
 
   return (
@@ -70,23 +134,23 @@ function Recharge() {
 
       {/* Step Tracker */}
       <div className="step-tracker">
-        <div className={`step ${step >= 1 ? 'active' : ''}`}>
-          <div className="step-circle">{step > 1 ? '✓' : '1'}</div>
-          <p>Moneda</p>
-        </div>
-        <div className={`step ${step >= 2 ? 'active' : ''}`}>
-          <div className="step-circle">{step > 2 ? '✓' : '2'}</div>
-          <p>Método</p>
-        </div>
-        <div className={`step ${step >= 3 ? 'active' : ''}`}>
-          <div className="step-circle">{step > 3 ? '✓' : '3'}</div>
-          <p>Comprobante</p>
-        </div>
-        <div className={`step ${step === 4 ? 'active' : ''}`}>
-          <div className="step-circle">{step === 4 ? '✓' : '4'}</div>
-          <p>Confirmación</p>
-        </div>
+        {[1, 2, 3, 4].map((stepNumber) => (
+          <div
+            key={stepNumber}
+            className={`step ${step >= stepNumber ? (step > stepNumber ? 'completed' : 'active') : ''}`}
+            onClick={() => goToStep(stepNumber)}
+            style={{ cursor: step < totalSteps && stepNumber < step ? 'pointer' : 'default' }}
+          >
+            <div className="step-circle">
+              {step > stepNumber ? <FaCheck color="white" /> : stepNumber}
+            </div>
+            <p>{['Moneda', 'Método', 'Comprobante', 'Confirmación'][stepNumber - 1]}</p>
+          </div>
+        ))}
       </div>
+
+      {/* Validación de error */}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
 
       {/* Paso 1: Selección de moneda */}
       <CSSTransition in={step === 1} timeout={300} classNames="fade" unmountOnExit>
@@ -94,7 +158,6 @@ function Recharge() {
           <h2>¿Qué moneda quieres recargar?</h2>
           <p className="hint">Selecciona una opción para continuar</p>
 
-          {/* Selección de moneda con estilo mejorado */}
           <div className="currency-selection">
             <div
               className={`currency-card ${selectedCurrency === 'EUR' ? 'active' : ''}`}
@@ -153,10 +216,21 @@ function Recharge() {
                 <option value="Banco2">Banco de Venezuela</option>
               </select>
               {bankDetails && <p className="iban-info">{ibanInfo[bankDetails]}</p>}
+
+              <div className="form-group">
+                <label>Monto a transferir</label>
+                <input
+                  type="number"
+                  className="custom-form-input"
+                  placeholder="Introduce el monto"
+                  value={amount}
+                  onChange={handleAmountChange}
+                />
+              </div>
             </div>
           )}
 
-          {/* Campos para Efectivo Móvil BBVA o Santander */}
+          {/* Campos para Efectivo Móvil */}
           {(selectedMethod === 'efectivoBBVA' || selectedMethod === 'efectivoSantander') && (
             <div className="efectivo-movil">
               <p>Deberás realizar un efectivo móvil a tu nombre y a tu número telefónico.</p>
@@ -229,16 +303,22 @@ function Recharge() {
       {/* Paso 4: Confirmación final */}
       <CSSTransition in={step === 4} timeout={300} classNames="fade" unmountOnExit>
         <div className="form-container-edit step-4">
-          <h2>¡Recarga Exitosa!</h2>
-          <p>En breve se verá reflejado el estatus de tu transferencia.</p>
-          <FaCheckCircle size={50} color="#28a745" />
+          <h2>{transactionError ? '¡Ocurrió un problema!' : '¡Recarga Exitosa!'}</h2>
+          <p>
+            {transactionError
+              ? 'Hubo un error en la transacción. Por favor, intenta nuevamente más tarde.'
+              : 'En breve se verá reflejado el estatus de tu transferencia.'}
+          </p>
+          {transactionError ? (
+            <FaTimesCircle size={50} color="#dc3545" />
+          ) : (
+            <FaCheckCircle size={50} color="#28a745" />
+          )}
 
           <div className="form-actions">
-            <button className="another-recharge-button" onClick={handleAnotherRecharge}>
+            <button className="another-recharge-button" onClick={resetRecharge}>
               Realizar otra recarga
             </button>
-            {isAnotherRecharge && <p>Iniciando otra recarga...</p>}
-
             <button className="finish-button" onClick={() => (window.location.href = '/changes')}>
               Finalizar
             </button>

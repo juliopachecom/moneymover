@@ -5,13 +5,15 @@ import poundIcon from '../Assets/Images/pound.png';
 import dollarIcon from '../Assets/Images/dollar.png';
 import spainFlag from '../Assets/Images/spain.png';
 import venezuelaFlag from '../Assets/Images/venezuela.png';
+import verification from '../Assets/Images/giphy.gif';
 import usaFlag from '../Assets/Images/usa.png';
-import {  FaEye } from 'react-icons/fa'; // Importación de íconos
-import {NavBarUser} from '../Components/NavBarUser';
+import { FaEye, FaExclamationTriangle } from 'react-icons/fa'; // FaExclamationTriangle para el ícono de advertencia
+import { NavBarUser } from '../Components/NavBarUser';
 
 function Changes() {
   const [activeTab, setActiveTab] = useState('recargar');
   const [isTasaOpen, setIsTasaOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -21,9 +23,37 @@ function Changes() {
     setIsTasaOpen(!isTasaOpen);
   };
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const userStatusMessage = 'Usuario no verificado. Haz clic para verificarte.';
+
   return (
     <div className="changes">
       <NavBarUser />
+
+      {/* Mensaje de verificación */}
+      <div className="verification-alert" onClick={openModal}>
+        <FaExclamationTriangle className="warning-icon" />
+        <span>{userStatusMessage}</span>
+      </div>
+
+      {/* Modal personalizado */}
+      {isModalOpen && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <img src={verification}  alt="Verificación animada" className="verification-gif" />
+            <h2>Verificación de Usuario</h2>
+            <p>
+              Para utilizar la plataforma de MoneyMover, debes verificar tu identidad utilizando nuestro sistema KYC. Cumplimos con las normativas ISO 27001 y GDPR para proteger tus datos y garantizar su seguridad.
+            </p>
+            <button className="verify-button" onClick={closeModal}>¡Verifícate!</button>
+            <button className="close-button" onClick={closeModal}>Cerrar</button>
+          </div>
+        </div>
+      )}
+
+      {/* Contenido restante de la página */}
       <div className="changes__header">
         <h1>Bienvenido, Usuario</h1>
         <div className="changes__profile">
@@ -80,7 +110,7 @@ function Changes() {
 
       <div className="changes__actions">
         <button onClick={() => (window.location.href = '/recharge')} className="action-button green">Recargar Saldo</button>
-        <button className="action-button green" onClick={() => (window.location.href = '/sendmoney')} >Enviar Remesas</button>
+        <button className="action-button green" onClick={() => (window.location.href = '/sendmoney')}>Enviar Remesas</button>
       </div>
 
       <div className="changes__tabs">

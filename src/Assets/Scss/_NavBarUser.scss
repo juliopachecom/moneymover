@@ -1,129 +1,140 @@
 .navbaruser {
-    background-color: #ffffff;
-    padding: 10px 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+  background-color: #ffffff;
+  padding: 10px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Sombra más suave */
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 30px;
+  font-family: 'Inter', sans-serif; /* Nueva fuente más minimalista */
+
+  /* Contenedor del logo */
+  &__logo-container {
     display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-    position: relative;
-    text-decoration:  none;
-  
-    &__list {
+    align-items: center;
+  }
+
+  &__logo {
+    width: 250px;
+    height: auto;
+    border-radius: 50%; /* Bordes redondeados para el logo */
+  }
+
+  &__list {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+
+    &.active {
       display: flex;
-      gap: 40px;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      transition: transform 0.5s ease, opacity 0.5s ease;
-      transform-origin: top; // Animaciones suaves
-    }
-
-    &__item {
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 16px;
-      color: #333;
-      transition: color 0.3s ease;
-
-      &:hover {
-        color: #007bff;
-      }
-
-      .navbaruser__icon {
-        margin-top: 15px;
-        font-size: 24px;
-        margin-bottom: 5px;
-        cursor: pointer;
-      }
-    }
-
-    &__item--highlighted {
-      background-color: #ffebee;
-      border-radius: 25px;
-      padding: 10px;
-      bottom: 6px;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-
-      &:hover {
-        background-color: #ffccd5;
-        transform: scale(1.05);
-      }
-
-      span {
-        color: #d32f2f;
-        font-weight: bold;
-      }
-    }
-
-    &__hamburger {
-      display: none;
-      font-size: 24px;
-      cursor: pointer;
-      position: absolute;
-      top: 25px;
-      left: 50%;
-      transform: translateX(-50%); // Para centrar el menú
     }
 
     @media (max-width: 768px) {
-      &__list {
-        display: none;
-        flex-direction: column;
-        width: 100%; // Expansión completa del contenedor
-        position: absolute;
-        top: 60px;
-        right: 0;
-        left: 0; // Asegurar que ocupe todo el ancho
-        background-color: #ffffff;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        padding: 15px;
-        z-index: 10;
-        opacity: 0;
-        transform: scaleY(0); // Comienza contraído
-      }
+      flex-direction: column;
+      background-color: #ffffff;
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      z-index: 1000;
+      transform: scaleY(0);
+      transform-origin: top;
+      opacity: 0;
+    }
+  }
 
-      &__list.active {
-        display: flex;
-        opacity: 1;
-        transform: scaleY(1); // Animación de expansión suave
-      }
+  &__link {
+    text-decoration: none; /* Elimina subrayado */
+  }
 
-      &__hamburger {
-        display: block;
-      }
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 15px; /* Disminuye ligeramente el tamaño */
+    color: #6d6d6d; /* Cambiamos el color a un gris suave */
+    cursor: pointer;
+    transition: color 0.3s ease;
+    letter-spacing: 0.5px; /* Espaciado entre letras para estilo más limpio */
+    font-weight: 500; /* Menor peso para estilo minimalista */
 
-      &__list.active {
-        animation: openMenu 0.5s ease forwards;
-      }
+    &:hover {
+      color: #007bff;
+    }
 
-      &__list.inactive {
-        animation: closeMenu 0.5s ease forwards;
+    .navbaruser__icon {
+      margin-bottom: 5px;
+      font-size: 22px; /* Un poco más pequeño */
+      color:  #434343; /* Cambiamos el color a un gris suave */
+    }
+  }
+
+  &__item--highlighted {
+    background-color: #ffebee;
+    border-radius: 25px;
+    padding: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
+    &:hover {
+      background-color: #ffccd5;
+      transform: scale(1.05);
+    }
+
+    span {
+      color: #d32f2f;
+      font-weight: 600; /* Ligeramente más ligero */
+    }
+  }
+
+  &__hamburger {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+      display: block;
+      &__logo {
+       align-items: center;
+       margin-left: 50px;
       }
     }
   }
 
-  @keyframes openMenu {
-    0% {
-      opacity: 0;
-      transform: scaleY(0);
+  @media (max-width: 768px) {
+    &__list {
+      display: none;
     }
-    100% {
+
+    &__list.active {
+      display: flex;
       opacity: 1;
       transform: scaleY(1);
+      animation: openMenu 0.5s ease forwards;
     }
-  }
 
-  @keyframes closeMenu {
-    0% {
-      opacity: 1;
-      transform: scaleY(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scaleY(0);
+    &__hamburger {
+      display: block;
     }
   }
+}
+
+/* Animaciones del menú hamburguesa */
+@keyframes openMenu {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}

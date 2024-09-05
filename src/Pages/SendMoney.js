@@ -149,11 +149,6 @@ function SendMoney() {
             </div>
           </div>
 
-          {/* Mostrar tasa de cambio */}
-          <div className="exchange-rate">
-            <p>Tasa de cambio: 1 {selectedCurrency} = {exchangeRates[selectedCurrency]} Bs</p>
-          </div>
-
           <div className="form-container">
             <div className="form-group">
               <label htmlFor="currency">Moneda a enviar</label>

@@ -6,9 +6,21 @@ import { RecoverPassword } from "../Pages/RecoverPassword";
 import { RecoverUpdate } from "../Pages/RecoverUpdate";
 import { Directory } from "../Pages/Directory";
 import { SendMoney } from "../Pages/SendMoney";
-import { Recharge } from "../Pages/Recharge"; 
+import { Recharge } from "../Pages/Recharge";
+import { Profile } from "../Pages/Profile";
+import { Movements } from "../Pages/Movements";
 
 const routes = [
+  {
+    title: "Movements",
+    path: "/Movements",
+    component: Movements
+  },
+  {
+    title: "Profile",
+    path: "/Profile",
+    component: Profile
+  },
   {
     title: "Send Money",
     path: "/SendMoney",

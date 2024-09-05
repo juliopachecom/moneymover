@@ -1,0 +1,405 @@
+.profile {
+  background-color: #f4f6f9;
+  padding: 30px;
+  max-width: 700px;
+  margin: 0 auto;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__photo-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+
+    .profile__photo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #ddd;
+    }
+
+    .profile__photo-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      .profile__photo-edit {
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #007bff;
+        padding: 8px 12px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+
+      .profile__photo-input {
+        display: none;
+      }
+    }
+  }
+
+  &__info {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+
+    &-item {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #777;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+      }
+
+      .edit-field {
+        background-color: #ff8800bd;
+        color: white;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+
+        &:hover {
+          background-color: #b35100;
+        }
+      }
+    }
+
+    .profile__input {
+      margin-bottom: 15px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        border-color: #007bff;
+        background-color: #fff;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+
+    .profile__button {
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+
+      &.save {
+        background-color: #4caf50;
+
+        &:hover {
+          background-color: #388e3c;
+        }
+      }
+
+      &.cancel {
+        background-color: #f44336;
+
+        &:hover {
+          background-color: #d32f2f;
+        }
+      }
+
+      &.logout {
+        align-items: center;
+        justify-content: center;
+        background-color: #ff1e00;
+
+        &:hover {
+          background-color: #a00505;
+        }
+      }
+    }
+  }
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  
+    &__content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+  
+      h2 {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+  
+      p {
+        font-size: 14px;
+        margin-bottom: 20px;
+        text-align: justify;
+      }
+  
+      .modal__button {
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        margin: 0 10px;
+  
+        &.confirm {
+          background-color: #4caf50;
+          color: white;
+  
+          &:hover {
+            background-color: #388e3c;
+          }
+        }
+  
+        &.cancel {
+          background-color: #f44336;
+          color: white;
+  
+          &:hover {
+            background-color: #d32f2f;
+          }
+        }
+      }
+  
+      .modal__icon {
+        font-size: 40px;
+        margin-top: 10px;
+  
+        &.success {
+          color: #4caf50;
+        }
+  
+        &.error {
+          color: #f44336;
+        }
+      }
+    }
+  }
+  @media (max-width: 768px) {
+    .profile {
+      padding: 20px;
+      max-width: 90%;
+  
+      h1 {
+        font-size: 20px;
+      }
+  
+      &__container {
+        align-items: center;
+      }
+  
+      &__photo-wrapper {
+        width: 120px;
+        height: 120px;
+  
+        .profile__photo {
+          border: 2px solid #ddd;
+        }
+      }
+  
+      &__info {
+        &-item {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 15px;
+          margin-bottom: 15px;
+  
+          label {
+            font-size: 14px;
+            margin-bottom: 5px;
+          }
+  
+          p {
+            font-size: 14px;
+          }
+  
+          .edit-field {
+            margin-top: 10px;
+            align-self: flex-start;
+          }
+        }
+  
+        .profile__input {
+          font-size: 14px;
+          padding: 8px;
+        }
+      }
+  
+      &__actions {
+        flex-direction: column;
+        align-items: center;
+  
+        .profile__button {
+          margin-bottom: 10px;
+          padding: 10px 20px;
+          width: 100%;
+        }
+      }
+    }
+  
+    .modal {
+      &__content {
+        width: 90%;
+        padding: 15px;
+  
+        h2 {
+          font-size: 16px;
+        }
+  
+        p {
+          font-size: 12px;
+        }
+  
+        .modal__button {
+          padding: 8px 15px;
+          font-size: 12px;
+          margin: 10px 0;
+          width: 100%;
+        }
+  
+        .modal__icon {
+          font-size: 30px;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .profile {
+      padding: 15px;
+  
+      h1 {
+        font-size: 18px;
+      }
+  
+      &__photo-wrapper {
+        width: 100px;
+        height: 100px;
+      }
+  
+      &__info {
+        &-item {
+          padding: 10px;
+          label {
+            font-size: 12px;
+          }
+  
+          p {
+            font-size: 12px;
+          }
+        }
+  
+        .profile__input {
+          padding: 6px;
+          font-size: 12px;
+        }
+      }
+  
+      &__actions {
+        .profile__button {
+          padding: 8px;
+          font-size: 12px;
+        }
+      }
+    }
+  
+    .modal {
+      &__content {
+        width: 95%;
+        padding: 10px;
+  
+        h2 {
+          font-size: 14px;
+        }
+  
+        p {
+          font-size: 12px;
+        }
+  
+        .modal__button {
+          padding: 6px 10px;
+          font-size: 12px;
+        }
+  
+        .modal__icon {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+  
+}
+
+
