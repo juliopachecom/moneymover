@@ -9,8 +9,18 @@ import { SendMoney } from "../Pages/SendMoney";
 import { Recharge } from "../Pages/Recharge";
 import { Profile } from "../Pages/Profile";
 import { Movements } from "../Pages/Movements";
+import { AccAdm } from "../Pages/AccAdm";
+import { AdminDashboard } from "../Pages/AdminDashboard";
 
 const routes = [
+  {title: "AdminDashboard",
+   path: "/AdminDashboard", 
+   component: AdminDashboard},
+  {
+    title: "AccAdm",
+    path: "/AccAdm",
+    component: AccAdm
+  },
   {
     title: "Movements",
     path: "/Movements",

@@ -15,7 +15,7 @@ function App() {
         <Route
           path="/"
           render={({ location }) => {
-            const isLoginRoute = location.pathname === "/login" || location.pathname === "/register"  || location.pathname === "/changes" || location.pathname === "/Changes" || location.pathname === "/recoverpassword" || location.pathname === "/recoverupdate" || location.pathname === "/directory"  || location.pathname === "/sendmoney" || location.pathname === "/recharge" || location.pathname === "/profile" || location.pathname === "/Profile" || location.pathname === "/movements" || location.pathname === "/Movements"; 
+            const isLoginRoute = location.pathname === "/login" || location.pathname === "/register"  || location.pathname === "/changes" || location.pathname === "/Changes" || location.pathname === "/recoverpassword" || location.pathname === "/recoverupdate" || location.pathname === "/directory"  || location.pathname === "/sendmoney" || location.pathname === "/recharge" || location.pathname === "/profile" || location.pathname === "/Profile" || location.pathname === "/movements" || location.pathname === "/Movements" || location.pathname === "/accadm" || location.pathname === "/AccAdm"   || location.pathname === "/admindashboard" || location.pathname === "/AdminDashboard"; 
             return (
               <>
                 {!isLoginRoute && <NavBar />}

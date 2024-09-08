@@ -13,7 +13,9 @@
 @use 'Recharge' ;
 @use 'Profile';
 @use 'Movements';
-
+@use 'AccAdm';
+@use 'AdminDashboard';
+@use 'NavBarAdmin';
 
 *{
     box-sizing: border-box;

@@ -1,0 +1,163 @@
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  background-color: #f4f7fa;
+
+  .welcome-admin {
+    background-color: #003366;
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .date {
+      font-size: 18px;
+      font-weight: 500;
+      color: #d3d3d3;
+    }
+  }
+
+  .cards-section {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 20px;
+    
+    .card {
+      background-color: white;
+      border-radius: 15px;
+      padding: 20px;
+      flex: 1;
+      margin: 0 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #003366;
+      }
+
+      a {
+        display: inline-block;
+        margin-top: 10px;
+        color: #007bff;
+        font-weight: 600;
+        text-decoration: none;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .transactions-section {
+    width: 100%;
+    max-width: 900px;
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        &:hover {
+          transform: scale(1.05);
+        }
+
+        &.active {
+          background-color: #007bff;
+          color: white;
+        }
+
+        &.inactive {
+          background-color: #f1f1f1;
+          color: #333;
+        }
+      }
+    }
+
+    table {
+      width: 100%;
+      background-color: white;
+      border-collapse: collapse;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+
+      th, td {
+        padding: 15px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f7f7f7;
+        font-weight: 600;
+      }
+
+      td {
+        border-bottom: 1px solid #f1f1f1;
+      }
+
+      .flag {
+        width: 20px;
+        margin-left: 10px;
+      }
+
+      .status {
+        &.approved {
+          color: #28a745;
+        }
+
+        &.pending {
+          color: #ffc107;
+        }
+
+        &.cancelled {
+          color: #dc3545;
+        }
+      }
+
+      .details-icon {
+        color: #007bff;
+        cursor: pointer;
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+    }
+  }
+}

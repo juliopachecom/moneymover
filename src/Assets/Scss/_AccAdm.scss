@@ -1,0 +1,103 @@
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f0f3f5; // Fondo distintivo para el login del admin
+    padding: 20px;
+  
+    .admin-form {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+  
+      .admin-logo {
+        width: 150px; // Tamaño del logo más pequeño para admin
+        margin-bottom: 20px;
+      }
+  
+      .admin-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #cc0704; // Color distintivo para el admin
+        margin-bottom: 30px;
+      }
+  
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+  
+        label {
+          font-size: 14px;
+          font-weight: bold;
+          color: #333333;
+          margin-bottom: 5px;
+          display: block;
+        }
+  
+        input {
+          width: 100%;
+          padding: 12px;
+          border-radius: 5px;
+          border: 1px solid #d9e2ec;
+          font-size: 16px;
+          color: #333;
+          background-color: #f7f9fc;
+          transition: border-color 0.3s ease;
+  
+          &::placeholder {
+            color: #b0b0b0;
+          }
+  
+          &:focus {
+            outline: none;
+            border-color: #cc0704; // Color de borde para admin
+            box-shadow: 0 0 5px rgba(204, 7, 4, 0.2); // Color distintivo
+          }
+        }
+  
+        .position-relative {
+          position: relative;
+  
+          .toggle-password {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #0066cc;
+            cursor: pointer;
+          }
+        }
+      }
+  
+      .button-group {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+  
+        .btn-primary {
+          background-color: #cc0704; // Color distintivo del admin
+          border: none;
+          padding: 12px 30px;
+          font-size: 16px;
+          border-radius: 25px;
+          cursor: pointer;
+          color: white;
+          transition: background-color 0.3s ease, transform 0.3s ease;
+  
+          &:hover {
+            background-color: #a00505;
+            transform: scale(1.05);
+          }
+        }
+      }
+    }
+  }
+  

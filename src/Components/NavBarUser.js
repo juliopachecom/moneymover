@@ -10,6 +10,7 @@ function NavBarUser() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  
   return (
     <nav className="navbaruser">
       <div className="navbaruser__logo-container">

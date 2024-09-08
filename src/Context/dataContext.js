@@ -6,7 +6,7 @@ export const DataContext = createContext();
 export function DataContextProvider(props) {
     const [logged, setLogged] = useLocalStorage('log', false);
     const [infoTkn, setInfoTkn] = useLocalStorage('tkn', '');
-    const url = 'AQUI LA URL DE LA API';
+    const url = 'https://apimoneymover.up.railway.app';
     const value = {
         logged, setLogged,
         infoTkn, setInfoTkn,
