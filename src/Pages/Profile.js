@@ -17,6 +17,7 @@ function Profile() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
+  
 
   const toggleModal = () => {
     setShowConfirmationModal(!showConfirmationModal);
@@ -119,11 +120,7 @@ function Profile() {
               ) : (
                 <p>{email}</p>
               )}
-              {!isEditingEmail && (
-                <button onClick={() => setIsEditingEmail(true)} className="profile__button edit-field">
-                  <FaEdit /> 
-                </button>
-              )}
+              
             </div>
 
             <div className="profile__info-item">
