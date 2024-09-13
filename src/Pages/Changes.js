@@ -420,8 +420,8 @@ function Changes() {
                             {movement.mov_currency === "EUR"
                               ? "€"
                               : movement.mov_currency === "USD"
-                              ? "$"
-                              : "£"}{" "}
+                                ? "$"
+                                : "£"}{" "}
                             {movement.mov_amount}{" "}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
@@ -435,15 +435,15 @@ function Changes() {
                               movement.mov_status === "S"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                ? "en espera"
-                                : "cancelled"
+                                  ? "en espera"
+                                  : "cancelled"
                             }
                           >
                             {movement.mov_status === "S"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                              ? "En espera"
-                              : "Rechazado"}
+                                ? "En espera"
+                                : "Rechazado"}
                           </td>
                           <td>
                             <FaEye className="view-details-icon" />
@@ -522,8 +522,8 @@ function Changes() {
                             {movement.mov_currency === "BS"
                               ? "Bs"
                               : movement.mov_currency === "USD"
-                              ? "$"
-                              : "£"}{" "}
+                                ? "$"
+                                : "£"}{" "}
                             {movement.mov_amount}{" "}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
@@ -537,15 +537,15 @@ function Changes() {
                               movement.mov_status === "S"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                ? "en espera"
-                                : "cancelled"
+                                  ? "en espera"
+                                  : "cancelled"
                             }
                           >
                             {movement.mov_status === "S"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                              ? "En espera"
-                              : "Rechazado"}
+                                ? "En espera"
+                                : "Rechazado"}
                           </td>
                           <td>
                             <FaEye
@@ -723,6 +723,13 @@ function Changes() {
                     ? currencyPrice[0].cur_EurToSol_Pe
                     : "N/A"}{" "}
                 </p>
+                <p>
+                  <strong>Ecuatorianos (USD):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToUsd_Ec
+                    : "N/A"}{" "}
+                </p>
+
               </div>
 
               {/* Cambios de Dolares */}
@@ -770,6 +777,13 @@ function Changes() {
                     ? currencyPrice[0].cur_UsdToSol_Pe
                     : "N/A"}{" "}
                 </p>
+                <p>
+                  <strong>Ecuatorianos (USD):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToUsd_Ec
+                    : "N/A"}{" "}
+                </p>
+
               </div>
 
               {/* Cambios de Libras */}
@@ -817,8 +831,15 @@ function Changes() {
                     ? currencyPrice[0].cur_GbpToSol_Pe
                     : "N/A"}{" "}
                 </p>
+                <p>
+                  <strong>Ecuatorianos (USD):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToUsd_Ec
+                    : "N/A"}{" "}
+                </p>
+
               </div>
-              
+
             </div>
             <button className="whatsapp-button" onClick={sendMessageToWhatsApp}>
               Enviar Mensaje por WhatsApp
