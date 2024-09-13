@@ -10,8 +10,7 @@ import usaFlag from "../Assets/Images/usa.png";
 import { FaEye, FaExclamationTriangle } from "react-icons/fa"; // FaExclamationTriangle para el ícono de advertencia
 import { NavBarUser } from "../Components/NavBarUser";
 import { Link } from "react-router-dom";
-import { clearLocalStorage } from "../Hooks/useLocalStorage";
-import { toast, ToastContainer } from "react-toastify";
+// import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 
@@ -22,18 +21,15 @@ function Changes() {
   const [activeTab, setActiveTab] = useState("recargar"); // Cambio entre recarga y retiro
   const [isTasaOpen, setIsTasaOpen] = useState(false); // Desplegar tasas
   const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
-  const [isRatesModalOpen, setIsRatesModalOpen] = useState(false); 
+  const [isRatesModalOpen, setIsRatesModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const kycLink = null;
 
-
-
-
   // Datos de la recarga
   const [payment, setPayment] = useState("");
-  // const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("");
   const [sendAmount, setSendAmount] = useState("");
-  // const [receiveAmount, setReceiveAmount] = useState(0);
+  const [receiveAmount, setReceiveAmount] = useState(0);
   const [bankOptionPay, setBankOptionPay] = useState("");
   const [mov_img, setMov_img] = useState("");
   const [showConfirmationr, setShowConfirmationr] = useState(false);
@@ -41,37 +37,27 @@ function Changes() {
   // Datos Usuario
   const [user, setUser] = useState([]);
   const [userMovemments, setUserMovemments] = useState([]);
-  // const [userDirectory, setUserDirectory] = useState([]);
+  const [userDirectory, setUserDirectory] = useState([]);
   const [currencyPrice, setCurrencyPrice] = useState([]);
-  // const [cash, setCash] = useState("");
-  // const [cashPhone, setCashPhone] = useState("");
+  const [cash, setCash] = useState("");
+  const [cashPhone, setCashPhone] = useState("");
 
   // Datos de los bancos
   const [banksEUR, setBanksEUR] = useState([]);
   const [banksUSD, setBanksUSD] = useState([]);
   const [banksGBP, setBanksGBP] = useState([]);
 
-
-  
   //Alertas
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
 
   // Datos para verificación
-  const [use_dni, setUseDNI] = useState("");
-  const [use_phone, setUsePhone] = useState("");
-  const [use_img, setUseImg] = useState("");
-  const [use_imgDni, setUseImgDni] = useState("");
-  const [termsCheckbox, setTermsCheckbox] = useState(false);
-
-  // Limpiar LocalStorage
-  const clearLocal = () => {
-    clearLocalStorage();
-    setTimeout(() => {
-      window.location.href = "/Login";
-    }, 500);
-  };
+  // const [use_dni, setUseDNI] = useState("");
+  // const [use_phone, setUsePhone] = useState("");
+  // const [use_img, setUseImg] = useState("");
+  // const [use_imgDni, setUseImgDni] = useState("");
+  // const [termsCheckbox, setTermsCheckbox] = useState(false);
 
   // Alternar entre recarga y retiro
   const handleTabChange = (tab) => {
@@ -97,7 +83,6 @@ function Changes() {
     setIsVerificationModalOpen(true); // Abre el modal de verificación
   };
 
-
   // Alternar modal de verificación
   const toggleModal = useCallback(() => {
     setIsModalOpen(!isModalOpen);
@@ -121,13 +106,13 @@ function Changes() {
   const sendMessageToWhatsApp = () => {
     const phoneNumber = "+34602679774";
     const message = `Hola, Me interesa enviar una remesa a`;
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
     window.open(url, "_blank");
   };
 
   // Tasas de cambio estáticas
-  
-
 
   const userStatusMessage = "Usuario no verificado. Haz clic para verificarte.";
 
@@ -361,10 +346,10 @@ function Changes() {
             </span>
           </div>
           <div className="changes__actions">
-        <button className="action-button green" onClick={openRatesModal}>
-          Tasas para resto de América
-        </button>
-      </div>
+            <button className="action-button green" onClick={openRatesModal}>
+              Tasas para resto de América
+            </button>
+          </div>
         </div>
       </div>
 
@@ -445,7 +430,21 @@ function Changes() {
                               <img src={spainFlag} alt="EUR" />
                             )}
                           </td>
-                          <td className="completed">Aprobado</td>
+                          <td
+                            className={
+                              movement.mov_status === "S"
+                                ? "completed"
+                                : movement.mov_status === "E"
+                                ? "en espera"
+                                : "cancelled"
+                            }
+                          >
+                            {movement.mov_status === "S"
+                              ? "Aprobado"
+                              : movement.mov_status === "E"
+                              ? "En espera"
+                              : "Rechazado"}
+                          </td>
                           <td>
                             <FaEye className="view-details-icon" />
                           </td>
@@ -490,7 +489,7 @@ function Changes() {
                   </tr>
                 </thead>
                 <tbody>
-                   <tr>
+                  <tr>
                     <td>25/08/2024</td>
                     <td>407845</td>
                     <td>Maribel Esther M...</td>
@@ -502,9 +501,12 @@ function Changes() {
                     </td>
                     <td className="cancelled">Cancelado</td>
                     <td>
-                      <FaEye className="view-details-icon" onClick={openDetailsModal} />
+                      <FaEye
+                        className="view-details-icon"
+                        onClick={openDetailsModal}
+                      />
                     </td>
-                  </tr> 
+                  </tr>
                   {userMovemments.length > 0 ? (
                     userMovemments
                       .filter((movement) => movement.mov_type === "Retiro")
@@ -530,9 +532,26 @@ function Changes() {
                               <img src={venezuelaFlag} alt="BS" />
                             )}
                           </td>
-                          <td className="completed">Aprobado</td>
+                          <td
+                            className={
+                              movement.mov_status === "S"
+                                ? "completed"
+                                : movement.mov_status === "E"
+                                ? "en espera"
+                                : "cancelled"
+                            }
+                          >
+                            {movement.mov_status === "S"
+                              ? "Aprobado"
+                              : movement.mov_status === "E"
+                              ? "En espera"
+                              : "Rechazado"}
+                          </td>
                           <td>
-                            <FaEye className="view-details-icon" onClick={openDetailsModal} />
+                            <FaEye
+                              className="view-details-icon"
+                              onClick={openDetailsModal}
+                            />
                           </td>
                         </tr>
                       ))
@@ -561,110 +580,255 @@ function Changes() {
                 </tbody>
               </table>
             </div>
-            
           </div>
-
-          
-          
         )}
       </div>
+
       {isDetailsModalOpen && (
         <div className="details-modal-overlay">
           <div className="details-modal-content">
             <h2>Detalles del Movimiento</h2>
-            <p><strong>Fecha:</strong> {selectedMovement.mov_date}</p>
-            <p><strong># Remesa:</strong> {selectedMovement.mov_id}</p>
             <p>
-              <strong>Monto:</strong> {selectedMovement.mov_currency === "EUR" ? "€" : "$"}
+              <strong>Fecha:</strong> {selectedMovement.mov_date}
+            </p>
+            <p>
+              <strong># Remesa:</strong> {selectedMovement.mov_id}
+            </p>
+            <p>
+              <strong>Monto:</strong>{" "}
+              {selectedMovement.mov_currency === "EUR" ? "€" : "$"}
               {selectedMovement.mov_amount}
             </p>
-            <p><strong>Beneficiario:</strong> {selectedMovement.beneficiary}</p>
-            <p><strong>Estado:</strong> {selectedMovement.status}</p>
-            <p><strong>Imagen:</strong> imagen</p>
-            <button className="close-button" onClick={closeModal}>Cerrar</button>
-          </div>
-        </div>
-      )}
-
-{isVerificationModalOpen && (
-        <div className="kyc-modal-overlay">
-          <div className="kyc-modal-content">
-            <h2>Verificación de Usuario</h2>
-            <p className="kyc-modal-text">
-              Tu usuario necesita verificación. Prepara tu documentación VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo indica el proceso.
-              <strong> No subas cartón rojo, ni NIE de hoja blanca.</strong> Evita que tu verificación sea rechazada, subiendo una foto clara de la parte frontal y reverso del documento.
+            <p>
+              <strong>Beneficiario:</strong> {selectedMovement.beneficiary}
             </p>
-            <p className="kyc-modal-text">
-              El tiempo estimado de verificación dentro de nuestro horario laboral es de aproximadamente <strong>20 minutos</strong>.
+            <p>
+              <strong>Estado:</strong> {selectedMovement.status}
             </p>
-
-            {kycLink ? (
-              <button color="primary" className="kyc-modal-button" href={kycLink} target="_blank" rel="noopener noreferrer">
-                Ir a la verificación KYC
-              </button>
-            ) : (
-              <p className="kyc-modal-text">
-                Aún no tienes un link asignado. Te llegará un correo en breve con tu link, o podrás hacer clic aquí cuando esté disponible.
-              </p>
-            )}
-
-            <p className="kyc-modal-text">
-              Si ya has realizado la verificación a través del link, espera a que nuestro equipo valide tu información. El sistema verifica que la documentación adjunta sea vigente y que el video de identificación facial proteja tu identidad. Esta comprobación llevará entre <strong>5 a 20 minutos</strong>.
+            <p>
+              <strong>Imagen:</strong> imagen
             </p>
-
-            <button className="close-button"  onClick={() => setIsVerificationModalOpen(false)}>
+            <button className="close-button" onClick={closeModal}>
               Cerrar
             </button>
           </div>
         </div>
       )}
 
+      {/* Verificación de usuario */}
+      {isVerificationModalOpen && (
+        <div className="kyc-modal-overlay">
+          <div className="kyc-modal-content">
+            <h2>Verificación de Usuario</h2>
+            <p className="kyc-modal-text">
+              Tu usuario necesita verificación. Prepara tu documentación
+              VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo
+              indica el proceso.
+              <strong>
+                {" "}
+                No subas cartón rojo, ni NIE de hoja blanca.
+              </strong>{" "}
+              Evita que tu verificación sea rechazada, subiendo una foto clara
+              de la parte frontal y reverso del documento.
+            </p>
+            <p className="kyc-modal-text">
+              El tiempo estimado de verificación dentro de nuestro horario
+              laboral es de aproximadamente <strong>20 minutos</strong>.
+            </p>
 
+            {kycLink ? (
+              <button
+                color="primary"
+                className="kyc-modal-button"
+                href={kycLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ir a la verificación KYC
+              </button>
+            ) : (
+              <p className="kyc-modal-text">
+                Aún no tienes un link asignado. Te llegará un correo en breve
+                con tu link, o podrás hacer clic aquí cuando esté disponible.
+              </p>
+            )}
 
-{isRatesModalOpen && (
+            <p className="kyc-modal-text">
+              Si ya has realizado la verificación a través del link, espera a
+              que nuestro equipo valide tu información. El sistema verifica que
+              la documentación adjunta sea vigente y que el video de
+              identificación facial proteja tu identidad. Esta comprobación
+              llevará entre <strong>5 a 20 minutos</strong>.
+            </p>
+
+            <button
+              className="close-button"
+              onClick={() => setIsVerificationModalOpen(false)}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Visualizador de tasas */}
+      {isRatesModalOpen && (
         <div className="rates-modal-overlay">
           <div className="rates-modal-content">
             <h2>Tasas para el resto de América</h2>
             <div className="rates-table">
+
+              {/* Cambios de Euros */}
               <div className="rates-column">
                 <h3>De Euros</h3>
-                <p><strong>Colombianos (COP):</strong> x</p>
-                <p><strong>Argentinos (ARS):</strong> x</p>
-                <p><strong>Mexicanos (MXN):</strong> x</p>
-                <p><strong>Chilenos (CLP):</strong> x</p>
-                <p><strong>Panameños (PAB):</strong> x </p>
-                <p><strong>Brasileños (BRL):</strong> x </p>
-                <p><strong>Soles (PEN):</strong> x  </p>
+                <p>
+                  <strong>Colombianos (COP):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToCol_Pes
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Argentinos (ARS):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToArg_Pes
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Mexicanos (MXN):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToPes_Mex
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Chilenos (CLP):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToPes_Ch
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Panameños (PAB):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToUsd_Pa
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Brasileños (BRL):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToBra_Rea
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Soles (PEN):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_EurToSol_Pe
+                    : "N/A"}{" "}
+                </p>
               </div>
+
+              {/* Cambios de Dolares */}
               <div className="rates-column">
                 <h3>De Dólares</h3>
-                <p><strong>Colombianos (COP):</strong> x</p>
-                <p><strong>Argentinos (ARS):</strong> x</p>
-                <p><strong>Mexicanos (MXN):</strong> x</p>
-                <p><strong>Chilenos (CLP):</strong> x</p>
-                <p><strong>Panameños (PAB):</strong> x</p>
-                <p><strong>Brasileños (BRL):</strong> x</p>
-                <p><strong>Soles (PEN):</strong> x</p>
+                <p>
+                  <strong>Colombianos (COP):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToCol_Pes
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Argentinos (ARS):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToArg_Pes
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Mexicanos (MXN):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToPes_Mex
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Chilenos (CLP):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToPes_Ch
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Panameños (PAB):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToUsd_Pa
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Brasileños (BRL):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToBra_Rea
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Soles (PEN):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_UsdToSol_Pe
+                    : "N/A"}{" "}
+                </p>
               </div>
+
+              {/* Cambios de Libras */}
               <div className="rates-column">
                 <h3>De Libras</h3>
-                <p><strong>Colombianos (COP):</strong> x</p>
-                <p><strong>Argentinos (ARS):</strong> x</p>
-                <p><strong>Mexicanos (MXN):</strong> x</p>
-                <p><strong>Chilenos (CLP):</strong> x</p>
-                <p><strong>Panameños (PAB):</strong> x</p>
-                <p><strong>Brasileños (BRL):</strong>x</p>
-                <p><strong>Soles (PEN):</strong> x</p>
+                <p>
+                  <strong>Colombianos (COP):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToCol_Pes
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Argentinos (ARS):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToArg_Pes
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Mexicanos (MXN):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToPes_Mex
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Chilenos (CLP):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToPes_Ch
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Panameños (PAB):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToUsd_Pa
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Brasileños (BRL):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToBra_Rea
+                    : "N/A"}{" "}
+                </p>
+                <p>
+                  <strong>Soles (PEN):</strong>{" "}
+                  {currencyPrice.length > 0
+                    ? currencyPrice[0].cur_GbpToSol_Pe
+                    : "N/A"}{" "}
+                </p>
               </div>
+              
             </div>
             <button className="whatsapp-button" onClick={sendMessageToWhatsApp}>
-              Enviar Mensaje por WhatsApp 
+              Enviar Mensaje por WhatsApp
             </button>
-            <button className="close-button" onClick={closeRatesModal}>Cerrar</button>
+            <button className="close-button" onClick={closeRatesModal}>
+              Cerrar
+            </button>
           </div>
         </div>
       )}
-      
     </div>
   ) : (
     "Log In"

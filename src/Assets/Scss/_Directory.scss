@@ -1,3 +1,22 @@
+.cedula-input, .telefono-input {
+
+    display: flex;
+    gap: 10px;
+  }
+  
+  .cedula-prefix, .telefono-prefix {
+    width: 80px !important;
+    text-align: center !important;
+  }
+  
+  input[type="text"] {
+    flex-grow: 1;
+  }
+  
+
+
+
+
 .directorio {
     background-color: #f4f6f9;
     padding: 30px;
@@ -5,7 +24,8 @@
     margin: 0 auto;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  
+
+    
     .directorio__header {
       display: flex;
       justify-content: space-between;

@@ -1,23 +1,33 @@
-import React, { useState } from 'react';
-import { FaEdit, FaSignOutAlt, FaTimes, FaCheckCircle } from 'react-icons/fa';
-import profileIcon from '../Assets/Images/profileicon.png';
-import { NavBarUser } from '../Components/NavBarUser';
+import React, { useState, useEffect, useCallback } from "react";
+import { FaEdit, FaSignOutAlt, FaTimes, FaCheckCircle } from "react-icons/fa";
+import profileIcon from "../Assets/Images/profileicon.png";
+import { NavBarUser } from "../Components/NavBarUser";
+import { clearLocalStorage } from "../Hooks/useLocalStorage";
+import { useDataContext } from "../Context/dataContext";
+import axios from "axios";
 
 function Profile() {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-  const [email, setEmail] = useState('usuario@example.com');
-  const [phone, setPhone] = useState('123-456-7890');
-  const [password, setPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("usuario@example.com");
+  const [phone, setPhone] = useState("123-456-7890");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [profilePhoto, setProfilePhoto] = useState(profileIcon);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
+  // Limpiar LocalStorage
+  const clearLocal = () => {
+    clearLocalStorage();
+    setTimeout(() => {
+      window.location.href = "/Login";
+    }, 500);
+  };
 
   const toggleModal = () => {
     setShowConfirmationModal(!showConfirmationModal);
@@ -36,10 +46,10 @@ function Profile() {
 
   const handleSaveChanges = () => {
     if (isEditingPassword && newPassword !== confirmPassword) {
-      setError('Las contraseñas no coinciden.');
+      setError("Las contraseñas no coinciden.");
       return;
     }
-    setError('');
+    setError("");
     setShowConfirmationModal(true);
   };
 
@@ -52,9 +62,9 @@ function Profile() {
       setIsEditingEmail(false);
       setIsEditingPhone(false);
       setIsEditingPassword(false);
-      setPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      setPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     }, 2000);
   };
 
@@ -62,24 +72,26 @@ function Profile() {
     setIsEditingEmail(false);
     setIsEditingPhone(false);
     setIsEditingPassword(false);
-    setPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setError('');
+    setPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setError("");
   };
 
   return (
     <div className="profile-page">
       <div className="profile">
-      <NavBarUser />
+        <NavBarUser />
         <h1>Perfil del Usuario</h1>
-
         <div className="profile__container">
           {/* Foto de perfil */}
           <div className="profile__photo-wrapper">
             <img src={profilePhoto} alt="Profile" className="profile__photo" />
             <div className="profile__photo-overlay">
-              <label htmlFor="profile-photo-upload" className="profile__photo-edit">
+              <label
+                htmlFor="profile-photo-upload"
+                className="profile__photo-edit"
+              >
                 Editar imagen de perfil
               </label>
               <input
@@ -101,26 +113,7 @@ function Profile() {
 
             <div className="profile__info-item">
               <label>Correo Electrónico:</label>
-              {isEditingEmail ? (
-                <div className="profile__editable-field">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="profile__input"
-                  />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Contraseña actual"
-                    className="profile__input"
-                  />
-                </div>
-              ) : (
-                <p>{email}</p>
-              )}
-              
+              <p>{email}</p>
             </div>
 
             <div className="profile__info-item">
@@ -145,8 +138,11 @@ function Profile() {
                 <p>{phone}</p>
               )}
               {!isEditingPhone && (
-                <button onClick={() => setIsEditingPhone(true)} className="profile__button edit-field">
-                  <FaEdit /> 
+                <button
+                  onClick={() => setIsEditingPhone(true)}
+                  className="profile__button edit-field"
+                >
+                  <FaEdit />
                 </button>
               )}
             </div>
@@ -182,8 +178,11 @@ function Profile() {
                 <p>*********</p>
               )}
               {!isEditingPassword && (
-                <button onClick={() => setIsEditingPassword(true)} className="profile__button edit-field">
-                  <FaEdit /> 
+                <button
+                  onClick={() => setIsEditingPassword(true)}
+                  className="profile__button edit-field"
+                >
+                  <FaEdit />
                 </button>
               )}
             </div>
@@ -194,16 +193,22 @@ function Profile() {
             <div className="profile__actions">
               {(isEditingEmail || isEditingPhone || isEditingPassword) && (
                 <>
-                  <button onClick={handleSaveChanges} className="profile__button save">
+                  <button
+                    onClick={handleSaveChanges}
+                    className="profile__button save"
+                  >
                     Guardar Cambios
                   </button>
-                  <button onClick={handleCancelEdit} className="profile__button cancel">
+                  <button
+                    onClick={handleCancelEdit}
+                    className="profile__button cancel"
+                  >
                     <FaTimes /> Cancelar Cambios
                   </button>
                 </>
               )}
               {!isEditingEmail && !isEditingPhone && !isEditingPassword && (
-                <button className="profile__button logout">
+                <button onClick={clearLocal} className="profile__button logout">
                   <FaSignOutAlt /> Desloguearse
                 </button>
               )}
@@ -217,7 +222,10 @@ function Profile() {
             <div className="modal__content">
               <h2>Confirmar Cambios</h2>
               <p>¿Estás seguro de que deseas guardar los cambios?</p>
-              <button onClick={confirmChanges} className="modal__button confirm">
+              <button
+                onClick={confirmChanges}
+                className="modal__button confirm"
+              >
                 Confirmar
               </button>
               <button onClick={toggleModal} className="modal__button cancel">
@@ -231,8 +239,16 @@ function Profile() {
         {showResultModal && (
           <div className="modal">
             <div className="modal__content">
-              <h2>{isSuccess ? '¡Cambios guardados con éxito!' : 'Error al guardar cambios'}</h2>
-              <FaCheckCircle className={isSuccess ? 'modal__icon success' : 'modal__icon error'} />
+              <h2>
+                {isSuccess
+                  ? "¡Cambios guardados con éxito!"
+                  : "Error al guardar cambios"}
+              </h2>
+              <FaCheckCircle
+                className={
+                  isSuccess ? "modal__icon success" : "modal__icon error"
+                }
+              />
             </div>
           </div>
         )}
