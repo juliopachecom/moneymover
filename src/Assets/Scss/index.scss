@@ -16,6 +16,12 @@
 @use 'AccAdm';
 @use 'AdminDashboard';
 @use 'NavBarAdmin';
+@use 'Users';
+@use 'UsersE';
+@use 'UsersR';
+@use 'UsersV';
+@use 'CurrencyPrice';
+@use 'Banks';
 
 *{
     box-sizing: border-box;

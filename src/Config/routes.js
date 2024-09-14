@@ -11,11 +11,49 @@ import { Profile } from "../Pages/Profile";
 import { Movements } from "../Pages/Movements";
 import { AccAdm } from "../Pages/AccAdm";
 import { AdminDashboard } from "../Pages/AdminDashboard";
+import { Users } from "../Pages/Users";
+import { UsersR } from "../Pages/UsersR";
+import { UsersE } from "../Pages/UsersE";
+import { UsersV } from "../Pages/UsersV";
+import { CurrencyPrice } from "../Pages/CurrencyPrice";
+import { Banks } from "../Pages/Banks";
 
 const routes = [
-  {title: "AdminDashboard",
-   path: "/AdminDashboard", 
-   component: AdminDashboard},
+  { 
+    title: "Banks",
+    path: "/Banks",
+    component: Banks
+  },
+  {
+    title: "CurrencyPrice",
+    path: "/CurrencyPrice",
+    component: CurrencyPrice
+  },
+  {
+    title: "Users",
+    path: "/Users",
+    component: Users
+  },
+  {
+    title: "UsersR",
+    path: "/UsersR",
+    component: UsersR
+  },
+  {
+    title: "UsersE",
+    path: "/UsersE",
+    component: UsersE
+  },
+  {
+    title: "UsersV",
+    path: "/UsersV",
+    component: UsersV
+  },
+  {
+    title: "AdminDashboard",
+    path: "/AdminDashboard",
+    component: AdminDashboard
+  },
   {
     title: "AccAdm",
     path: "/AccAdm",
