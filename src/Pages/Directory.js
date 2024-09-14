@@ -18,7 +18,6 @@ function Directory() {
   const [accbsUser_phone, setAccbsUser_phone] = useState('');
   const [accbsUser_type, setAccbsUser_type] = useState('');
 
-
   //DATOS DE USUARIO
   const [user, setUser] = useState([]);
   const [userDirectory, setUserDirectory] = useState([]);
@@ -37,15 +36,8 @@ function Directory() {
       });
       setUser(response.data);
 
-    } catch (error) {
-      console.log(error);
-    }
-  }, [setUser, infoTkn, url]);
-
-  const fetchDataAccUser = useCallback(async () => {
-    try {
       const responseDirectory = await axios.get(
-        `${url}/AccBsUser/user/${user.use_id}`,
+        `${url}/AccBsUser/user/${response.data.use_id}`,
         {
           headers: {
             Authorization: `Bearer ${infoTkn}`,
@@ -57,7 +49,24 @@ function Directory() {
     } catch (error) {
       console.log(error);
     }
-  }, [setUserDirectory, infoTkn, url, user]);
+  }, [setUser, infoTkn, url]);
+
+  // const fetchDataAccUser = useCallback(async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${url}/AccBsUser/user/${user.use_id}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${infoTkn}`,
+  //         },
+  //       }
+  //     );
+  //     setUserDirectory(response.data);
+
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }, [setUserDirectory, infoTkn, url, user]);
 
   // Función para alternar abrir y cerrar el modal
   const toggleModal = () => {
@@ -85,6 +94,7 @@ function Directory() {
           accbsUser_dni: cedulaPrefix + accbsUser_dni,
           accbsUser_phone: telefonoPrefix + accbsUser_phone, 
           accbsUser_type,
+          accbsUser_status : 'activo',
           accbsUser_userId: user.use_id,
         },
         {
@@ -95,6 +105,7 @@ function Directory() {
       );
 
       // Refresh the page after adding account
+      // fetchDataAccUser();
       window.location.reload();
 
       toast.success('Cuenta agregada con éxito!', {
@@ -122,8 +133,7 @@ function Directory() {
 
   useEffect(() => {
     fetchDataUser();
-    fetchDataAccUser();
-  }, [fetchDataUser, fetchDataAccUser]);
+  }, [fetchDataUser]);
 
   return (
     <div className="directorio">

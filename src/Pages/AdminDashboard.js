@@ -208,7 +208,7 @@ function AdminDashboard() {
             </tr> */}
               {userMovemments.length > 0 ? (
                 userMovemments
-                  .filter((movement) => movement.mov_type === "Deposito")
+                  .filter((movement) => movement.mov_type === "Deposito" && movement.mov_status === 'E')
                   .map((movement) => (
                     <tr key={movement.mov_id}>
                       <td>{movement.mov_date}</td>
@@ -236,11 +236,7 @@ function AdminDashboard() {
                             : "cancelled"
                         }
                       >
-                        {movement.mov_status === "S"
-                          ? "Aprobado"
-                          : movement.mov_status === "E"
-                          ? "En espera"
-                          : "Rechazado"}
+                        En espera
                       </td>
                       <td>
                         <FaEye className="view-details-icon" />
@@ -303,7 +299,7 @@ function AdminDashboard() {
               </tr> */}
               {userMovemments.length > 0 ? (
                 userMovemments
-                  .filter((movement) => movement.mov_type === "Retiro")
+                  .filter((movement) => movement.mov_type === "Retiro" && movement.mov_status === 'E')
                   .map((movement) => (
                     <tr key={movement.mov_id}>
                       <td>{movement.mov_date}</td>
@@ -335,11 +331,7 @@ function AdminDashboard() {
                             : "cancelled"
                         }
                       >
-                        {movement.mov_status === "S"
-                          ? "Aprobado"
-                          : movement.mov_status === "E"
-                          ? "En espera"
-                          : "Rechazado"}
+                        En espera
                       </td>
                       <td>
                         <FaEye className="view-details-icon" />

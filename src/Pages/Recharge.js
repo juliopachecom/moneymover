@@ -8,6 +8,7 @@ import axios from "axios";
 
 function Recharge() {
   const { logged, infoTkn, url } = useDataContext();
+  const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
@@ -115,11 +116,95 @@ function Recharge() {
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-      setBanksUSD(response.data);
+      setBanksGBP(response.data);
     } catch (error) {
       console.log(error);
     }
   }, [url, infoTkn]);
+
+  //Enviar a espera una recarga
+  const handleSubmitLoad = async (event) => {
+    event.preventDefault();
+
+    const findBankName = () => {
+      if (payment === "USD") {
+        const bank = banksUSD.find(
+          (bank) => bank.accusd_id === parseInt(bankOptionPay)
+        );
+        if (bank) {
+          return bank.accusd_Bank;
+        }
+      }
+      if (payment === "EUR") {
+        const bank = banksEUR.find(
+          (bank) => bank.acceur_id === parseInt(bankOptionPay)
+        );
+        if (bank) {
+          return bank.acceur_Bank;
+        }
+      }
+      if (payment === "GBP") {
+        const bank = banksGBP.find(
+          (bank) => bank.accgbp_id === parseInt(bankOptionPay)
+        );
+        if (bank) {
+          return bank.accgbp_Bank;
+        }
+      }
+    };
+
+    const formData = new FormData();
+    formData.append("mov_currency", payment);
+    formData.append("mov_amount", sendAmount);
+    formData.append("mov_type", "Deposito");
+    formData.append("mov_status", "E");
+    formData.append("mov_comment", findBankName());
+    formData.append("mov_code", cash);
+    formData.append("mov_phone", cashPhone);
+    formData.append("mov_img", mov_img);
+    formData.append(
+      "mov_accEurId",
+      payment === "EUR" ? parseInt(bankOptionPay) : 0
+    );
+    formData.append(
+      "mov_accUsdId",
+      payment === "USD" ? parseInt(bankOptionPay) : 0
+    );
+    formData.append("mov_userId", user.use_id);
+
+    try {
+      setLoading(true);
+      axios.post(`${url}/Movements/create`, formData, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      fetchDataUser();
+      handleNextStep();
+      toast.success(
+        "Cambio realizado con exito!, En un momento se vera reflejado tu ingreso en la plataforma",
+        {
+          position: "bottom-right",
+          autoClose: 10000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
+      );
+
+      setShowConfirmationr(false);
+
+      console.log("Request sent successfully");
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchCurrencyData();
@@ -151,8 +236,20 @@ function Recharge() {
     console.log(e.target.value);
   };
 
-  const handleAmountChange = (e) => {
-    setAmount(e.target.value);
+  // Transformación de la cantidad de divisa a bolívares
+  const handleAmountChangeBs = (e) => {
+    const inputAmount = e.target.value;
+    setSendAmount(inputAmount);
+
+    // currencyPrice.forEach((coin) => {
+    //   if (payment === "EUR") {
+    //     setReceiveAmount(parseFloat(inputAmount) * coin.cur_EurToBs);
+    //   } else if (payment === "GBP") {
+    //     setReceiveAmount(parseFloat(inputAmount) * coin.cur_GbpToBs);
+    //   } else if (payment === "USD") {
+    //     setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
+    //   }
+    // });
   };
 
   const handleFileChange = (e) => {
@@ -166,7 +263,7 @@ function Recharge() {
         return false;
       }
 
-      if (selectedMethod === "transferencia" && (!bankOptionPay || !amount)) {
+      if (selectedMethod === "transferencia" && (!bankOptionPay || !sendAmount)) {
         setErrorMessage("Por favor, selecciona un banco y un monto.");
         return false;
       }
@@ -185,7 +282,7 @@ function Recharge() {
       }
     }
 
-    if (step === 3 && !file) {
+    if (step === 3 && !mov_img) {
       setErrorMessage("Por favor, selecciona un archivo de comprobante.");
       return false;
     }
@@ -430,8 +527,8 @@ function Recharge() {
                   type="number"
                   className="custom-form-input"
                   placeholder="Introduce el monto"
-                  value={amount}
-                  onChange={handleAmountChange}
+                  value={sendAmount}
+                  onChange={(e) => handleAmountChangeBs(e)}
                 />
               </div>
             </div>
@@ -468,9 +565,10 @@ function Recharge() {
           {selectedMethod === "efectivoMadrid" && (
             <div className="efectivo-madrid">
               <p>
-              Para entregas en efectivo en Madrid, deberás contactarte por correo
-            electrónico o WhatsApp. Este tipo de recargas **no se reflejará en la página**.
-            Por favor, elige otro método si deseas que la recarga se refleje en la página.
+                Para entregas en efectivo en Madrid, deberás contactarte por
+                correo electrónico o WhatsApp. Este tipo de recargas **no se
+                reflejará en la página**. Por favor, elige otro método si deseas
+                que la recarga se refleje en la página.
               </p>
               <button
                 onClick={() => window.open("mailto:info@genericemail.com")}
@@ -489,31 +587,34 @@ function Recharge() {
 
           {/* Archivo de comprobante */}
           {selectedMethod && (
-    <>
-        <div className="file-upload">
-            {selectedMethod !== "efectivoMadrid" && (
-                <>
+            <>
+              <div className="file-upload">
+                {selectedMethod !== "efectivoMadrid" && (
+                  <>
                     <h4>Adjuntar comprobante de pago</h4>
-                    <input type="file" onChange={handleFileChange} />
-                </>
-            )}
-        </div>
+                    <input
+                      type="file"
+                      onChange={(e) => setMov_img(e.target.files[0])}
+                    />
+                  </>
+                )}
+              </div>
 
-        <div className="form-actions" style={{justifyContent: "center"}}>
-            <button className="back-button" onClick={handlePreviousStep}>
-                Volver
-            </button>
-            {selectedMethod !== "efectivoMadrid" && (
-    <button
-      className="continue-button"
-      onClick={handleNextStep}
-    >
-      Continuar
-    </button>
-  )}
-        </div>
-    </>
-)}
+              <div
+                className="form-actions"
+                style={{ justifyContent: "center" }}
+              >
+                <button className="back-button" onClick={handlePreviousStep}>
+                  Volver
+                </button>
+                {selectedMethod !== "efectivoMadrid" && (
+                  <button className="continue-button" onClick={handleNextStep}>
+                    Continuar
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </CSSTransition>
 
@@ -532,7 +633,7 @@ function Recharge() {
             <button className="back-button" onClick={handlePreviousStep}>
               Volver
             </button>
-            <button className="continue-button" onClick={handleNextStep}>
+            <button className="continue-button" onClick={handleSubmitLoad}>
               Confirmar
             </button>
           </div>
