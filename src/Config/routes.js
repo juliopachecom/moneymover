@@ -17,8 +17,14 @@ import { UsersE } from "../Pages/UsersE";
 import { UsersV } from "../Pages/UsersV";
 import { CurrencyPrice } from "../Pages/CurrencyPrice";
 import { Banks } from "../Pages/Banks";
+import { Relation } from "../Pages/Relation";
 
 const routes = [
+ {
+    title: "Relation",
+    path: "/Relation",
+    component: Relation
+ } ,
   { 
     title: "Banks",
     path: "/Banks",

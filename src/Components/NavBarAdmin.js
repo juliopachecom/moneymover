@@ -18,31 +18,31 @@ function NavBarAdmin() {
       {/* Main Navigation */}
       <ul className={`navbar-admin-menu ${isMenuOpen ? "active" : ""}`}>
         <li>
-          <Link to="/relacion">
+          <Link to="/Relation">
             <FaLink className="navbar-admin-icon" />
             <span>Relación</span>
           </Link>
         </li>
         <li>
-          <Link to="/bancos">
+          <Link to="/Banks">
             <FaUniversity className="navbar-admin-icon" />
             <span>Bancos</span>
           </Link>
         </li>
         <li>
-          <Link to="/usuarios">
+          <Link to="/Users">
             <FaUsers className="navbar-admin-icon" />
             <span>Usuarios</span>
           </Link>
         </li>
         <li>
-          <Link to="/tasa">
+          <Link to="/CurrencyPrice">
             <FaChartLine className="navbar-admin-icon" />
             <span>Tasa</span>
           </Link>
         </li>
         <li>
-          <Link to="/panel">
+          <Link to="/AdminDashboard">
             <FaTachometerAlt className="navbar-admin-icon panel-highlight" />
             <span>Panel</span>
           </Link>
