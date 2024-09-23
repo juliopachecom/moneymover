@@ -45,7 +45,7 @@ input[type="text"] {
         position: absolute;
         width: 80%;
         height: 4px;
-        background-color: #007bff;
+        background-color: #003366;
         left: 10%;
         bottom: -10px;
         border-radius: 10px;
@@ -58,16 +58,16 @@ input[type="text"] {
 
       .action-button {
         padding: 10px 20px;
-        border: 2px solid #007bff;
+        border: 2px solid #003366;
         border-radius: 25px;
         background-color: #fff;
-        color: #007bff;
+        color: #003366;
         font-size: 16px;
         cursor: pointer;
         transition: background-color 0.3s ease, color 0.3s ease;
 
         &:hover {
-          background-color: #007bff;
+          background-color: #003366;
           color: white;
         }
       }
@@ -128,7 +128,7 @@ input[type="text"] {
 
         h3 {
           font-size: 20px;
-          color: #007bff;
+          color: #003366;
           margin-bottom: 8px;
         }
 
@@ -141,16 +141,16 @@ input[type="text"] {
 
       .remesa-button {
         padding: 12px 25px;
-        border: 2px solid #007bff;
+        border: 2px solid #003366;
         border-radius: 25px;
         background-color: #fff;
-        color: #007bff;
+        color: #003366;
         cursor: pointer;
         font-size: 14px;
         transition: background-color 0.3s ease, color 0.3s ease;
 
         &:hover {
-          background-color: #007bff;
+          background-color: #003366;
           color: white;
         }
       }
@@ -246,7 +246,7 @@ input[type="text"] {
     
         .submit-button {
           padding: 10px 20px;
-          background-color: #007bff;
+          background-color: #003366;
           color: white;
           border: none;
           border-radius: 5px;

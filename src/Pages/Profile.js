@@ -3,15 +3,16 @@ import { FaEdit, FaSignOutAlt, FaTimes, FaCheckCircle } from "react-icons/fa";
 import profileIcon from "../Assets/Images/profileicon.png";
 import { NavBarUser } from "../Components/NavBarUser";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
-import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { useDataContext } from "../Context/dataContext"; // Para obtener el token y la URL
 
 function Profile() {
+  const { url, infoTkn } = useDataContext(); // Obtener el token y la URL de la API desde el contexto
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-  const [email, setEmail] = useState("usuario@example.com");
-  const [phone, setPhone] = useState("123-456-7890");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,6 +21,28 @@ function Profile() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+  const userId = 1; // Aquí deberías obtener el ID del usuario autenticado.
+
+  // Obtener datos del perfil
+  const fetchUserData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      const userData = response.data;
+      setEmail(userData.use_email);
+      setPhone(userData.use_phone);
+      setProfilePhoto(userData.use_profileImg ? `/Users/profileImg/${userData.use_profileImg}` : profileIcon);
+    } catch (err) {
+      console.error("Error al obtener datos del perfil:", err);
+    }
+  }, [userId, url, infoTkn]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   // Limpiar LocalStorage
   const clearLocal = () => {
@@ -29,43 +52,87 @@ function Profile() {
     }, 500);
   };
 
+  // Manejar cambio de foto de perfil
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("profileImg", file);
+
+      // Realizar la solicitud PUT para subir la imagen
+      axios
+        .put(`${url}/Users/profileImg/${userId}`, formData, {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          const updatedImgUrl = `/Users/profileImg/${response.data.fileName}`;
+          setProfilePhoto(updatedImgUrl);
+          setShowResultModal(true);
+          setIsSuccess(true);
+          setTimeout(() => {
+            setShowResultModal(false);
+          }, 2000);
+        })
+        .catch((err) => {
+          console.error("Error al subir la imagen:", err);
+          setError("Error al subir la imagen.");
+          setShowResultModal(true);
+          setIsSuccess(false);
+          setTimeout(() => {
+            setShowResultModal(false);
+          }, 2000);
+        });
+    }
+  };
+
+  // Función para alternar abrir y cerrar el modal de confirmación
   const toggleModal = () => {
     setShowConfirmationModal(!showConfirmationModal);
   };
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePhoto(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (isEditingPassword && newPassword !== confirmPassword) {
       setError("Las contraseñas no coinciden.");
       return;
     }
     setError("");
-    setShowConfirmationModal(true);
+    toggleModal(); // Llamar a toggleModal para abrir el modal de confirmación
   };
 
-  const confirmChanges = () => {
-    setShowConfirmationModal(false);
-    setShowResultModal(true);
-    setIsSuccess(Math.random() > 0.5); // Aleatoriamente, éxito o error.
-    setTimeout(() => {
-      setShowResultModal(false);
-      setIsEditingEmail(false);
-      setIsEditingPhone(false);
-      setIsEditingPassword(false);
-      setPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    }, 2000);
+  const confirmChanges = async () => {
+    try {
+      // Llamada PUT para actualizar el perfil
+      await axios.put(`${url}/Users/${userId}`, {
+        use_email: email,
+        use_phone: phone,
+        use_password: newPassword || password, // Solo actualizar la contraseña si hay una nueva
+      }, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      setShowConfirmationModal(false);
+      setShowResultModal(true);
+      setIsSuccess(true);
+      setTimeout(() => {
+        setShowResultModal(false);
+        setIsEditingEmail(false);
+        setIsEditingPhone(false);
+        setIsEditingPassword(false);
+        setPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }, 2000);
+    } catch (err) {
+      setError("Error al guardar cambios.");
+      setShowResultModal(true);
+      setIsSuccess(false);
+      console.error("Error al actualizar el perfil:", err);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -107,13 +174,25 @@ function Profile() {
           {/* Información del perfil */}
           <div className="profile__info">
             <div className="profile__info-item">
-              <label>Nombre y Apellido:</label>
-              <p>Juan Pérez</p>
-            </div>
-
-            <div className="profile__info-item">
               <label>Correo Electrónico:</label>
-              <p>{email}</p>
+              {isEditingEmail ? (
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="profile__input"
+                />
+              ) : (
+                <p>{email}</p>
+              )}
+              {!isEditingEmail && (
+                <button
+                  onClick={() => setIsEditingEmail(true)}
+                  className="profile__button edit-field"
+                >
+                  <FaEdit />
+                </button>
+              )}
             </div>
 
             <div className="profile__info-item">

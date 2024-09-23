@@ -7,16 +7,23 @@ import spainFlag from "../Assets/Images/spain.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import verification from "../Assets/Images/giphy.gif";
 import usaFlag from "../Assets/Images/usa.png";
-import { FaEye, FaExclamationTriangle } from "react-icons/fa"; // FaExclamationTriangle para el ícono de advertencia
+import { FaEye, FaExclamationTriangle, FaInfoCircle, FaWhatsapp } from "react-icons/fa"; // FaExclamationTriangle para el ícono de advertencia
 import { NavBarUser } from "../Components/NavBarUser";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
+} from "reactstrap";
 
 function Changes() {
   const { logged, infoTkn, url } = useDataContext();
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState("recargar"); // Cambio entre recarga y retiro
   const [isTasaOpen, setIsTasaOpen] = useState(false); // Desplegar tasas
@@ -25,32 +32,14 @@ function Changes() {
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const kycLink = null;
 
-  // Datos de la recarga
-  const [payment, setPayment] = useState("");
-  const [amount, setAmount] = useState("");
-  const [sendAmount, setSendAmount] = useState("");
-  const [receiveAmount, setReceiveAmount] = useState(0);
-  const [bankOptionPay, setBankOptionPay] = useState("");
-  const [mov_img, setMov_img] = useState("");
-  const [showConfirmationr, setShowConfirmationr] = useState(false);
-
   // Datos Usuario
   const [user, setUser] = useState([]);
   const [userMovemments, setUserMovemments] = useState([]);
-  const [userDirectory, setUserDirectory] = useState([]);
   const [currencyPrice, setCurrencyPrice] = useState([]);
-  const [cash, setCash] = useState("");
-  const [cashPhone, setCashPhone] = useState("");
 
-  // Datos de los bancos
-  const [banksEUR, setBanksEUR] = useState([]);
-  const [banksUSD, setBanksUSD] = useState([]);
-  const [banksGBP, setBanksGBP] = useState([]);
-
-  //Alertas
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  //Enviar a Whatsapp
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
 
   // Datos para verificación
   // const [use_dni, setUseDNI] = useState("");
@@ -113,7 +102,6 @@ function Changes() {
   };
 
   // Tasas de cambio estáticas
-
   const userStatusMessage = "Usuario no verificado. Haz clic para verificarte.";
 
   // Fetch de datos del usuario (Incluye movimientos y directorio)
@@ -125,22 +113,6 @@ function Changes() {
         },
       });
       setUser(response.data);
-
-      // Validacion de verifición de usuario
-      if (response.data.use_verif === "N") {
-        setAlertMessage(
-          <span style={{ cursor: "pointer" }} onClick={toggleModal}>
-            Usuario no verificado
-          </span>
-        );
-        setAlertType("error");
-      } else if (response.data.use_verif === "E") {
-        setAlertMessage("Usuario en proceso de verificación");
-        setAlertType("info");
-      } else if (response.data.use_verif === "S") {
-        setAlertMessage("Usuario verificado");
-        setAlertType("success");
-      }
 
       const responseMovemments = await axios.get(
         `${url}/Movements/user/${response.data.use_id}`,
@@ -162,11 +134,10 @@ function Changes() {
       // );
       // setUserDirectory(responseDirectory.data);
 
-      setShowAlert(true);
     } catch (error) {
       console.log(error);
     }
-  }, [setUser, infoTkn, url, toggleModal]);
+  }, [setUser, infoTkn, url]);
 
   // Fetch de datos de la tasa de cambio
   const fetchCurrencyData = useCallback(async () => {
@@ -178,60 +149,12 @@ function Changes() {
     }
   }, [setCurrencyPrice, url]);
 
-  // Fetch de datos de los bancos en EUR
-  const fetchDataAccEur = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/Acceur`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setBanksEUR(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [url, infoTkn]);
-
-  // Fetch de datos de los bancos en USD
-  const fetchDataAccUsd = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/AccUsd`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setBanksUSD(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [url, infoTkn]);
-
-  // Fetch de datos de los bancos en GBP
-  const fetchDataAccGbp = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/AccGbp`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setBanksUSD(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [url, infoTkn]);
-
   useEffect(() => {
     fetchCurrencyData();
     fetchDataUser();
-    fetchDataAccEur();
-    fetchDataAccUsd();
-    fetchDataAccGbp();
   }, [
     fetchCurrencyData,
     fetchDataUser,
-    fetchDataAccEur,
-    fetchDataAccUsd,
-    fetchDataAccGbp,
   ]);
 
   return logged ? (
@@ -269,6 +192,26 @@ function Changes() {
           </div>
         </div>
       )}
+
+      {/* Modal para enviar al usuario a WhatsApp */}
+      <Modal className="kyc-modal-content" isOpen={modal} toggle={toggle} centered>
+        <ModalHeader toggle={toggle}>
+          <FaInfoCircle /> Información
+        </ModalHeader>
+        <ModalBody className="text-center">
+          Los cambios estarán próximamente habilitados. Mantente informado.
+          <br />
+          Puedes realizar los cambios por medio de <br />
+          <a href="https://wa.me/+34624377261" className="whatsapp-btn">
+            <FaWhatsapp /> WhatsApp
+          </a>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={toggle}>
+            Cerrar
+          </Button>
+        </ModalFooter>
+      </Modal>
 
       {/* Titulo de bienvenida */}
       <div className="changes__header">
@@ -355,14 +298,14 @@ function Changes() {
 
       {/* Alternal entre recargar y enviar remesas */}
       <div className="changes__actions">
-        <Link to="/recharge">
+          <button onClick={toggle} className="action-button green">Recargar Saldo</button>
+        {/* <Link to="/recharge">
           {" "}
-          <button className="action-button green">Recargar Saldo</button>
         </Link>
         <Link to="/sendmoney">
           {" "}
-          <button className="action-button green">Enviar Remesas</button>
-        </Link>
+        </Link> */}
+          <button onClick={toggle} className="action-button green">Enviar Remesas</button>
       </div>
 
       {/* Alterna entre moivimientos de recargas y envios de remesas */}
@@ -489,7 +432,7 @@ function Changes() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  {/* <tr>
                     <td>25/08/2024</td>
                     <td>407845</td>
                     <td>Maribel Esther M...</td>
@@ -506,7 +449,7 @@ function Changes() {
                         onClick={openDetailsModal}
                       />
                     </td>
-                  </tr>
+                  </tr> */}
                   {userMovemments.length > 0 ? (
                     userMovemments
                       .filter((movement) => movement.mov_type === "Retiro")

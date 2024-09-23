@@ -1,5 +1,5 @@
 .admin-dashboard {
-   display: flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   padding: 30px;
@@ -31,13 +31,14 @@
     }
   }
 
-  .cards-section {
+  /* Primera fila para los totales */
+  .cards-section.totales {
     display: flex;
     justify-content: space-between;
     width: 100%;
     max-width: 900px;
     margin-bottom: 20px;
-    
+
     .card {
       background-color: white;
       border-radius: 15px;
@@ -71,6 +72,56 @@
         color: #007bff;
         font-weight: 600;
         text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  /* Segunda fila para los usuarios */
+  .cards-section.usuarios {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 20px;
+
+    .card {
+      background-color: white;
+      border-radius: 15px;
+      padding: 20px;
+      flex: 1;
+      margin: 0 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #003366;
+      }
+
+      a {
+        display: inline-block;
+        margin-top: 10px;
+        color: #007bff;
+        font-weight: 600;
+        text-decoration: none;
+
         &:hover {
           text-decoration: underline;
         }
@@ -94,12 +145,13 @@
         font-weight: bold;
         cursor: pointer;
         transition: background-color 0.3s ease, transform 0.3s ease;
+
         &:hover {
           transform: scale(1.05);
         }
 
         &.active {
-          background-color: #007bff;
+          background-color: #003366;
           color: white;
         }
 
@@ -118,7 +170,8 @@
       border-radius: 10px;
       overflow: hidden;
 
-      th, td {
+      th,
+      td {
         padding: 15px;
         text-align: left;
       }
@@ -152,8 +205,9 @@
       }
 
       .details-icon {
-        color: #007bff;
+        color: #003366;
         cursor: pointer;
+
         &:hover {
           transform: scale(1.2);
         }

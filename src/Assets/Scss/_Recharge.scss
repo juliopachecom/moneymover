@@ -72,7 +72,7 @@
       }
 
       &.active .step-circle {
-        background-color: #007bff;
+        background-color: #003366;
         transform: scale(1.1);
       }
 
@@ -170,7 +170,7 @@
       }
 
       &.active {
-        background-color: #007bff;
+        background-color: #003366;
         color: rgb(20, 13, 13);
       }
     }
@@ -198,7 +198,7 @@
     background-size: 16px;
 
     &:focus {
-      border-color: #007bff;
+      border-color: #003366;
     }
   }
 
@@ -245,7 +245,7 @@
     background-color: #e0f7fa;
     padding: 15px;
     border-radius: 10px;
-    color: #007bff;
+    color: #003366;
     font-size: 16px;
     font-weight: bold;
     margin-top: 10px;
@@ -275,7 +275,7 @@
       transition: border-color 0.3s ease;
 
       &:hover {
-        border-color: #007bff;
+        border-color: #003366;
       }
     }
   }
@@ -288,7 +288,7 @@
 
     .back-button,
     .continue-button {
-      background-color: #007bff;
+      background-color: #003366;
       color: #fff;
       padding: 12px 30px;
       border-radius: 25px;
@@ -328,7 +328,7 @@
 
     .example-button,
     .contact-button {
-      background-color: #007bff;
+      background-color: #003366;
       color: #fff;
       padding: 10px 20px;
       border-radius: 25px;
@@ -387,7 +387,7 @@
     }
 
     .finish-button {
-      background-color: #007bff;
+      background-color: #003366;
 
       &:hover {
         background-color: #0056b3;

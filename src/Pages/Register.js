@@ -230,9 +230,6 @@ function Register() {
             <p>
               <strong>Teléfono:</strong> {use_phonePrefix} {use_phone}
             </p>
-            <p>
-              <strong>Contraseña:</strong> {use_password}
-            </p>
             <div className="modal-actions">
               <button className="btn-secondary" onClick={closeModal}>
                 Editar

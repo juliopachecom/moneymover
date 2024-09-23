@@ -1,24 +1,21 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaEye } from "react-icons/fa"; // Ícono de vista de detalles
 import { NavBarUser } from "../Components/NavBarUser"; // Asumiendo que ya tienes NavBarUser
-import spainFlag from "../Assets/Images/spain.png";
-import venezuelaFlag from "../Assets/Images/venezuela.png";
-import usaFlag from "../Assets/Images/usa.png";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 
 function Movements() {
-  const { logged, infoTkn, url } = useDataContext();
+  const { infoTkn, url } = useDataContext();
   const [activeTab, setActiveTab] = useState("all"); // Estado para controlar la pestaña activa
 
   // Datos Usuario
-  const [user, setUser] = useState([]);
+  // const [user, setUser] = useState([]);
   const [userMovemments, setUserMovemments] = useState([]);
 
   //Alertas
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  // const [showAlert, setShowAlert] = useState(false);
+  // const [alertMessage, setAlertMessage] = useState("");
+  // const [alertType, setAlertType] = useState("");
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -32,7 +29,7 @@ function Movements() {
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-      setUser(response.data);
+      // setUser(response.data);
 
       const responseMovemments = await axios.get(
         `${url}/Movements/user/${response.data.use_id}`,
@@ -54,11 +51,11 @@ function Movements() {
       // );
       // setUserDirectory(responseDirectory.data);
 
-      setShowAlert(true);
+      // setShowAlert(true);
     } catch (error) {
       console.log(error);
     }
-  }, [setUser, infoTkn, url]);
+  }, [ infoTkn, url]);
 
   // Filtrado según la pestaña activa
   const filteredTransactions = userMovemments.filter((transaction) => {

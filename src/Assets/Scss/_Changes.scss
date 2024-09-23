@@ -34,7 +34,7 @@
     h2 {
       font-size: 24px;
       font-weight: 600;
-      color: #007bff;
+      color: #003366;
       margin-bottom: 20px;
     }
   
@@ -51,7 +51,7 @@
   
     .kyc-modal-button {
       padding: 10px 20px;
-      background-color: #007bff;
+      background-color: #003366;
       color: white;
       border: none;
       border-radius: 25px;
@@ -170,7 +170,7 @@
     h2 {
       font-size: 24px;
       font-weight: 600;
-      color: #007bff;
+      color: #003366;
       margin-bottom: 20px;
     }
   
@@ -182,7 +182,7 @@
   
     .close-button {
       padding: 10px 20px;
-      background-color: #007bff;
+      background-color: #003366;
       color: white;
       border: none;
       border-radius: 25px;
@@ -245,7 +245,7 @@
     h2 {
       font-size: 24px;
       font-weight: 600;
-      color: #007bff;
+      color: #003366;
       margin-bottom: 20px;
     }
 
@@ -276,7 +276,7 @@
         h3 {
           font-size: 20px;
           margin-bottom: 10px;
-          color: #007bff;
+          color: #003366;
         }
   
         p {
@@ -289,7 +289,7 @@
   
     .close-button {
       padding: 10px 20px;
-      background-color: #007bff;
+      background-color: #003366;
       color: white;
       border: none;
       border-radius: 25px;
@@ -460,7 +460,7 @@
     h2 {
       font-size: 24px;
       font-weight: 600;
-      color: #007bff;
+      color: #003366;
       margin-bottom: 20px;
       font-family: 'Poppins', sans-serif; /* Tipografía moderna */
     }
@@ -483,7 +483,7 @@
     }
   
     .verify-button, .close-button {
-      background-color: #007bff;
+      background-color: #003366;
       color: white;
       border: none;
       padding: 12px 25px;
@@ -513,7 +513,7 @@
   }
   
   .verify-button:hover, .close-button:hover {
-    background-color: #0056b3;
+    background-color: #003366;
   }
   
   .verification-alert {
@@ -568,7 +568,7 @@
         position: absolute;
         width: 80%;
         height: 4px;
-        background-color: #007bff;
+        background-color: #003366;
         left: 10%;
         bottom: -10px;
         border-radius: 10px;
@@ -612,7 +612,7 @@
       p {
         font-size: 20px;
         font-weight: bold;
-        color: #007bff;
+        color: #388e3c;
       }
     }
   }
@@ -732,12 +732,13 @@
       transition: background-color 0.3s ease;
 
       &.active {
-        background-color: #007bff;
+        background-color: #003366;
         color: white;
       }
 
       &:hover {
-        background-color: #e0e0e0;
+        background-color: #4caf50;
+        color: white;
         transform: scale(1.05);
       }
     }
@@ -890,7 +891,7 @@
       }
   
       .view-details-icon {
-        color: #007bff;
+        color: #003366;
         cursor: pointer;
         font-size: 18px;
         &:hover {

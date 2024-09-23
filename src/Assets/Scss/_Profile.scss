@@ -58,7 +58,7 @@
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
-        background-color: #007bff;
+        background-color: #003366;
         padding: 8px 12px;
         border-radius: 10px;
         transition: background-color 0.3s ease;
@@ -129,7 +129,7 @@
       transition: border-color 0.3s ease;
 
       &:focus {
-        border-color: #007bff;
+        border-color: #003366;
         background-color: #fff;
       }
     }

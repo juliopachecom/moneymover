@@ -28,8 +28,10 @@
 
     li {
       margin: 0 15px;
+      display: flex;
+      align-items: center;
 
-      a {
+      a, .navbar-admin-dropdown {
         text-decoration: none;
         color: #333333;
         display: flex;
@@ -47,6 +49,31 @@
           font-size: 20px;
           margin-right: 8px;
           transition: transform 0.3s ease;
+        }
+      }
+    }
+
+    /* Dropdown for Users */
+    .navbar-admin-dropdown {
+      position: relative;
+      display: inline-block;
+
+      .navbar-admin-icon {
+        font-size: 20px;
+        margin-right: 8px;
+      }
+
+      .navbar-admin-select {
+        font-size: 16px;
+        padding: 5px 10px;
+        font-weight: 500;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #ffffff;
+        transition: border-color 0.3s ease;
+
+        &:hover {
+          border-color: #003366;
         }
       }
     }
@@ -127,7 +154,6 @@
       transform: translateY(-100%);
       transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
 
-      /* Add animations for slide-in and slide-out */
       &.active {
         display: flex;
         opacity: 1;
@@ -159,6 +185,7 @@
     }
   }
 }
+
 
 /* Keyframes for sliding effect */
 @keyframes slideDown {

@@ -1,79 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaEye, FaUserCircle, FaPlus, FaCheck, FaTimes, FaClock } from "react-icons/fa";
 import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
 import NavBarAdmin from "../Components/NavBarAdmin"; // Importando NavBarAdmin
+// import { toast, ToastContainer } from "react-toastify";
+import { useDataContext } from "../Context/dataContext";
+import axios from "axios";
 
 function Users() {
-  // Usuarios estáticos
-  const initialUsers = [
-    {
-      id: 1,
-      nombre: "Jose",
-      apellido: "Portillo",
-      dni: "",
-      telefono: "+34 04246725408",
-      email: "joseportillo2002.jdpf@gmail.com",
-      saldoEUR: 2000,
-      saldoUSD: 0,
-      saldoGBP: 0,
-      use_verif: "V", // Verificado
-    },
-    {
-      id: 2,
-      nombre: "Valeria",
-      apellido: "Quintero",
-      dni: "XK2301",
-      telefono: "+34 658742910",
-      email: "valepquintero@gmail.com",
-      saldoEUR: 1500,
-      saldoUSD: 300,
-      saldoGBP: 100,
-      use_verif: "E", // En espera
-    },
-    {
-      id: 3,
-      nombre: "Ligni",
-      apellido: "medina",
-      dni: "XR7892",
-      telefono: "+34 679432890",
-      email: "vuelve@hotmail.com",
-      saldoEUR: 2500,
-      saldoUSD: 500,
-      saldoGBP: 200,
-      use_verif: "R", // Rechazado
-    },
-    {
-      id: 4,
-      nombre: "Mama de",
-      apellido: "jose",
-      dni: "XR7892",
-      telefono: "+34 679432890",
-      email: "rico@hotmail.com",
-      saldoEUR: 2500,
-      saldoUSD: 500,
-      saldoGBP: 200,
-      use_verif: "R", // Rechazado
-    },
-  ];
+  const { infoTkn, url } = useDataContext();
 
-  const [users, setUsers] = useState(initialUsers);
-  const [searchTerm, setSearchTerm] = useState("");
+  //Buscador
+  const [searchQuery, setSearchQuery] = useState("");
+
+  //Datos para usuarios
+  const [use_name, setNombre] = useState("");
+  const [use_lastName, setLastName] = useState("");
+  const [use_email, setEmail] = useState("");
+  const [use_password, setPassword] = useState("");
+  const [use_dni, setDNI] = useState("");
+  const [use_phone, setPhone] = useState("");
+  const [use_verif, setVerif] = useState("");
+  const use_img = "";
+  const [use_amountEur, setAmountEur] = useState(Number);
+  const [use_amountUsd, setAmountUsd] = useState(Number);
+  const [use_amountGbp, setAmountGbp] = useState(Number);
+
+  const [users, setUsers] = useState([]);
+  // const [searchTerm, setSearchTerm] = useState("");
   const [newUserModalOpen, setNewUserModalOpen] = useState(false);
 
+  const filteredUsuarios = users.filter((user) => {
+    const fullName =
+      `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+   //Fetch de Usuarios
+  const fetchDataUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setUsers, url]);
+
   // Paginación
-  const itemsPerPage = 10;
+  // const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users
-    .filter(
-      (user) =>
-        user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(indexOfFirstItem, indexOfLastItem);
+  // const indexOfLastItem = currentPage * itemsPerPage;
+  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // const currentUsers = users
+  //   .filter(
+  //     (user) =>
+  //       user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  //   )
+  //   .slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -122,29 +115,29 @@ function Users() {
   };
 
   // Función para añadir un nuevo usuario
-  const [newUser, setNewUser] = useState({
-    nombre: "",
-    apellido: "",
-    dni: "",
-    telefono: "",
-    email: "",
-    saldoEUR: 0,
-    saldoUSD: 0,
-    saldoGBP: 0,
-    use_verif: "E", // Default estado
-  });
+  // const [newUser, setNewUser] = useState({
+  //   nombre: "",
+  //   apellido: "",
+  //   dni: "",
+  //   telefono: "",
+  //   email: "",
+  //   saldoEUR: 0,
+  //   saldoUSD: 0,
+  //   saldoGBP: 0,
+  //   use_verif: "E", // Default estado
+  // });
 
-  const handleNewUserChange = (e) => {
-    const { name, value } = e.target;
-    setNewUser((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleNewUserChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setNewUser((prev) => ({ ...prev, [name]: value }));
+  // };
 
-  const handleAddUser = (e) => {
-    e.preventDefault();
-    const userId = users.length + 1;
-    setUsers((prev) => [...prev, { id: userId, ...newUser }]);
-    closeModal();
-  };
+  // const handleAddUser = (e) => {
+  //   e.preventDefault();
+  //   const userId = users.length + 1;
+  //   setUsers((prev) => [...prev, { id: userId, ...newUser }]);
+  //   closeModal();
+  // };
 
   // Función para manejar cambios en el estado de verificación
   const handleUserVerificationChange = (e) => {
@@ -179,6 +172,72 @@ function Users() {
     },
   ];
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      if (selectedUser) {
+        await axios.put(
+          `${url}/Users/${selectedUser.use_id}`,
+          {
+            use_name,
+            use_lastName,
+            use_dni,
+            use_phone,
+            use_email,
+            use_password,
+            use_img,
+            use_verif,
+            use_amountUsd,
+            use_amountEur,
+            use_amountGbp,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+        setSelectedUser(null);
+
+        fetchDataUsers();
+        closeModal();
+      } else {
+        await axios.post(
+          `${url}/Auth/register`,
+          {
+            use_name,
+            use_lastName,
+            use_dni,
+            use_phone,
+            use_email,
+            use_password,
+            use_img,
+            use_verif,
+            use_amountUsd,
+            use_amountEur,
+            use_amountGbp,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      fetchDataUsers();
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDataUsers();
+  }, [
+    fetchDataUsers
+  ]);
+
   return (
     <div className="admin-dashboard">
       <NavBarAdmin />
@@ -190,8 +249,8 @@ function Users() {
           <input
             type="text"
             placeholder="Buscar por nombre, apellido o correo"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={handleSearch}
             className="search-input"
           />
 
@@ -220,19 +279,19 @@ function Users() {
               </tr>
             </thead>
             <tbody>
-              {currentUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
+              {filteredUsuarios.map((user, index) => (
+                <tr key={user.use_id}>
+                  <td>{index+1}</td>
                   <td><FaUserCircle className="profile-icon" /></td>
                   <td>
-                    {user.nombre} {user.apellido}
+                    {user.use_name} {user.use_lastName}
                   </td>
-                  <td>{user.dni || "N/A"}</td>
-                  <td>{user.telefono}</td>
-                  <td>{user.email}</td>
-                  <td>€{user.saldoEUR}</td>
-                  <td>£{user.saldoGBP}</td>
-                  <td>${user.saldoUSD}</td>
+                  <td>{user.use_dni || "N/A"}</td>
+                  <td>{user.use_phone}</td>
+                  <td>{user.use_email}</td>
+                  <td>€{user.use_amountEur}</td>
+                  <td>£{user.use_amountGbp}</td>
+                  <td>${user.use_amountUsd}</td>
                   <td>{getVerificationIcon(user.use_verif)}</td>
                   <td>
                     <FaEye
@@ -248,7 +307,7 @@ function Users() {
           {/* Paginación */}
           <div className="pagination">
             {Array.from({
-              length: Math.ceil(users.length / itemsPerPage),
+              length: Math.ceil(users.length),
             }).map((_, i) => (
               <button
                 key={i}
@@ -266,14 +325,14 @@ function Users() {
           <div className="modal show">
             <div className="modal-content">
               <h3>Añadir Usuario</h3>
-              <form onSubmit={handleAddUser}>
+              <form onSubmit={handleSubmit}>
                 <label>
                   Nombre:
                   <input
                     type="text"
                     name="nombre"
-                    value={newUser.nombre}
-                    onChange={handleNewUserChange}
+                    value={use_name}
+                    onChange={(e)=>setNombre(e.target.value)}
                     required
                   />
                 </label>
@@ -282,8 +341,8 @@ function Users() {
                   <input
                     type="text"
                     name="apellido"
-                    value={newUser.apellido}
-                    onChange={handleNewUserChange}
+                    value={use_lastName}
+                    onChange={(e)=>setLastName(e.target.value)}
                     required
                   />
                 </label>
@@ -292,8 +351,8 @@ function Users() {
                   <input
                     type="text"
                     name="dni"
-                    value={newUser.dni}
-                    onChange={handleNewUserChange}
+                    value={use_dni}
+                    onChange={(e)=>setDNI(e.target.value)}
                   />
                 </label>
                 <label>
@@ -301,8 +360,8 @@ function Users() {
                   <input
                     type="password"
                     name="password"
-                    value={newUser.password}
-                    onChange={handleNewUserChange}
+                    value={use_password}
+                    onChange={(e)=>setPassword(e.target.value)}
                   />
                 </label>
                 <label>
@@ -310,8 +369,8 @@ function Users() {
                   <input
                     type="text"
                     name="telefono"
-                    value={newUser.telefono}
-                    onChange={handleNewUserChange}
+                    value={use_phone}
+                    onChange={(e)=>setPhone(e.target.value)}
                   />
                 </label>
                 <label>
@@ -319,8 +378,8 @@ function Users() {
                   <input
                     type="email"
                     name="email"
-                    value={newUser.email}
-                    onChange={handleNewUserChange}
+                    value={use_email}
+                    onChange={(e)=>setEmail(e.target.value)}
                     required
                   />
                 </label>
@@ -329,8 +388,8 @@ function Users() {
                   <input
                     type="number"
                     name="saldoEUR"
-                    value={newUser.saldoEUR}
-                    onChange={handleNewUserChange}
+                    value={use_amountEur}
+                    onChange={(e)=>setAmountEur(e.target.value)}
                   />
                 </label>
                 <label>
@@ -338,8 +397,8 @@ function Users() {
                   <input
                     type="number"
                     name="saldoGBP"
-                    value={newUser.saldoGBP}
-                    onChange={handleNewUserChange}
+                    value={use_amountGbp}
+                    onChange={(e)=>setAmountGbp(e.target.value)}
                   />
                 </label>
                 <label>
@@ -347,16 +406,16 @@ function Users() {
                   <input
                     type="number"
                     name="saldoUSD"
-                    value={newUser.saldoUSD}
-                    onChange={handleNewUserChange}
+                    value={use_amountUsd}
+                    onChange={(e)=>setAmountUsd(e.target.value)}
                   />
                 </label>
                 <label>
                   Estado de verificación:
                   <select
                     name="use_verif"
-                    value={newUser.use_verif}
-                    onChange={handleNewUserChange}
+                    value={use_verif}
+                    onChange={(e)=>setVerif(e.target.value)}
                   >
                     <option value="V">Verificado</option>
                     <option value="E">En espera</option>

@@ -1,9 +1,95 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import NavBarAdmin from "../Components/NavBarAdmin";
 import { FaPlus } from "react-icons/fa";
+// import { ToastContainer, toast } from "react-toastify";
+import { useDataContext } from "../Context/dataContext";
 
 function Banks() {
-    
+  const { infoTkn, url } = useDataContext();
+
+  const [banksEur, setBanksEUR] = useState([]);
+  const [banksUsd, setBanksUSD] = useState([]);
+  const [banksGbp, setBanksGBP] = useState([]);
+  // const [banksBs, setBanksBS] = useState([]);
+  // const [searchQuery, setSearchQuery] = useState("");
+
+  // const [admin, setAdmin] = useState([]);
+
+  // const [acceur_Bank, setAcceur_Bank] = useState("");
+  // const [acceur_owner, setAcceur_owner] = useState("");
+  // const [acceur_number, setAcceur_number] = useState("");
+  // const [acceur_nie, setAcceur_nie] = useState("");
+  // const [acceur_phone, setAcceur_phone] = useState("");
+
+  // const [accgbp_Bank, setAccgbp_Bank] = useState("");
+  // const [accgbp_owner, setAccgbp_owner] = useState("");
+  // const [accgbp_number, setAccgbp_number] = useState("");
+  // const [accgbp_Ident, setAccgbp_Ident] = useState("");
+  // const [accgbp_phone, setAccgbp_phone] = useState("");
+
+  // const [accusd_Bank, setAccusd_Bank] = useState("");
+  // const [accusd_owner, setAccusd_owner] = useState("");
+  // const [accusd_email, setAccusd_email] = useState("");
+  // const [accusd_number, setAccusd_number] = useState("");
+  // const [accusd_Ident, setAccusd_Ident] = useState("");
+  // const [accusd_phone, setAccusd_phone] = useState("");
+
+  // const [accbs_bank, setAccbs_bank] = useState("");
+  // const [accbs_owner, setAccbs_owner] = useState("");
+  // const [accbs_number, setAccbs_number] = useState("");
+  // const [accbs_dni, setAccbs_dni] = useState("");
+  // const [accbs_phone, setAccbs_phone] = useState("");
+
+  // const [typeAcc, setTypeAcc] = useState("");
+
+  const filteredBanks = [...banksEur, ...banksUsd, ...banksGbp].filter(
+    (Bank) => {
+      const fullName =
+        `${Bank.acceur_Bank} ${Bank.accusd_Bank} ${Bank.accgbp_Bank}`.toLowerCase();
+      return fullName;
+    }
+  );
+
+  const fetchDataEUR = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Acceur`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setBanksEUR(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setBanksEUR, url]);
+
+  const fetchDataUSD = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Accusd`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setBanksUSD(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setBanksUSD, url]);
+
+  const fetchDataGBP = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Accgbp`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setBanksGBP(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setBanksGBP, url]);
+
   // Estado para los bancos
   const [banks, setBanks] = useState([
     {
@@ -67,6 +153,12 @@ function Banks() {
     setBanks(updatedBanks);
   };
 
+  useEffect(() => {
+    fetchDataEUR();
+    fetchDataUSD();
+    fetchDataGBP();
+  }, [fetchDataEUR, fetchDataUSD, fetchDataGBP]);
+
   return (
     <div className="add-banks-dashboard">
       <NavBarAdmin />
@@ -93,25 +185,77 @@ function Banks() {
                 </tr>
               </thead>
               <tbody>
-                {banks.map((bank, index) => (
-                  <tr key={index}>
-                    <td>{bank.bankName}</td>
-                    <td>{bank.iban}</td>
-                    <td>{bank.swift}</td>
-                    <td>{bank.accountHolder}</td>
-                    <td>{bank.active ? "Activo" : "Inactivo"}</td>
-                    <td>
-                      <button
-                        className={`btn ${
-                          bank.active ? "btn-danger" : "btn-success"
-                        }`}
-                        onClick={() => toggleBankStatus(index)}
-                      >
-                        {bank.active ? "Desactivar" : "Activar"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredBanks
+                  .filter(
+                    (bank) =>
+                      bank.acceur_Bank !== "Ghost" &&
+                      bank.accgbp_Bank !== "Ghost" &&
+                      bank.accusd_Bank !== "Ghost" &&
+                      bank.accbs_bank !== "Ghost"
+                  )
+                  .map((bank) => (
+                    <tr>
+                      <td>
+                        {bank.acceur_Bank
+                          ? bank.acceur_Bank
+                          : bank.accusd_Bank
+                          ? bank.accusd_Bank
+                          : bank.accgbp_Bank}
+                      </td>
+                      <td>
+                        {bank.acceur_number
+                          ? bank.acceur_number
+                          : bank.accusd_number
+                          ? bank.accusd_number
+                          : bank.accgbp_number}
+                      </td>
+                      <td>bank.swift</td>
+                      <td>
+                        {bank.acceur_owner
+                          ? bank.acceur_owner
+                          : bank.accusd_owner
+                          ? bank.accusd_owner
+                          : bank.accgbp_owner}
+                      </td>
+                      <td>
+                        {bank.acceur_status
+                          ? bank.acceur_status
+                          : bank.accusd_status
+                          ? bank.accusd_status
+                          : bank.accgbp_status}
+                      </td>
+                      <td>
+                        <button
+                          className={`btn ${
+                            bank.active ? "btn-danger" : "btn-success"
+                          }`}
+                          onClick={() =>
+                            toggleBankStatus(
+                              bank.acceur_id
+                                ? bank.acceur_id
+                                : bank.accusd_id
+                                ? bank.accusd_id
+                                : bank.accgbp_id
+                            )
+                          }
+                        >
+                          {bank.acceur_status && bank.acceur_id
+                            ? bank.acceur_status === "Activo"
+                              ? "Desactivar"
+                              : "Activar"
+                            : bank.accusd_status && bank.accusd_id
+                            ? bank.accusd_status === "Activo"
+                              ? "Desactivar"
+                              : "Activar"
+                            : bank.accgbp_status && bank.accgbp_id
+                            ? bank.accgbp_status === "Activo"
+                              ? "Desactivar"
+                              : "Activar"
+                            : "Activar"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           ) : (

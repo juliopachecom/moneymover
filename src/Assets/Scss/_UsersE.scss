@@ -31,7 +31,7 @@
   
         thead {
           tr {
-            background-color: #007bff;
+            background-color: #003366;
             color: #fff;
             th {
               padding: 12px;
@@ -51,7 +51,7 @@
               text-align: left;
   
               .view-details-icon {
-                color: #007bff;
+                color: #003366;
                 cursor: pointer;
                 font-size: 18px;
               }
@@ -69,7 +69,7 @@
                 transition: background-color 0.3s ease;
   
                 &.btn-primary {
-                  background-color: #007bff;
+                  background-color: #003366;
                   color: white;
                   &:hover {
                     background-color: #0056b3;
@@ -160,7 +160,7 @@
           transition: background-color 0.3s ease;
   
           &.btn-primary {
-            background-color: #007bff;
+            background-color: #003366;
             color: white;
             &:hover {
               background-color: #0056b3;

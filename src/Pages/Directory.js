@@ -3,12 +3,12 @@ import venezuelaFlag from '../Assets/Images/venezuela.png';
 import { NavBarUser } from '../Components/NavBarUser';
 import axios from 'axios';
 import { useDataContext } from '../Context/dataContext';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 function Directory() {
-  const { logged, accessToken, url, infoTkn } = useDataContext();
+  const { url, infoTkn } = useDataContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(''); // Controla la opción seleccionada (Pago Móvil o Cuenta Bancaria)
+  // const [selectedOption, setSelectedOption] = useState(''); // Controla la opción seleccionada (Pago Móvil o Cuenta Bancaria)
 
   //DATOS PARA BENEFICIARIO
   const [accbsUser_bank, setAccbsUser_bank] = useState('');

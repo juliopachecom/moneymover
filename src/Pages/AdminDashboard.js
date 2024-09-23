@@ -9,7 +9,7 @@ import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 
 function AdminDashboard() {
-  const { logged, infoTkn, url } = useDataContext();
+  const { infoTkn, url } = useDataContext();
   const [activeTab, setActiveTab] = useState("recargas");
   const currentDate = format(new Date(), "dd/MM/yyyy");
 
@@ -20,6 +20,36 @@ function AdminDashboard() {
   const [totalEur, setTotalEur] = useState([]);
   const [totalUsd, setTotalUsd] = useState([]);
   const [totalGbp, setTotalGbp] = useState([]);
+  const [userCountV, setUserCountV] = useState(0); // Verificados
+  const [userCountE, setUserCountE] = useState(0); // En espera
+  const [userCountR, setUserCountR] = useState(0); // Rechazados
+
+  // Fetch de usuarios y filtrado
+  const fetchDataUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      const allUsers = response.data;
+
+      // Filtramos los usuarios por su estado de verificación
+      const verifiedUsers = allUsers.filter(user => user.use_verif === 'V');
+      const pendingUsers = allUsers.filter(user => user.use_verif === 'E');
+      const rejectedUsers = allUsers.filter(user => user.use_verif === 'N');
+
+      // Actualizamos el estado con los contadores
+      setUserCountV(verifiedUsers.length);
+      setUserCountE(pendingUsers.length);
+      setUserCountR(rejectedUsers.length);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, url]);
+
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -128,12 +158,14 @@ function AdminDashboard() {
     fetchDataTotalEur();
     fetchDataTotalUsd();
     fetchDataTotalGbp();
+    fetchDataUsers();
   }, [
     fetchDataAdm,
     fetchDataMovemments,
     fetchDataTotalEur,
     fetchDataTotalUsd,
     fetchDataTotalGbp,
+    fetchDataUsers,
   ]);
 
   return (
@@ -145,24 +177,42 @@ function AdminDashboard() {
         <div className="date">{currentDate}</div>
       </div>
 
-      {/* Cartas de totales */}
-      <div className="cards-section">
-        <div className="card">
-          <h3>Total de Euros cambiados</h3>
-          <div className="value">€{totalEur.totalIn}</div>
-          <a href="/relation">Ver detalles</a>
-        </div>
-        <div className="card">
-          <h3>Total de Libras cambiadas</h3>
-          <div className="value">£{totalGbp.totalIn}</div>
-          <a href="/relation">Ver detalles</a>
-        </div>
-        <div className="card">
-          <h3>Total de Dólares cambiados</h3>
-          <div className="value">${totalUsd.totalIn - totalUsd.totalOut}</div>
-          <a href="/relation">Ver detalles</a>
-        </div>
-      </div>
+      <div className="cards-section totales">
+  <div className="card">
+    <h3>Total de Euros cambiados</h3>
+    <div className="value">€{totalEur.totalIn}</div>
+    <a href="/relation">Ver detalles</a>
+  </div>
+  <div className="card">
+    <h3>Total de Libras cambiadas</h3>
+    <div className="value">£{totalGbp.totalIn}</div>
+    <a href="/relation">Ver detalles</a>
+  </div>
+  <div className="card">
+    <h3>Total de Dólares cambiados</h3>
+    <div className="value">${totalUsd.totalIn - totalUsd.totalOut}</div>
+    <a href="/relation">Ver detalles</a>
+  </div>
+</div>
+
+<div className="cards-section usuarios">
+  <div className="card">
+    <h3>Usuarios Verificados</h3>
+    <div className="value">{userCountV}</div>
+    <a href="/usersV">Ver detalles</a>
+  </div>
+  <div className="card">
+    <h3>Usuarios en Espera</h3>
+    <div className="value">{userCountE}</div>
+    <a href="/usersE">Ver detalles</a>
+  </div>
+  <div className="card">
+    <h3>Usuarios Rechazados</h3>
+    <div className="value">{userCountR}</div>
+    <a href="/usersR">Ver detalles</a>
+  </div>
+</div>
+
 
       {/* Sección de Movimientos */}
       <div className="transactions-section">
@@ -217,8 +267,8 @@ function AdminDashboard() {
                         {movement.mov_currency === "EUR"
                           ? "€"
                           : movement.mov_currency === "USD"
-                          ? "$"
-                          : "£"}{" "}
+                            ? "$"
+                            : "£"}{" "}
                         {movement.mov_amount}{" "}
                         {movement.mov_currency === "USD" && (
                           <img src={usaFlag} alt="USD" />
@@ -232,8 +282,8 @@ function AdminDashboard() {
                           movement.mov_status === "S"
                             ? "completed"
                             : movement.mov_status === "E"
-                            ? "en espera"
-                            : "cancelled"
+                              ? "en espera"
+                              : "cancelled"
                         }
                       >
                         En espera
@@ -312,8 +362,8 @@ function AdminDashboard() {
                         {movement.mov_currency === "BS"
                           ? "Bs"
                           : movement.mov_currency === "USD"
-                          ? "$"
-                          : "£"}{" "}
+                            ? "$"
+                            : "£"}{" "}
                         {movement.mov_amount}{" "}
                         {movement.mov_currency === "USD" && (
                           <img src={usaFlag} alt="USD" />
@@ -327,8 +377,8 @@ function AdminDashboard() {
                           movement.mov_status === "S"
                             ? "completed"
                             : movement.mov_status === "E"
-                            ? "en espera"
-                            : "cancelled"
+                              ? "en espera"
+                              : "cancelled"
                         }
                       >
                         En espera

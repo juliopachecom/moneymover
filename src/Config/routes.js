@@ -18,8 +18,14 @@ import { UsersV } from "../Pages/UsersV";
 import { CurrencyPrice } from "../Pages/CurrencyPrice";
 import { Banks } from "../Pages/Banks";
 import { Relation } from "../Pages/Relation";
+import { NotFound } from "../Pages/NotFound"; 
 
 const routes = [
+ {
+    title: "404 Not Found",
+    path: "/notfound",
+    component: NotFound,
+ }, 
  {
     title: "Relation",
     path: "/Relation",

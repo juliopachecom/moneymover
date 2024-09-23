@@ -1,0 +1,65 @@
+.not-found-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #003366 0%, #005299 100%); /* Fondo en degradado */
+    color: white;
+  }
+  
+  .not-found-content {
+    text-align: center;
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Sombra más prominente */
+    max-width: 500px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); /* Pequeña animación al pasar por encima */
+    }
+  
+    h1 {
+      font-size: 80px;
+      font-weight: bold;
+      color: #cc0704; /* Color rojo brillante para 404 */
+      margin-bottom: 20px;
+    }
+  
+    h2 {
+      font-size: 26px;
+      color: #333; /* Color principal para el mensaje */
+      margin-bottom: 10px;
+    }
+  
+    p {
+      font-size: 16px;
+      color: #555; /* Color secundario para la descripción */
+      margin-bottom: 30px;
+    }
+  
+    .road-icon {
+      font-size: 50px;
+      color: #003366; /* Icono del mismo color que el tema general */
+      margin-bottom: 20px;
+    }
+  
+    .back-home-btn {
+      display: inline-block;
+      padding: 12px 25px;
+      background-color: #cc0704; /* Botón rojo vivo */
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 30px; /* Botón redondeado */
+      transition: background-color 0.3s ease, transform 0.3s ease;
+  
+      &:hover {
+        background-color: #ff4b4b; /* Color rojo más claro al pasar el mouse */
+        transform: scale(1.1); /* Aumenta ligeramente de tamaño al hacer hover */
+      }
+    }
+  }
+  

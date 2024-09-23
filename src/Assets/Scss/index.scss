@@ -23,6 +23,8 @@
 @use 'CurrencyPrice';
 @use 'Banks';
 @use 'Relation';
+@use 'notfound';
+
 
 *{
     box-sizing: border-box;
