@@ -29,6 +29,9 @@ function AdminDashboard() {
   const [showRejectionReason, setShowRejectionReason] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [selectedMovement, setSelectedMovement] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isRejectionVisible, setIsRejectionVisible] = useState(false);
+
 
   // Fetch de usuarios y filtrado
   const fetchDataUsers = useCallback(async () => {
@@ -112,6 +115,13 @@ function AdminDashboard() {
     }
   }, [infoTkn, setTotalEur, url]);
 
+  const handleCancelRejection = () => {
+    setIsRejectionVisible(false);
+    setRejectionReason(""); // Limpiar el campo de razón de rechazo
+  };
+
+  
+
   // Fetch de Total de Usd
   const fetchDataTotalUsd = useCallback(async () => {
     const now = new Date();
@@ -156,6 +166,19 @@ function AdminDashboard() {
     }
   }, [infoTkn, setTotalGbp, url]);
 
+  const openDetailModal = (movement) => {
+    setSelectedMovement(movement);
+    setIsDetailModalOpen(true);
+  };
+
+  // Cerrar modal
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setIsRejectionVisible(false); // Reiniciar la visibilidad del rechazo
+    setRejectionReason(""); // Limpiar el campo de razón de rechazo
+    setSelectedMovement(null);
+  };
+
   const openModal = (movement) => {
     setSelectedMovement(movement); // Establece el movimiento seleccionado
     setIsModalOpen(true); // Abre el modal
@@ -175,6 +198,10 @@ function AdminDashboard() {
 
   const handleReject = () => {
     setShowRejectionReason(true); // Muestra el campo de razón de rechazo
+  };
+
+  const handleReject1 = () => {
+    setIsRejectionVisible(true);
   };
 
   const handleSendRejection = () => {
@@ -322,11 +349,16 @@ function AdminDashboard() {
                             ? "en espera"
                             : "cancelled"
                         }
+                        style={{color: 'orange'}}
                       >
                         En espera
                       </td>
                       <td>
-                        <FaEye className="view-details-icon" />
+                      <FaEye
+                        className="view-details-icon"
+                        style={{ cursor: "pointer", textAlign: "center"  } }
+                        onClick={() => openDetailModal(movement)}
+                      />
                       </td>
                     </tr>
                   ))
@@ -397,17 +429,17 @@ function AdminDashboard() {
                           : "£"}{" "}
                         {movement.mov_amount}{" "}
                         {movement.mov_currency === "USD" && (
-                          <img style={{marginLeft: '5px'}} width={30} src={usaFlag} alt="USD" />
+                          <img  src={usaFlag} alt="USD" />
                         )}
                         {movement.mov_currency === "EUR" && (
-                          <img style={{marginLeft: '5px'}} width={30} src={spainFlag} alt="EUR" />
+                          <img s src={spainFlag} alt="EUR" />
                         )}
                       </td>
                       <td style={{ textAlign: "center"}}>
-                        2000 BS <img width={50} src={venezuelaFlag} alt="USD" />
+                        2000 BS <img  src={venezuelaFlag} alt="USD" />
                       </td>
                       <td
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", color: 'orange' }}
                         className={
                           movement.mov_status === "S"
                             ? "completed"
@@ -415,6 +447,7 @@ function AdminDashboard() {
                             ? "en espera"
                             : "cancelled"
                         }
+
                       >
                         En espera
                       </td>
@@ -439,6 +472,86 @@ function AdminDashboard() {
         )}
 
         {/* Modales */}
+        {isDetailModalOpen && selectedMovement && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Detalles del Movimiento</h3>
+            <div className="modal-details">
+              <p>
+                <strong>Monto:</strong>{" "}
+                {selectedMovement.mov_currency === "EUR"
+                  ? "€"
+                  : selectedMovement.mov_currency === "USD"
+                  ? "$"
+                  : "£"}{" "}
+                {selectedMovement.mov_amount}
+              </p>
+              <p>
+                <strong>Banco:</strong> {selectedMovement.bank_name}
+              </p>
+
+              {/* Muestra una imagen o un enlace de descarga si es PDF */}
+              {selectedMovement.mov_document ? (
+                selectedMovement.mov_document.endsWith(".pdf") ? (
+                  <a
+                    href={`${url}/download/${selectedMovement.mov_document}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Descargar PDF
+                  </a>
+                ) : (
+                  <img
+                    src={`${url}/documents/${selectedMovement.mov_document}`}
+                    alt="Documento"
+                    style={{ maxWidth: "100%" }}
+                  />
+                )
+              ) : (
+                <p>No hay documento adjunto.</p>
+              )}
+            </div>
+<div className="modal-buttons">
+            <button className="approve-btn" onClick={handleApprove}>
+                Aprobar
+              </button>
+              <button className="reject-btn" onClick={handleReject1}>
+                Rechazar
+              </button>
+            </div> 
+
+            {isRejectionVisible && (
+              <div className="rejection-reason open">
+                <label htmlFor="rejection-reason">Razón del rechazo:</label>
+                <textarea
+                  id="rejection-reason"
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                />
+                <div className="modal-actions">
+                  <button className="send-btn" onClick={handleSendRejection}>
+                    Enviar
+                  </button>
+                  <button className="cancel-btn" onClick={handleCancelRejection}>
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="modal-actions">
+              
+
+              <button className="close-btn" onClick={closeDetailModal}>
+                Cerrar
+              </button>
+            </div>
+</div>
+
+
+            
+        </div>
+      )}
+
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">

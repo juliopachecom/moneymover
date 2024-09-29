@@ -2,31 +2,31 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px;
+  padding: 20px;
   background-color: #f4f7fa;
 
   .welcome-admin {
     background-color: #003366;
     color: white;
-    border-radius: 15px;
+    border-radius: 10px;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px; // Ajustado para mayor responsividad
     margin-bottom: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
     h2 {
-      font-size: 26px;
+      font-size: 24px; // Tamaño ligeramente reducido para mejores proporciones
       font-weight: 700;
       font-family: 'Roboto', sans-serif;
       margin: 0;
     }
 
     .date {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 500;
       font-family: 'Open Sans', sans-serif;
       color: #d3d3d3;
@@ -37,16 +37,17 @@
   .cards-section.usuarios {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap; // Permite que las tarjetas se ajusten mejor en pantallas pequeñas
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px; // Mayor tamaño en pantallas grandes
     margin-bottom: 20px;
 
     .card {
       background-color: white;
-      border-radius: 15px;
-      padding: 20px;
-      flex: 1;
-      margin: 0 10px;
+      border-radius: 10px;
+      padding: 15px; // Padding ajustado para más consistencia
+      flex: 1 1 calc(33.333% - 20px); // Ajuste para que se distribuyan de manera uniforme
+      margin: 10px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
 
@@ -56,7 +57,7 @@
       }
 
       h3 {
-        font-size: 20px;
+        font-size: 18px; // Tamaño ajustado para mejor consistencia visual
         font-weight: 600;
         font-family: 'Roboto', sans-serif;
         color: #333;
@@ -64,7 +65,7 @@
       }
 
       .value {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 700;
         color: #003366;
         font-family: 'Open Sans', sans-serif;
@@ -88,7 +89,7 @@
 
   .transactions-section {
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
 
     .tabs {
       display: flex;
@@ -123,58 +124,100 @@
     table {
       width: 100%;
       background-color: white;
-      border-collapse: collapse;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-collapse: separate;
+      border-spacing: 0 10px; // Espaciado entre filas
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       border-radius: 10px;
       overflow: hidden;
+      font-family: 'Open Sans', sans-serif;
 
-      th,
-      td {
-        padding: 15px;
-        text-align: left;
-        font-family: 'Open Sans', sans-serif;
-      }
+      thead {
+        background-color: #003366;
+        color: white;
+        border-radius: 10px 10px 0 0;
 
-      th {
-        background-color: #f7f7f7;
-        font-weight: 600;
-        font-family: 'Roboto', sans-serif;
-      }
-
-      td {
-        border-bottom: 1px solid #f1f1f1;
-      }
-
-      .flag {
-        width: 15px;
-        /* Tamaño reducido para las banderas */
-        margin-left: 10px;
-      }
-
-      .status {
-        &.approved {
-          color: #28a745;
-        }
-
-        &.pending {
-          color: #ffc107;
-        }
-
-        &.cancelled {
-          color: #dc3545;
+        th {
+          padding: 12px 15px;
+          text-align: center;
+          font-size: 14px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
       }
 
-      .details-icon {
-        color: #003366;
-        cursor: pointer;
-        transition: transform 0.3s ease;
+      tbody {
+        tr {
+          background-color: white;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          transition: all 0.3s ease;
 
-        &:hover {
-          transform: scale(1.2);
+          &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+          }
+
+          td {
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+            position: relative;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+
+            &:first-child {
+              border-radius: 10px 0 0 10px; // Redondeo de la primera celda
+            }
+
+            &:last-child {
+              border-radius: 0 10px 10px 0; // Redondeo de la última celda
+            }
+
+            &:hover {
+              background-color: #f7f7f7;
+              cursor: pointer;
+            }
+          }
+
+          img {
+            width: 30px;
+            margin-left: 8px;
+            vertical-align: middle;
+          }
+
+          .details-icon {
+            font-size: 1.2rem;
+            color: #007bff;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+
+            &:hover {
+              transform: scale(1.3); // Animación de hover en el ícono
+              color: #0056b3;
+            }
+          }
         }
       }
     }
+  }
+
+  /* Animación de entrada para las filas */
+  @keyframes rowFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  tbody tr {
+    animation: rowFadeIn 0.3s ease both; // Aplicación de la animación de entrada a las filas
+  
   }
 
   /* Modal styling */
@@ -194,10 +237,10 @@
 
   .modal-content {
     background-color: white;
-    padding: 30px;
-    border-radius: 15px;
-    width: 400px;
-    max-width: 100%;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px; // Ajuste para mejor responsividad
     position: relative;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     animation: scaleUp 0.3s ease;
@@ -283,8 +326,7 @@
     margin-top: 20px;
 
     &.open {
-      max-height: 250px;
-      /* Ajusta el valor según sea necesario */
+      max-height: 200px;
       transition: max-height 0.5s ease-in;
     }
 
@@ -315,8 +357,6 @@
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
       }
     }
-
-
 
     .send-btn,
     .cancel-btn {
