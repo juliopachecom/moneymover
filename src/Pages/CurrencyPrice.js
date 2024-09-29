@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useDataContext } from "../Context/dataContext";
+import axios from "axios";
 import NavBarAdmin from "../Components/NavBarAdmin";
 import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
@@ -6,114 +8,217 @@ import ukFlag from "../Assets/Images/uk.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 
 function CurrencyPrice() {
-    const [activeMainTab, setActiveMainTab] = useState("Tasas");
+  const { infoTkn, url } = useDataContext();
 
-  // Estados para las tasas principales y secundarias
-  const [mainRates, setMainRates] = useState({
-    cur_EurToBs: 1,
-    cur_EurToUsd: 1,
-    cur_UsdtToBs: 1,
-    cur_GbpToUsd: 1,
-    cur_GbpToBs: 1,
+  const [currencyPrice, setCurrencyPrice] = useState([]);
+  const [porcentPrice, setPorcentPrice] = useState([]);
+  const [porcent, setPorcent] = useState([]);
+  const [porcentId, setPorcentId] = useState(null);
+
+  const [activeMainTab, setActiveMainTab] = useState("Tasas");
+
+  const [formDataPorcent, setFormDataPorcent] = useState({
+    por_porcentGbp: "",
+    por_porcentEur: "",
+    por_porcentUsd: "",
+    por_deliveryPrice: "",
   });
 
-  //Porcentaje de entrega en efectivo
-  const [cashDelivery, setCashDelivery] = useState({
-    por_porcentGbp: 1,
-    por_porcentUsd: 1,
-    por_porcentEur: 1,
-    por_stateLocation: "Zulia",
-    por_status: "oficina", // oficina, obligatorio, desactivado
-    por_deliveryPrice: 1,
-    por_comment: "Entrega en oficina",
+  const [formData, setFormData] = useState({
+    cur_EurToBs: "",
+    cur_EurToUsd: "",
+    cur_EurToGbp: "",
+    cur_EurToUsd_Pa: "",
+    cur_EurToUsd_Ecu: "",
+    cur_EurToSol_Pe: "",
+    cur_EurToPes_Ch: "",
+    cur_EurToPes_Mex: "",
+    cur_EurToCol_Pes: "",
+    cur_EurToArg_Pes: "",
+    cur_EurToBra_Rea: "",
+    cur_EurToUru_Pes: "",
+    cur_EurToPar_Gua: "",
+    cur_EurToBol_Bol: "",
+    cur_UsdToBs: "",
+    cur_UsdToEur: "",
+    cur_UsdToGbp: "",
+    cur_UsdToUsd_Pa: "",
+    cur_UsdToUsd_Ecu: "",
+    cur_UsdToSol_Pe: "",
+    cur_UsdToPes_Ch: "",
+    cur_UsdToPes_Mex: "",
+    cur_UsdToCol_Pes: "",
+    cur_UsdToArg_Pes: "",
+    cur_UsdToBra_Rea: "",
+    cur_UsdToUru_Pes: "",
+    cur_UsdToPar_Gua: "",
+    cur_UsdToBol_Bol: "",
+    cur_GbpToBs: "",
+    cur_GbpToUsd: "",
+    cur_GbpToEur: "",
+    cur_GbpToUsd_Pa: "",
+    cur_GbpToUsd_Ecu: "",
+    cur_GbpToSol_Pe: "",
+    cur_GbpToPes_Ch: "",
+    cur_GbpToPes_Mex: "",
+    cur_GbpToCol_Pes: "",
+    cur_GbpToArg_Pes: "",
+    cur_GbpToBra_Rea: "",
+    cur_GbpToUru_Pes: "",
+    cur_GbpToPar_Gua: "",
+    cur_GbpToBol_Bol: "",
+    cur_UsdtToBs: "",
+    cur_UsdtToUsd: "",
   });
 
-  // Manejar cambios en la entrega en efectivo
-  const handleCashDeliveryChange = (e) => {
-    const { name, value } = e.target;
-    setCashDelivery((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSaveCashDelivery = () => {
-    console.log("Guardando cambios de entrega en efectivo...", cashDelivery);
-  };
-
-
-  const [allRates, setAllRates] = useState({
-    cur_EurToBs: 1,
-    cur_EurToUsd: 1,
-    cur_EurToGbp: 1,
-    cur_EurToUsd_Pa: 1,
-    cur_EurToUsd_Ecu: 1,
-    cur_EurToSol_Pe: 1,
-    cur_EurToPes_Ch: 1,
-    cur_EurToPes_Mex: 1,
-    cur_EurToCol_Pes: 1,
-    cur_EurToArg_Pes: 1,
-    cur_EurToBra_Rea: 1,
-    cur_EurToUru_Pes: 1,
-    cur_EurToPar_Gua: 1,
-    cur_EurToBol_Bol: 1,
-    cur_UsdToBs: 1,
-    cur_UsdToEur: 1,
-    cur_UsdToGbp: 1,
-    cur_UsdToUsd_Pa: 1,
-    cur_UsdToUsd_Ecu: 1,
-    cur_UsdToSol_Pe: 1,
-    cur_UsdToPes_Ch: 1,
-    cur_UsdToPes_Mex: 1,
-    cur_UsdToCol_Pes: 1,
-    cur_UsdToArg_Pes: 1,
-    cur_UsdToBra_Rea: 1,
-    cur_UsdToUru_Pes: 1,
-    cur_UsdToPar_Gua: 1,
-    cur_UsdToBol_Bol: 1,
-    cur_GbpToBs: 1,
-    cur_GbpToUsd: 1,
-    cur_GbpToEur: 1,
-    cur_GbpToUsd_Pa: 1,
-    cur_GbpToUsd_Ecu: 1,
-    cur_GbpToSol_Pe: 1,
-    cur_GbpToPes_Ch: 1,
-    cur_GbpToPes_Mex: 1,
-    cur_GbpToCol_Pes: 1,
-    cur_GbpToArg_Pes: 1,
-    cur_GbpToBra_Rea: 1,
-    cur_GbpToUru_Pes: 1,
-    cur_GbpToPar_Gua: 1,
-    cur_GbpToBol_Bol: 1,
-    cur_UsdtToBs: 1,
-    cur_UsdtToUsd: 1,
-  });
+  const [location, setLocation] = useState("Obligatorio"); // Estado inicial
+  const [additionalInfo, setAdditionalInfo] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("EUR");
 
-  // Manejar cambios de las tasas principales
-  const handleMainRateChange = (e) => {
-    const { name, value } = e.target;
-    setMainRates((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Manejar cambios de todas las tasas en el modal
-  const handleAllRateChange = (e) => {
-    const { name, value } = e.target;
-    setAllRates((prev) => ({ ...prev, [name]: value }));
-  };
-
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
-  const handleUpdateRates = () => {
-    console.log("Actualizando tasas principales y secundarias...");
-    console.log(mainRates);
-    closeModal();
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/CurrencyPrice`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setCurrencyPrice(response.data);
+      // Set default values from the database
+      setFormData(response.data[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setFormData, url]);
+
+  const fetchDataPorcents = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/PorcentPrice/`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setPorcentPrice(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setPorcentPrice, url]);
+
+  useEffect(() => {
+    fetchData();
+    fetchDataPorcents();
+  }, [fetchData, fetchDataPorcents]);
+
+  const handleEdit = async (event) => {
+    event.preventDefault();
+
+    try {
+      await axios.put(`${url}/CurrencyPrice/1`, formData, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`
+        }
+      });
+
+      fetchData();
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleSaveChanges = () => {
-    console.log("Guardando cambios de las tasas secundarias...", allRates);
-    closeModal();
+  const handleFetchingPorcent = async (id) => {
+    try {
+      if (id) {
+        setPorcentId(id);
+
+        const response = await axios.get(`${url}/PorcentPrice/${id}`, {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`
+          }
+        });
+        setPorcent(response.data);
+
+        setFormDataPorcent({
+          por_porcentGbp: response.data.por_porcentGbp,
+          por_porcentEur: response.data.por_porcentEur,
+          por_porcentUsd: response.data.por_porcentUsd,
+          por_deliveryPrice: response.data.por_deliveryPrice,
+          por_status: response.data.por_status,
+          por_comment: response.data.por_comment,
+        });
+
+        setLocation(response.data.por_status);
+        setAdditionalInfo(response.data.por_comment);
+      } else {
+        setFormDataPorcent({
+          por_porcentGbp: '',
+          por_porcentEur: '',
+          por_porcentUsd: '',
+          por_deliveryPrice: '',
+          por_status: '',
+          por_comment: '',
+        });
+
+        setPorcent(null);
+        setLocation('');
+        setAdditionalInfo('');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const handleUpdatePorcentaje = async () => {
+    try {
+      const requestData = {
+        por_porcentGbp: formDataPorcent.por_porcentGbp,
+        por_porcentEur: formDataPorcent.por_porcentEur,
+        por_porcentUsd: formDataPorcent.por_porcentUsd,
+        por_deliveryPrice: formDataPorcent.por_deliveryPrice,
+        por_status: location,
+        por_comment: additionalInfo,
+      };
+
+      const id = porcentId;
+
+      await axios.put(`${url}/PorcentPrice/${id}`, requestData, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`
+        }
+      });
+
+      handleFetchingPorcent();
+    } catch (error) {
+      console.error('Error al actualizar los datos de porcentaje:', error);
+    }
+  };
+
+  const handleInputChangePorcent = (e) => {
+    setFormDataPorcent({
+      ...formDataPorcent,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // const handleLocationChange = (newLocation) => {
+  //   setLocation(newLocation);
+  //   setAdditionalInfo('');
+  // };
+
+  // const handleAdditionalInfoChange = (e) => {
+  //   setAdditionalInfo(e.target.value);
+  // };
 
   return (
     <div className="currency-price-dashboard">
@@ -145,8 +250,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="cur_EurToBs"
-                  value={mainRates.cur_EurToBs}
-                  onChange={handleMainRateChange}
+                  value={formData.cur_EurToBs}
+                  onChange={handleInputChange}
                 />
                 <img src={venezuelaFlag} alt="Bs" className="flag" />
               </label>
@@ -155,8 +260,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="cur_EurToUsd"
-                  value={mainRates.cur_EurToUsd}
-                  onChange={handleMainRateChange}
+                  value={formData.cur_EurToUsd}
+                  onChange={handleInputChange}
                 />
                 <img src={usaFlag} alt="USD" className="flag" />
               </label>
@@ -165,8 +270,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="cur_UsdtToBs"
-                  value={mainRates.cur_UsdtToBs}
-                  onChange={handleMainRateChange}
+                  value={formData.cur_UsdtToBs}
+                  onChange={handleInputChange}
                 />
                 <img src={venezuelaFlag} alt="Bs" className="flag" />
               </label>
@@ -175,8 +280,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="cur_GbpToUsd"
-                  value={mainRates.cur_GbpToUsd}
-                  onChange={handleMainRateChange}
+                  value={formData.cur_GbpToUsd}
+                  onChange={handleInputChange}
                 />
                 <img src={usaFlag} alt="USD" className="flag" />
               </label>
@@ -185,16 +290,16 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="cur_GbpToBs"
-                  value={mainRates.cur_GbpToBs}
-                  onChange={handleMainRateChange}
+                  value={formData.cur_GbpToBs}
+                  onChange={handleInputChange}
                 />
                 <img src={venezuelaFlag} alt="Bs" className="flag" />
               </label>
             </div>
             <button className="btn btn-primary" onClick={openModal}>
-            Editar Tasas Secundarias
-          </button>
-            <button className="btn btn-success" onClick={handleUpdateRates}>
+              Editar Tasas Secundarias
+            </button>
+            <button className="btn btn-success" onClick={handleEdit}>
               Actualizar Tasas
             </button>
           </div>
@@ -209,8 +314,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="por_porcentGbp"
-                  value={cashDelivery.por_porcentGbp}
-                  onChange={handleCashDeliveryChange}
+                  value={formDataPorcent.por_porcentGbp}
+                  onChange={handleInputChangePorcent}
                 />
               </label>
               <label>
@@ -218,8 +323,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="por_porcentUsd"
-                  value={cashDelivery.por_porcentUsd}
-                  onChange={handleCashDeliveryChange}
+                  value={formDataPorcent.por_porcentUsd}
+                  onChange={handleInputChangePorcent}
                 />
               </label>
               <label>
@@ -227,8 +332,8 @@ function CurrencyPrice() {
                 <input
                   type="number"
                   name="por_porcentEur"
-                  value={cashDelivery.por_porcentEur}
-                  onChange={handleCashDeliveryChange}
+                  value={formDataPorcent.por_porcentEur}
+                  onChange={handleInputChangePorcent}
                 />
               </label>
 
@@ -236,8 +341,8 @@ function CurrencyPrice() {
                 Localización:
                 <select
                   name="por_stateLocation"
-                  value={cashDelivery.por_stateLocation}
-                  onChange={handleCashDeliveryChange}
+                  value={formDataPorcent.por_stateLocation}
+                  onChange={handleInputChangePorcent}
                 >
                   <option value="Zulia">Zulia</option>
                   <option value="Caracas">Caracas</option>
@@ -249,8 +354,8 @@ function CurrencyPrice() {
                 Estado de Entrega:
                 <select
                   name="por_status"
-                  value={cashDelivery.por_status}
-                  onChange={handleCashDeliveryChange}
+                  value={formDataPorcent.por_status}
+                  onChange={handleInputChangePorcent}
                 >
                   <option value="obligatorio">Obligatorio</option>
                   <option value="oficina">Oficina</option>
@@ -258,32 +363,35 @@ function CurrencyPrice() {
                 </select>
               </label>
 
-              {cashDelivery.por_status === "obligatorio" && (
+              {formDataPorcent.por_status === "obligatorio" && (
                 <label>
                   Precio de Entrega:
                   <input
                     type="number"
                     name="por_deliveryPrice"
-                    value={cashDelivery.por_deliveryPrice}
-                    onChange={handleCashDeliveryChange}
+                    value={formDataPorcent.por_deliveryPrice}
+                    onChange={handleInputChangePorcent}
                   />
                 </label>
               )}
 
-              {cashDelivery.por_status === "oficina" && (
+              {formDataPorcent.por_status === "oficina" && (
                 <label>
                   Comentario:
                   <input
                     type="text"
                     name="por_comment"
-                    value={cashDelivery.por_comment}
-                    onChange={handleCashDeliveryChange}
+                    value={formDataPorcent.por_comment}
+                    onChange={handleInputChangePorcent}
                   />
                 </label>
               )}
             </div>
 
-            <button className="btn btn-primary" onClick={handleSaveCashDelivery}>
+            <button
+              className="btn btn-primary"
+              onClick={handleUpdatePorcentaje}
+            >
               Guardar Configuración
             </button>
           </div>
@@ -291,288 +399,284 @@ function CurrencyPrice() {
 
         {/* Modal para las tasas secundarias */}
         {showModal && (
-  <div className="modal show">
-    <div className="modal-content">
-      <h3>Modificar Tasas Secundarias</h3>
-      <div className="tabs">
-        <button
-          className={activeTab === "EUR" ? "active" : ""}
-          onClick={() => setActiveTab("EUR")}
-        >
-          EUR
-        </button>
-        <button
-          className={activeTab === "USD" ? "active" : ""}
-          onClick={() => setActiveTab("USD")}
-        >
-          USD
-        </button>
-        <button
-          className={activeTab === "GBP" ? "active" : ""}
-          onClick={() => setActiveTab("GBP")}
-        >
-          GBP
-        </button>
-        <button
-          className={activeTab === "USDT" ? "active" : ""}
-          onClick={() => setActiveTab("USDT")}
-        >
-          USDT
-        </button>
-      </div>
+          <div className="modal show">
+            <div className="modal-content">
+              <h3>Modificar Tasas Secundarias</h3>
+              <div className="tabs">
+                <button
+                  className={activeTab === "EUR" ? "active" : ""}
+                  onClick={() => setActiveTab("EUR")}
+                >
+                  EUR
+                </button>
+                <button
+                  className={activeTab === "USD" ? "active" : ""}
+                  onClick={() => setActiveTab("USD")}
+                >
+                  USD
+                </button>
+                <button
+                  className={activeTab === "GBP" ? "active" : ""}
+                  onClick={() => setActiveTab("GBP")}
+                >
+                  GBP
+                </button>
+                <button
+                  className={activeTab === "USDT" ? "active" : ""}
+                  onClick={() => setActiveTab("USDT")}
+                >
+                  USDT
+                </button>
+              </div>
 
-      <div className="tab-content">
-        {activeTab === "EUR" && (
-          <div className="eur-rates">
-            <label>EUR to USD (Panamá):</label>
-            <input
-              type="number"
-              name="cur_EurToUsd_Pa"
-              value={allRates.cur_EurToUsd_Pa}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to USD (Ecuador):</label>
-            <input
-              type="number"
-              name="cur_EurToUsd_Ecu"
-              value={allRates.cur_EurToUsd_Ecu}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Sol (Perú):</label>
-            <input
-              type="number"
-              name="cur_EurToSol_Pe"
-              value={allRates.cur_EurToSol_Pe}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Peso Chileno:</label>
-            <input
-              type="number"
-              name="cur_EurToPes_Ch"
-              value={allRates.cur_EurToPes_Ch}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Peso Mexicano:</label>
-            <input
-              type="number"
-              name="cur_EurToPes_Mex"
-              value={allRates.cur_EurToPes_Mex}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Peso Colombiano:</label>
-            <input
-              type="number"
-              name="cur_EurToCol_Pes"
-              value={allRates.cur_EurToCol_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Peso Argentino:</label>
-            <input
-              type="number"
-              name="cur_EurToArg_Pes"
-              value={allRates.cur_EurToArg_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Real Brasileño:</label>
-            <input
-              type="number"
-              name="cur_EurToBra_Rea"
-              value={allRates.cur_EurToBra_Rea}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Peso Uruguayo:</label>
-            <input
-              type="number"
-              name="cur_EurToUru_Pes"
-              value={allRates.cur_EurToUru_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Guaraní Paraguayo:</label>
-            <input
-              type="number"
-              name="cur_EurToPar_Gua"
-              value={allRates.cur_EurToPar_Gua}
-              onChange={handleAllRateChange}
-            />
-            <label>EUR to Boliviano:</label>
-            <input
-              type="number"
-              name="cur_EurToBol_Bol"
-              value={allRates.cur_EurToBol_Bol}
-              onChange={handleAllRateChange}
-            />
-            {/* Resto de tasas relacionadas con EUR */}
-          </div>
-        )}
-        {activeTab === "USD" && (
-          <div className="usd-rates">         
-            <label>USD to Sol (Perú):</label>
-            <input
-              type="number"
-              name="cur_UsdToSol_Pe"
-              value={allRates.cur_UsdToSol_Pe}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Peso Chileno:</label>
-            <input
-              type="number"
-              name="cur_UsdToPes_Ch"
-              value={allRates.cur_UsdToPes_Ch}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Peso Mexicano:</label>
-            <input
-              type="number"
-              name="cur_UsdToPes_Mex"
-              value={allRates.cur_UsdToPes_Mex}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Peso Colombiano:</label>
-            <input
-              type="number"
-              name="cur_UsdToCol_Pes"
-              value={allRates.cur_UsdToCol_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Peso Argentino:</label>
-            <input
-              type="number"
-              name="cur_UsdToArg_Pes"
-              value={allRates.cur_UsdToArg_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Real Brasileño:</label>
-            <input
-              type="number"
-              name="cur_UsdToBra_Rea"
-              value={allRates.cur_UsdToBra_Rea}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Peso Uruguayo:</label>
-            <input
-              type="number"
-              name="cur_UsdToUru_Pes"
-              value={allRates.cur_UsdToUru_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Guaraní Paraguayo:</label>
-            <input
-              type="number"
-              name="cur_UsdToPar_Gua"
-              value={allRates.cur_UsdToPar_Gua}
-              onChange={handleAllRateChange}
-            />
-            <label>USD to Boliviano:</label>
-            <input
-              type="number"
-              name="cur_UsdToBol_Bol"
-              value={allRates.cur_UsdToBol_Bol}
-              onChange={handleAllRateChange}
-            />
-            {/* Resto de tasas relacionadas con USD */}
-          </div>
-        )}
-        {activeTab === "GBP" && (
-          <div className="gbp-rates">
-           
-            
-           
-            <label>GBP to Sol (Perú):</label>
-            <input
-              type="number"
-              name="cur_GbpToSol_Pe"
-              value={allRates.cur_GbpToSol_Pe}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Peso Chileno:</label>
-            <input
-              type="number"
-              name="cur_GbpToPes_Ch"
-              value={allRates.cur_GbpToPes_Ch}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Peso Mexicano:</label>
-            <input
-              type="number"
-              name="cur_GbpToPes_Mex"
-              value={allRates.cur_GbpToPes_Mex}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Peso Colombiano:</label>
-            <input
-              type="number"
-              name="cur_GbpToCol_Pes"
-              value={allRates.cur_GbpToCol_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Peso Argentino:</label>
-            <input
-              type="number"
-              name="cur_GbpToArg_Pes"
-              value={allRates.cur_GbpToArg_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Real Brasileño:</label>
-            <input
-              type="number"
-              name="cur_GbpToBra_Rea"
-              value={allRates.cur_GbpToBra_Rea}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Peso Uruguayo:</label>
-            <input
-              type="number"
-              name="cur_GbpToUru_Pes"
-              value={allRates.cur_GbpToUru_Pes}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Guaraní Paraguayo:</label>
-            <input
-              type="number"
-              name="cur_GbpToPar_Gua"
-              value={allRates.cur_GbpToPar_Gua}
-              onChange={handleAllRateChange}
-            />
-            <label>GBP to Boliviano:</label>
-            <input
-              type="number"
-              name="cur_GbpToBol_Bol"
-              value={allRates.cur_GbpToBol_Bol}
-              onChange={handleAllRateChange}
-            />
-            {/* Resto de tasas relacionadas con GBP */}
-          </div>
-        )}
-        {activeTab === "USDT" && (
-          <div className="usdt-rates">
-            <label>USDT to Bs:</label>
-            <input
-              type="number"
-              name="cur_UsdtToBs"
-              value={allRates.cur_UsdtToBs}
-              onChange={handleAllRateChange}
-            />
-            <label>USDT to USD:</label>
-            <input
-              type="number"
-              name="cur_UsdtToUsd"
-              value={allRates.cur_UsdtToUsd}
-              onChange={handleAllRateChange}
-            />
-          </div>
-        )}
-      </div>
+              <div className="tab-content">
+                {activeTab === "EUR" && (
+                  <div className="eur-rates">
+                    <label>EUR to USD (Panamá):</label>
+                    <input
+                      type="number"
+                      name="cur_EurToUsd_Pa"
+                      value={formData.cur_EurToUsd_Pa}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to USD (Ecuador):</label>
+                    <input
+                      type="number"
+                      name="cur_EurToUsd_Ecu"
+                      value={formData.cur_EurToUsd_Ecu}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Sol (Perú):</label>
+                    <input
+                      type="number"
+                      name="cur_EurToSol_Pe"
+                      value={formData.cur_EurToSol_Pe}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Peso Chileno:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToPes_Ch"
+                      value={formData.cur_EurToPes_Ch}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Peso Mexicano:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToPes_Mex"
+                      value={formData.cur_EurToPes_Mex}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Peso Colombiano:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToCol_Pes"
+                      value={formData.cur_EurToCol_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Peso Argentino:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToArg_Pes"
+                      value={formData.cur_EurToArg_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Real Brasileño:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToBra_Rea"
+                      value={formData.cur_EurToBra_Rea}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Peso Uruguayo:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToUru_Pes"
+                      value={formData.cur_EurToUru_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Guaraní Paraguayo:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToPar_Gua"
+                      value={formData.cur_EurToPar_Gua}
+                      onChange={handleInputChange}
+                    />
+                    <label>EUR to Boliviano:</label>
+                    <input
+                      type="number"
+                      name="cur_EurToBol_Bol"
+                      value={formData.cur_EurToBol_Bol}
+                      onChange={handleInputChange}
+                    />
+                    {/* Resto de tasas relacionadas con EUR */}
+                  </div>
+                )}
+                {activeTab === "USD" && (
+                  <div className="usd-rates">
+                    <label>USD to Sol (Perú):</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToSol_Pe"
+                      value={formData.cur_UsdToSol_Pe}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Peso Chileno:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToPes_Ch"
+                      value={formData.cur_UsdToPes_Ch}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Peso Mexicano:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToPes_Mex"
+                      value={formData.cur_UsdToPes_Mex}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Peso Colombiano:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToCol_Pes"
+                      value={formData.cur_UsdToCol_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Peso Argentino:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToArg_Pes"
+                      value={formData.cur_UsdToArg_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Real Brasileño:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToBra_Rea"
+                      value={formData.cur_UsdToBra_Rea}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Peso Uruguayo:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToUru_Pes"
+                      value={formData.cur_UsdToUru_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Guaraní Paraguayo:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToPar_Gua"
+                      value={formData.cur_UsdToPar_Gua}
+                      onChange={handleInputChange}
+                    />
+                    <label>USD to Boliviano:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdToBol_Bol"
+                      value={formData.cur_UsdToBol_Bol}
+                      onChange={handleInputChange}
+                    />
+                    {/* Resto de tasas relacionadas con USD */}
+                  </div>
+                )}
+                {activeTab === "GBP" && (
+                  <div className="gbp-rates">
+                    <label>GBP to Sol (Perú):</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToSol_Pe"
+                      value={formData.cur_GbpToSol_Pe}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Peso Chileno:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToPes_Ch"
+                      value={formData.cur_GbpToPes_Ch}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Peso Mexicano:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToPes_Mex"
+                      value={formData.cur_GbpToPes_Mex}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Peso Colombiano:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToCol_Pes"
+                      value={formData.cur_GbpToCol_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Peso Argentino:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToArg_Pes"
+                      value={formData.cur_GbpToArg_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Real Brasileño:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToBra_Rea"
+                      value={formData.cur_GbpToBra_Rea}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Peso Uruguayo:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToUru_Pes"
+                      value={formData.cur_GbpToUru_Pes}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Guaraní Paraguayo:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToPar_Gua"
+                      value={formData.cur_GbpToPar_Gua}
+                      onChange={handleInputChange}
+                    />
+                    <label>GBP to Boliviano:</label>
+                    <input
+                      type="number"
+                      name="cur_GbpToBol_Bol"
+                      value={formData.cur_GbpToBol_Bol}
+                      onChange={handleInputChange}
+                    />
+                    {/* Resto de tasas relacionadas con GBP */}
+                  </div>
+                )}
+                {activeTab === "USDT" && (
+                  <div className="usdt-rates">
+                    <label>USDT to Bs:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdtToBs"
+                      value={formData.cur_UsdtToBs}
+                      onChange={handleInputChange}
+                    />
+                    <label>USDT to USD:</label>
+                    <input
+                      type="number"
+                      name="cur_UsdtToUsd"
+                      value={formData.cur_UsdtToUsd}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                )}
+              </div>
 
-      <button className="btn btn-primary" onClick={handleSaveChanges}>
-        Guardar Cambios
-      </button>
-      <button className="btn btn-secondary" onClick={closeModal}>
-        Cerrar
-      </button>
-    </div>
-  </div>
-)}
-
+              <button className="btn btn-primary" onClick={handleEdit}>
+                Guardar Cambios
+              </button>
+              <button className="btn btn-secondary" onClick={closeModal}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

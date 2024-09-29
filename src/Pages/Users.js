@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaEye, FaUserCircle, FaPlus, FaCheck, FaTimes, FaClock } from "react-icons/fa";
+import {
+  FaEye,
+  FaUserCircle,
+  FaPlus,
+  FaCheck,
+  FaTimes,
+  FaClock,
+} from "react-icons/fa";
 import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
 import NavBarAdmin from "../Components/NavBarAdmin"; // Importando NavBarAdmin
@@ -40,7 +47,7 @@ function Users() {
     setSearchQuery(event.target.value);
   };
 
-   //Fetch de Usuarios
+  //Fetch de Usuarios
   const fetchDataUsers = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/users`, {
@@ -112,6 +119,14 @@ function Users() {
     setShowEditModal(false);
     setShowMovementImageModal(false);
     setNewUserModalOpen(false);
+    setSelectedUser(null);
+    setNombre("");
+    setLastName("");
+    setEmail("");
+    setPassword("");
+    setDNI("");
+    setPhone("");
+    setVerif("");
   };
 
   // Función para añadir un nuevo usuario
@@ -147,8 +162,8 @@ function Users() {
 
   // Iconos de verificación
   const getVerificationIcon = (status) => {
-    if (status === "V") return <FaCheck style={{ color: "green" }} />;
-    if (status === "R") return <FaTimes style={{ color: "red" }} />;
+    if (status === "S") return <FaCheck style={{ color: "green" }} />;
+    if (status === "N") return <FaTimes style={{ color: "red" }} />;
     if (status === "E") return <FaClock style={{ color: "orange" }} />;
   };
 
@@ -201,6 +216,7 @@ function Users() {
         setSelectedUser(null);
 
         fetchDataUsers();
+        setSelectedUser(null);
         closeModal();
       } else {
         await axios.post(
@@ -226,6 +242,7 @@ function Users() {
         );
       }
       fetchDataUsers();
+      setSelectedUser(null);
       closeModal();
     } catch (error) {
       console.log(error);
@@ -234,9 +251,7 @@ function Users() {
 
   useEffect(() => {
     fetchDataUsers();
-  }, [
-    fetchDataUsers
-  ]);
+  }, [fetchDataUsers]);
 
   return (
     <div className="admin-dashboard">
@@ -281,8 +296,10 @@ function Users() {
             <tbody>
               {filteredUsuarios.map((user, index) => (
                 <tr key={user.use_id}>
-                  <td>{index+1}</td>
-                  <td><FaUserCircle className="profile-icon" /></td>
+                  <td>{index + 1}</td>
+                  <td>
+                    <FaUserCircle className="profile-icon" />
+                  </td>
                   <td>
                     {user.use_name} {user.use_lastName}
                   </td>
@@ -332,7 +349,7 @@ function Users() {
                     type="text"
                     name="nombre"
                     value={use_name}
-                    onChange={(e)=>setNombre(e.target.value)}
+                    onChange={(e) => setNombre(e.target.value)}
                     required
                   />
                 </label>
@@ -342,7 +359,7 @@ function Users() {
                     type="text"
                     name="apellido"
                     value={use_lastName}
-                    onChange={(e)=>setLastName(e.target.value)}
+                    onChange={(e) => setLastName(e.target.value)}
                     required
                   />
                 </label>
@@ -352,7 +369,7 @@ function Users() {
                     type="text"
                     name="dni"
                     value={use_dni}
-                    onChange={(e)=>setDNI(e.target.value)}
+                    onChange={(e) => setDNI(e.target.value)}
                   />
                 </label>
                 <label>
@@ -361,7 +378,7 @@ function Users() {
                     type="password"
                     name="password"
                     value={use_password}
-                    onChange={(e)=>setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </label>
                 <label>
@@ -370,7 +387,7 @@ function Users() {
                     type="text"
                     name="telefono"
                     value={use_phone}
-                    onChange={(e)=>setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </label>
                 <label>
@@ -379,7 +396,7 @@ function Users() {
                     type="email"
                     name="email"
                     value={use_email}
-                    onChange={(e)=>setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </label>
@@ -389,7 +406,7 @@ function Users() {
                     type="number"
                     name="saldoEUR"
                     value={use_amountEur}
-                    onChange={(e)=>setAmountEur(e.target.value)}
+                    onChange={(e) => setAmountEur(e.target.value)}
                   />
                 </label>
                 <label>
@@ -398,7 +415,7 @@ function Users() {
                     type="number"
                     name="saldoGBP"
                     value={use_amountGbp}
-                    onChange={(e)=>setAmountGbp(e.target.value)}
+                    onChange={(e) => setAmountGbp(e.target.value)}
                   />
                 </label>
                 <label>
@@ -407,7 +424,7 @@ function Users() {
                     type="number"
                     name="saldoUSD"
                     value={use_amountUsd}
-                    onChange={(e)=>setAmountUsd(e.target.value)}
+                    onChange={(e) => setAmountUsd(e.target.value)}
                   />
                 </label>
                 <label>
@@ -415,16 +432,27 @@ function Users() {
                   <select
                     name="use_verif"
                     value={use_verif}
-                    onChange={(e)=>setVerif(e.target.value)}
+                    onChange={(e) => setVerif(e.target.value)}
                   >
-                    <option value="V">Verificado</option>
+                    <option>Selecciobe una opción</option>
+                    <option value="S">Verificado</option>
                     <option value="E">En espera</option>
-                    <option value="R">Rechazado</option>
+                    <option value="N">Rechazado</option>
                   </select>
                 </label>
-                <button type="submit" className="btn btn-success">Guardar Usuario</button>
+                <button type="submit" className="btn btn-success">
+                  Guardar Usuario
+                </button>
               </form>
-              <button onClick={closeModal} className="close-button">Cerrar</button>
+              <button
+                onClick={() => {
+                  closeModal();
+                  setSelectedUser(null);
+                }}
+                className="close-button"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         )}
@@ -433,16 +461,35 @@ function Users() {
         {showDetailsModal && selectedUser && (
           <div className="modal">
             <div className="modal-content">
-              <h3>Detalles de {selectedUser.nombre} {selectedUser.apellido}</h3>
-              <p><strong>Teléfono:</strong> {selectedUser.telefono}</p>
-              <p><strong>Correo:</strong> {selectedUser.email}</p>
-              <p><strong>DNI:</strong> {selectedUser.dni || "N/A"}</p>
+              <h3>
+                Detalles de {selectedUser.nombre} {selectedUser.apellido}
+              </h3>
+              <p>
+                <strong>Teléfono:</strong> {selectedUser.telefono}
+              </p>
+              <p>
+                <strong>Correo:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>DNI:</strong> {selectedUser.dni || "N/A"}
+              </p>
               <div className="modal-buttons">
-                <button className="btn btn-primary" onClick={openMovementsModal}>Movimientos</button>
-                <button className="btn btn-primary" onClick={openImageModal}>Ver Imagen</button>
-                <button className="btn btn-secondary" onClick={openEditModal}>Editar</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={openMovementsModal}
+                >
+                  Movimientos
+                </button>
+                <button className="btn btn-primary" onClick={openImageModal}>
+                  Ver Imagen
+                </button>
+                <button className="btn btn-secondary" onClick={openEditModal}>
+                  Editar
+                </button>
               </div>
-              <button onClick={closeModal} className="close-button">Cerrar</button>
+              <button onClick={closeModal} className="close-button">
+                Cerrar
+              </button>
             </div>
           </div>
         )}
@@ -468,19 +515,33 @@ function Users() {
                       <td>{mov.fecha}</td>
                       <td>{mov.tipo}</td>
                       <td>
-                        {mov.moneda === "EUR" ? "€" : mov.moneda === "USD" ? "$" : "£"} {mov.monto}
-                        {mov.moneda === "EUR" && <img src={spainFlag} alt="EUR" />}
-                        {mov.moneda === "USD" && <img src={usaFlag} alt="USD" />}
+                        {mov.moneda === "EUR"
+                          ? "€"
+                          : mov.moneda === "USD"
+                          ? "$"
+                          : "£"}{" "}
+                        {mov.monto}
+                        {mov.moneda === "EUR" && (
+                          <img src={spainFlag} alt="EUR" />
+                        )}
+                        {mov.moneda === "USD" && (
+                          <img src={usaFlag} alt="USD" />
+                        )}
                       </td>
                       <td>{mov.estado}</td>
                       <td>
-                        <FaEye className="view-details-icon" onClick={openMovementImageModal} />
+                        <FaEye
+                          className="view-details-icon"
+                          onClick={openMovementImageModal}
+                        />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <button onClick={closeModal} className="close-button">Cerrar</button>
+              <button onClick={closeModal} className="close-button">
+                Cerrar
+              </button>
             </div>
           </div>
         )}
@@ -495,7 +556,9 @@ function Users() {
               ) : (
                 <div className="user-image-placeholder">[Sin Imagen]</div>
               )}
-              <button onClick={closeModal} className="close-button">Cerrar</button>
+              <button onClick={closeModal} className="close-button">
+                Cerrar
+              </button>
             </div>
           </div>
         )}
@@ -505,8 +568,12 @@ function Users() {
           <div className="modal">
             <div className="modal-content">
               <h3>Imagen del Movimiento</h3>
-              <div className="user-image-placeholder">[Imagen del Movimiento]</div>
-              <button onClick={closeModal} className="close-button">Cerrar</button>
+              <div className="user-image-placeholder">
+                [Imagen del Movimiento]
+              </div>
+              <button onClick={closeModal} className="close-button">
+                Cerrar
+              </button>
             </div>
           </div>
         )}
@@ -560,9 +627,13 @@ function Users() {
                     <option value="R">Rechazado</option>
                   </select>
                 </label>
-                <button type="submit" className="btn btn-success">Guardar Cambios</button>
+                <button type="submit" className="btn btn-success">
+                  Guardar Cambios
+                </button>
               </form>
-              <button onClick={closeModal} className="close-button">Cerrar</button>
+              <button onClick={closeModal} className="close-button">
+                Cerrar
+              </button>
             </div>
           </div>
         )}

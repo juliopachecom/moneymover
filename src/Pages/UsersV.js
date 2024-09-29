@@ -1,37 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaCheck } from "react-icons/fa";
 import NavBarAdmin from "../Components/NavBarAdmin";
+// import { toast, ToastContainer } from "react-toastify";
+import { useDataContext } from "../Context/dataContext";
+import axios from "axios";
 
 function UsersV() {
-  // Usuarios estáticos con el estado de verificación
-  const initialUsers = [
-    {
-      id: 1,
-      nombre: "Jose",
-      apellido: "Portillo",
-      dni: "12345678X",
-      telefono: "+34 04246725408",
-      email: "joseportillo2002.jdpf@gmail.com",
-      use_verif: "V", // Verificado
-    },
-    {
-      id: 2,
-      nombre: "Carlos",
-      apellido: "Martínez",
-      dni: "XK2301",
-      telefono: "+34 658742910",
-      email: "carlos.martinez@gmail.com",
-      use_verif: "V", // Verificado
-    },
-  ];
+  const { infoTkn, url } = useDataContext();
 
-  const [users] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
 
-  // Filtramos los usuarios que están en estado "Verificado"
-  const filteredUsers = users.filter((user) => user.use_verif === "V");
+  const filteredUsuarios = users.filter((user) => {
+    const fullName =
+      `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
+    return fullName;
+  });
+
+  //Fetch de Usuarios
+  const fetchDataUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setUsers, url]);
 
   // Icono de verificación para usuarios verificados
   const getVerificationIcon = () => <FaCheck style={{ color: "green" }} />;
+
+  useEffect(() => {
+    fetchDataUsers();
+  }, [
+    fetchDataUsers
+  ]);
 
   return (
     <div className="users-e-dashboard">
@@ -52,15 +58,17 @@ function UsersV() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.nombre} {user.apellido}</td>
-                  <td>{user.dni}</td>
-                  <td>{user.telefono}</td>
-                  <td>{user.email}</td>
-                  <td>{getVerificationIcon()}</td>
-                </tr>
+              {filteredUsuarios.filter((user) => user.use_verif === "V").map((user, index) => (
+                <tr key={user.use_id}>
+                <td>{index+1}</td>
+                <td>
+                  {user.use_name} {user.use_lastName}
+                </td>
+                <td>{user.use_dni || "N/A"}</td>
+                <td>{user.use_phone}</td>
+                <td>{user.use_email}</td>
+                <td>{getVerificationIcon()}</td>
+              </tr>
               ))}
             </tbody>
           </table>

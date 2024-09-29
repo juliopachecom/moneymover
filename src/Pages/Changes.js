@@ -7,30 +7,28 @@ import spainFlag from "../Assets/Images/spain.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import verification from "../Assets/Images/giphy.gif";
 import usaFlag from "../Assets/Images/usa.png";
-import { FaEye, FaExclamationTriangle, FaInfoCircle, FaWhatsapp } from "react-icons/fa"; // FaExclamationTriangle para el ícono de advertencia
+import {
+  FaEye,
+  FaExclamationTriangle,
+  FaInfoCircle,
+  FaWhatsapp,
+} from "react-icons/fa"; // FaExclamationTriangle para el ícono de advertencia
 import { NavBarUser } from "../Components/NavBarUser";
 // import { Link } from "react-router-dom";
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter
-} from "reactstrap";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
 function Changes() {
   const { logged, infoTkn, url } = useDataContext();
-  // const [loading, setLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState("recargar"); // Cambio entre recarga y retiro
   const [isTasaOpen, setIsTasaOpen] = useState(false); // Desplegar tasas
   const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
   const [isRatesModalOpen, setIsRatesModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const kycLink = null;
+  const [loading, setLoading] = useState(false);
 
   // Datos Usuario
   const [user, setUser] = useState([]);
@@ -41,6 +39,7 @@ function Changes() {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
+  const [kycLink, setKycLink] = useState(null); // Estado para almacenar el enlace KYC
   // Datos para verificación
   // const [use_dni, setUseDNI] = useState("");
   // const [use_phone, setUsePhone] = useState("");
@@ -101,6 +100,92 @@ function Changes() {
     window.open(url, "_blank");
   };
 
+  const handleKycRequest = async () => {
+    setLoading(true); // Activa el estado de carga
+    try {
+      console.log("Solicitando KYC para el usuario ID:", user.use_id);
+
+      // Primero verificamos si ya existe un kyc_link para este usuario
+      const existingKycLinkResponse = await axios.get(
+        `${url}/kyclink/user/${user.use_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const existingKycLink = existingKycLinkResponse.data;
+
+      if (existingKycLink) {
+        // Si existe un kyc_link, hacemos un PUT para actualizar el kyc_link_status a 'Pending'
+        await axios.put(
+          `${url}/kyclink/${existingKycLink.kyc_link_id}`,
+          {
+            kyc_link_status: "Pending",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log(
+          "KYC link existente actualizado para el usuario:",
+          user.use_id
+        );
+        setKycLink(existingKycLink.kyc_link); // Guardar el enlace KYC si ya existe
+      } else {
+        // Si no existe, creamos un nuevo kyc_link
+        const kycData = {
+          kyc_link: "", // Esto debería generarse en el servidor
+          kyc_link_status: "Pending",
+          kyc_link_date: new Date().toISOString(), // Fecha actual
+          kyc_user_id: user.use_id, // ID del usuario actual
+        };
+
+        const newKycResponse = await axios.post(
+          `${url}/kyclink/create`,
+          kycData,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log("Nuevo KYC link creado para el usuario:", user.use_id);
+        setKycLink(newKycResponse.data.kyc_link); // Guardar el nuevo enlace KYC
+      }
+
+      // Actualizamos el estado del usuario a "En proceso de verificación"
+      await axios.put(
+        `${url}/Users/${user.use_id}`,
+        {
+          use_verif: "E",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Mostramos el modal de confirmación
+      // toast.success("¡KYC solicitado con éxito!");
+    } catch (error) {
+      console.error("Error al solicitar el link KYC:", error);
+      // toast.error("Error al solicitar el link KYC.");
+    } finally {
+      setLoading(false); // Desactiva el estado de carga
+    }
+  };
+
   // Tasas de cambio estáticas
   const userStatusMessage = "Usuario no verificado. Haz clic para verificarte.";
 
@@ -113,6 +198,25 @@ function Changes() {
         },
       });
       setUser(response.data);
+
+      // Obtener el KYC link asociado al usuario
+      const kycResponse = await axios.get(
+        `${url}/kyclink/user/${user.use_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+
+      const kycData = kycResponse.data;
+
+      // Si existe un KYC link, lo guardamos en el estado
+      if (kycData && kycData.kyc_link) {
+        setKycLink(kycData.kyc_link);
+      } else {
+        setKycLink(null);
+      }
 
       const responseMovemments = await axios.get(
         `${url}/Movements/user/${response.data.use_id}`,
@@ -133,11 +237,10 @@ function Changes() {
       //   }
       // );
       // setUserDirectory(responseDirectory.data);
-
     } catch (error) {
       console.log(error);
     }
-  }, [setUser, infoTkn, url]);
+  }, [setUser, infoTkn, url, user]);
 
   // Fetch de datos de la tasa de cambio
   const fetchCurrencyData = useCallback(async () => {
@@ -152,10 +255,7 @@ function Changes() {
   useEffect(() => {
     fetchCurrencyData();
     fetchDataUser();
-  }, [
-    fetchCurrencyData,
-    fetchDataUser,
-  ]);
+  }, [fetchCurrencyData, fetchDataUser]);
 
   return logged ? (
     <div className="changes">
@@ -194,7 +294,12 @@ function Changes() {
       )}
 
       {/* Modal para enviar al usuario a WhatsApp */}
-      <Modal className="kyc-modal-content" isOpen={modal} toggle={toggle} centered>
+      <Modal
+        className="kyc-modal-content"
+        isOpen={modal}
+        toggle={toggle}
+        centered
+      >
         <ModalHeader toggle={toggle}>
           <FaInfoCircle /> Información
         </ModalHeader>
@@ -298,14 +403,18 @@ function Changes() {
 
       {/* Alternal entre recargar y enviar remesas */}
       <div className="changes__actions">
-          <button onClick={toggle} className="action-button green">Recargar Saldo</button>
+        <button onClick={toggle} className="action-button green">
+          Recargar Saldo
+        </button>
         {/* <Link to="/recharge">
           {" "}
         </Link>
         <Link to="/sendmoney">
           {" "}
         </Link> */}
-          <button onClick={toggle} className="action-button green">Enviar Remesas</button>
+        <button onClick={toggle} className="action-button green">
+          Enviar Remesas
+        </button>
       </div>
 
       {/* Alterna entre moivimientos de recargas y envios de remesas */}
@@ -363,8 +472,8 @@ function Changes() {
                             {movement.mov_currency === "EUR"
                               ? "€"
                               : movement.mov_currency === "USD"
-                                ? "$"
-                                : "£"}{" "}
+                              ? "$"
+                              : "£"}{" "}
                             {movement.mov_amount}{" "}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
@@ -378,15 +487,15 @@ function Changes() {
                               movement.mov_status === "S"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                  ? "en espera"
-                                  : "cancelled"
+                                ? "en espera"
+                                : "cancelled"
                             }
                           >
                             {movement.mov_status === "S"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                                ? "En espera"
-                                : "Rechazado"}
+                              ? "En espera"
+                              : "Rechazado"}
                           </td>
                           <td>
                             <FaEye className="view-details-icon" />
@@ -465,8 +574,8 @@ function Changes() {
                             {movement.mov_currency === "BS"
                               ? "Bs"
                               : movement.mov_currency === "USD"
-                                ? "$"
-                                : "£"}{" "}
+                              ? "$"
+                              : "£"}{" "}
                             {movement.mov_amount}{" "}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
@@ -480,15 +589,15 @@ function Changes() {
                               movement.mov_status === "S"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                  ? "en espera"
-                                  : "cancelled"
+                                ? "en espera"
+                                : "cancelled"
                             }
                           >
                             {movement.mov_status === "S"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                                ? "En espera"
-                                : "Rechazado"}
+                              ? "En espera"
+                              : "Rechazado"}
                           </td>
                           <td>
                             <FaEye
@@ -620,7 +729,6 @@ function Changes() {
           <div className="rates-modal-content">
             <h2>Tasas para el resto de América</h2>
             <div className="rates-table">
-
               {/* Cambios de Euros */}
               <div className="rates-column">
                 <h3>De Euros</h3>
@@ -672,7 +780,6 @@ function Changes() {
                     ? currencyPrice[0].cur_EurToUsd_Ec
                     : "N/A"}{" "}
                 </p>
-
               </div>
 
               {/* Cambios de Dolares */}
@@ -726,7 +833,6 @@ function Changes() {
                     ? currencyPrice[0].cur_UsdToUsd_Ec
                     : "N/A"}{" "}
                 </p>
-
               </div>
 
               {/* Cambios de Libras */}
@@ -780,9 +886,7 @@ function Changes() {
                     ? currencyPrice[0].cur_GbpToUsd_Ec
                     : "N/A"}{" "}
                 </p>
-
               </div>
-
             </div>
             <button className="whatsapp-button" onClick={sendMessageToWhatsApp}>
               Enviar Mensaje por WhatsApp

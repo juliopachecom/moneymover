@@ -19,68 +19,21 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
     h2 {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 700;
+      font-family: 'Roboto', sans-serif;
       margin: 0;
     }
 
     .date {
       font-size: 18px;
       font-weight: 500;
+      font-family: 'Open Sans', sans-serif;
       color: #d3d3d3;
     }
   }
 
-  /* Primera fila para los totales */
-  .cards-section.totales {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 900px;
-    margin-bottom: 20px;
-
-    .card {
-      background-color: white;
-      border-radius: 15px;
-      padding: 20px;
-      flex: 1;
-      margin: 0 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-      &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-      }
-
-      h3 {
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 10px;
-      }
-
-      .value {
-        font-size: 22px;
-        font-weight: 700;
-        color: #003366;
-      }
-
-      a {
-        display: inline-block;
-        margin-top: 10px;
-        color: #007bff;
-        font-weight: 600;
-        text-decoration: none;
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-  }
-
-  /* Segunda fila para los usuarios */
+  .cards-section.totales,
   .cards-section.usuarios {
     display: flex;
     justify-content: space-between;
@@ -103,16 +56,18 @@
       }
 
       h3 {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 600;
+        font-family: 'Roboto', sans-serif;
         color: #333;
         margin-bottom: 10px;
       }
 
       .value {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 700;
         color: #003366;
+        font-family: 'Open Sans', sans-serif;
       }
 
       a {
@@ -120,10 +75,12 @@
         margin-top: 10px;
         color: #007bff;
         font-weight: 600;
+        font-family: 'Roboto', sans-serif;
         text-decoration: none;
+        transition: color 0.3s ease;
 
         &:hover {
-          text-decoration: underline;
+          color: #0056b3;
         }
       }
     }
@@ -143,6 +100,7 @@
         border: none;
         border-radius: 20px;
         font-weight: bold;
+        font-family: 'Roboto', sans-serif;
         cursor: pointer;
         transition: background-color 0.3s ease, transform 0.3s ease;
 
@@ -174,11 +132,13 @@
       td {
         padding: 15px;
         text-align: left;
+        font-family: 'Open Sans', sans-serif;
       }
 
       th {
         background-color: #f7f7f7;
         font-weight: 600;
+        font-family: 'Roboto', sans-serif;
       }
 
       td {
@@ -186,7 +146,8 @@
       }
 
       .flag {
-        width: 20px;
+        width: 15px;
+        /* Tamaño reducido para las banderas */
         margin-left: 10px;
       }
 
@@ -207,11 +168,221 @@
       .details-icon {
         color: #003366;
         cursor: pointer;
+        transition: transform 0.3s ease;
 
         &:hover {
           transform: scale(1.2);
         }
       }
+    }
+  }
+
+  /* Modal styling */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    max-width: 100%;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    animation: scaleUp 0.3s ease;
+  }
+
+  .modal-details {
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 20px;
+
+    p {
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+  }
+
+  .modal-actions {
+    margin-top: 20px;
+
+    label {
+      font-size: 1rem;
+      font-family: 'Open Sans', sans-serif;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-label {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      width: 100%;
+      font-family: 'Roboto', sans-serif;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: 'Roboto', sans-serif;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .approve-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .reject-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+  }
+
+  /* Efecto acordeón */
+  .rejection-reason {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    font-family: 'Roboto', sans-serif;
+    margin-top: 20px;
+
+    &.open {
+      max-height: 250px;
+      /* Ajusta el valor según sea necesario */
+      transition: max-height 0.5s ease-in;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1rem;
+      font-family: 'Roboto', sans-serif;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      font-family: 'Open Sans', sans-serif;
+      resize: vertical;
+      transition: border 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border: 1px solid #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      }
+    }
+
+
+
+    .send-btn,
+    .cancel-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: 'Roboto', sans-serif;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .send-btn {
+      background-color: #007bff;
+      color: white;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+
+    .cancel-btn {
+      background-color: #f44336;
+      color: white;
+
+      &:hover {
+        background-color: #d32f2f;
+      }
+    }
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleUp {
+    from {
+      transform: scale(0.8);
+    }
+
+    to {
+      transform: scale(1);
     }
   }
 }

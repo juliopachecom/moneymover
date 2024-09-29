@@ -258,6 +258,20 @@ input[type="text"] {
           }
         }
     
+        .error {
+          color: #e74c3c; 
+          font-size: 0.875rem; 
+          margin-top: -10px; 
+          margin-bottom: 10px; 
+          padding-left: 5px;
+          display: block;
+      
+          &::before {
+            content: '⚠'; 
+            margin-right: 5px;
+          }
+        }
+
         .close-button {
           position: absolute;
           top: 10px;

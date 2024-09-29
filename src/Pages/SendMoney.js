@@ -6,9 +6,11 @@ import { StepTracker } from "../Components/StepTracker"; // Importación del com
 import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 function SendMoney() {
   const { logged, infoTkn, url } = useDataContext();
+  const history = useHistory();
   const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1); // Controla los pasos del formulario
@@ -34,7 +36,7 @@ function SendMoney() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
 
-  // Datos de Ebio de remesas
+  // Datos de Envio de remesas
   const [payment, setPayment] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [amount, setAmount] = useState("");
@@ -44,6 +46,13 @@ function SendMoney() {
   const [bankOptionPay, setBankOptionPay] = useState("");
   const [mov_img, setMov_img] = useState("");
   const [showConfirmationr, setShowConfirmationr] = useState(false);
+
+  //DATOS PARA BENEFICIARIO
+  const [accbsUser_bank, setAccbsUser_bank] = useState("");
+  const [accbsUser_owner, setAccbsUser_owner] = useState("");
+  const [accbsUser_number, setAccbsUser_number] = useState("");
+  const [accbsUser_dni, setAccbsUser_dni] = useState("");
+  const [accbsUser_phone, setAccbsUser_phone] = useState("");
 
   // Fetch de datos del usuario (Incluye movimientos y directorio)
   const fetchDataUser = useCallback(async () => {
@@ -64,7 +73,6 @@ function SendMoney() {
         }
       );
       setUserDirectory(responseDirectory.data);
-
     } catch (error) {
       console.log(error);
     }
@@ -122,19 +130,34 @@ function SendMoney() {
     }
   }, [url, infoTkn]);
 
-  const [newBeneficiary, setNewBeneficiary] = useState({
-    nombre: "",
-    cedula: "",
-    banco: "",
-    cuenta: "",
-    tipoCuenta: "",
-    telefono: "",
-  });
+  const handleAddAccountSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await axios.post(
+        `${url}/AccBsUser/create`,
+        {
+          accbsUser_bank,
+          accbsUser_owner,
+          accbsUser_number,
+          accbsUser_dni,
+          accbsUser_phone,
+          accbsUser_type: selectedOption,
+          accbsUser_status: "activo",
+          accbsUser_userId: user.use_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
 
-  const exchangeRates = {
-    EUR: 1.2,
-    USD: 1.1,
-    GBP: 1.5,
+      // Refresh the page after adding account
+      fetchDataUser();
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleCurrencyChange = (e) => {
@@ -158,12 +181,6 @@ function SendMoney() {
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
-  };
-
-  // Función para actualizar los campos del nuevo beneficiario
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewBeneficiary((prev) => ({ ...prev, [name]: value }));
   };
 
   const validateAmount = () => {
@@ -211,15 +228,15 @@ function SendMoney() {
     formData.append("mov_amount", amount);
     formData.append("mov_type", "Retiro");
     formData.append("mov_status", "E");
-    formData.append("mov_code", '');
-    formData.append("mov_phone", '');
+    formData.append("mov_code", "");
+    formData.append("mov_phone", "");
 
     // const selectedAccount = userDirectory.find(
     //   (account) =>
     //     parseInt(account.accbsUser_id) === parseInt(selectedIdAccount)
     // );
     formData.append(
-      "mov_comment", 'Hola'
+      "mov_comment", "Hola"
       // `${
       //   (sendOption === "Cuenta Bancaria" || sendOption === "Pago Movil") &&
       //   `Banco: ` +
@@ -258,7 +275,7 @@ function SendMoney() {
       // }` + note
     );
     formData.append("mov_img", "Retiro de Divisa");
-    formData.append("mov_typeOutflow", 'sendOption');
+    formData.append("mov_typeOutflow", "sendOption");
     formData.append("mov_accEurId", payment === "EUR" ? 99 : 0);
     formData.append("mov_accUsdId", payment === "USD" ? 99 : 0);
     formData.append("mov_accGbpId", payment === "GBP" ? 99 : 0);
@@ -285,19 +302,19 @@ function SendMoney() {
     //       : user.use_amountEur
     //   );
     // } else {
-    //   formDataUser.append(
-    //     "use_amountUsd",
-    //     payment === "USD" ? user.use_amountUsd - sendAmount : user.use_amountUsd
-    //   );
-    //   formDataUser.append(
-    //     "use_amountGbp",
-    //     payment === "GBP" ? user.use_amountGbp - sendAmount : user.use_amountGbp
-    //   );
-    //   formDataUser.append(
-    //     "use_amountEur",
-    //     payment === "EUR" ? user.use_amountEur - sendAmount : user.use_amountEur
-    //   );
     // }
+    formDataUser.append(
+      "use_amountUsd",
+      payment === "USD" ? user.use_amountUsd - amount : user.use_amountUsd
+    );
+    formDataUser.append(
+      "use_amountGbp",
+      payment === "GBP" ? user.use_amountGbp - amount : user.use_amountGbp
+    );
+    formDataUser.append(
+      "use_amountEur",
+      payment === "EUR" ? user.use_amountEur - amount : user.use_amountEur
+    );
 
     try {
       setLoading(true);
@@ -331,6 +348,7 @@ function SendMoney() {
         }
       );
 
+      history.push('/changes')
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
@@ -345,32 +363,12 @@ function SendMoney() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setAccbsUser_bank("");
+    setAccbsUser_owner("");
+    setAccbsUser_number("");
+    setAccbsUser_dni("");
+    setAccbsUser_phone("");
   };
-
-  const balances = {
-    EUR: 2500,
-    USD: 3000,
-    GBP: 1800,
-  };
-
-  const beneficiaries = [
-    {
-      name: "Maribel Esther Montes...",
-      cedula: "v10452171",
-      banco: "Banco Nacional De Credito BNC",
-      cuenta: "0191003163103151",
-      tipoCuenta: "Cuenta de Ahorro",
-      estado: "Activo",
-    },
-    {
-      name: "Carlos Pérez",
-      cedula: "v20931293",
-      banco: "Banco Venezolano de Crédito",
-      cuenta: "0191002163203171",
-      tipoCuenta: "Cuenta de Ahorro",
-      estado: "Activo",
-    },
-  ];
 
   useEffect(() => {
     fetchCurrencyData();
@@ -419,8 +417,9 @@ function SendMoney() {
               <select
                 id="currency"
                 value={payment}
-                onChange={(e) => setPayment(e.target.value)}
+                onChange={handleCurrencyChange}
               >
+                <option>Seleccione...</option>
                 <option value="EUR">Euros (€)</option>
                 <option value="USD">Dólares ($)</option>
                 <option value="GBP">Libras (£)</option>
@@ -500,7 +499,11 @@ function SendMoney() {
                   <h3>{beneficiary.accbsUser_owner}</h3>
                   <p>Cédula: {beneficiary.accbsUser_dni}</p>
                   <p>Banco: {beneficiary.accbsUser_bank}</p>
-                  <p>Cuenta: {beneficiary.accbsUser_number}</p>
+                  <p>
+                    {beneficiary.accbsUser_type === "Pago Movil"
+                      ? "Teléfono: " + beneficiary.accbsUser_phone
+                      : "Cuenta: " + beneficiary.accbsUser_number}
+                  </p>
                 </div>
               </div>
             ))}
@@ -540,7 +543,9 @@ function SendMoney() {
             <strong>Banco:</strong> {selectedBeneficiary.accbsUser_bank}
           </p>
           <p>
-            <strong>Cuenta:</strong> {selectedBeneficiary.accbsUser_number}
+            <strong>{selectedBeneficiary.accbsUser_type === "Pago Movil"
+              ? "Teléfono: " + selectedBeneficiary.accbsUser_phone
+              : "Cuenta: " + selectedBeneficiary.accbsUser_number}</strong>
           </p>
 
           <div className="form-actions">
@@ -568,8 +573,8 @@ function SendMoney() {
             <input
               type="text"
               name="nombre"
-              value={newBeneficiary.nombre}
-              onChange={handleChange}
+              value={accbsUser_owner}
+              onChange={(e) => setAccbsUser_owner(e.target.value)}
               placeholder="Ingresa el nombre y apellido"
             />
 
@@ -578,8 +583,8 @@ function SendMoney() {
             <input
               type="text"
               name="cedula"
-              value={newBeneficiary.cedula}
-              onChange={handleChange}
+              value={accbsUser_dni}
+              onChange={(e) => setAccbsUser_dni(e.target.value)}
               placeholder="Ingresa la cédula"
             />
 
@@ -587,26 +592,26 @@ function SendMoney() {
             <label>Seleccione el tipo de transacción</label>
             <select value={selectedOption} onChange={handleOptionChange}>
               <option value="">Seleccione...</option>
-              <option value="pagoMovil">Pago Móvil</option>
-              <option value="cuentaBancaria">Cuenta Bancaria</option>
+              <option value="Pago Movil">Pago Móvil</option>
+              <option value="Cuenta Bancaria">Cuenta Bancaria</option>
             </select>
 
             {/* Campos dinámicos */}
-            {selectedOption === "pagoMovil" && (
+            {selectedOption === "Pago Movil" && (
               <>
                 <label>Número de Teléfono</label>
                 <input
                   type="text"
                   name="telefono"
-                  value={newBeneficiary.telefono}
-                  onChange={handleChange}
+                  value={accbsUser_phone}
+                  onChange={(e) => setAccbsUser_phone(e.target.value)}
                   placeholder="Ingresa el número de teléfono"
                 />
                 <label>Banco</label>
                 <select
                   name="banco"
-                  value={newBeneficiary.banco}
-                  onChange={handleChange}
+                  value={accbsUser_bank}
+                  onChange={(e) => setAccbsUser_bank(e.target.value)}
                 >
                   <option value="">Selecciona el banco</option>
                   <option value="Banco de Venezuela">Banco de Venezuela</option>
@@ -617,21 +622,21 @@ function SendMoney() {
               </>
             )}
 
-            {selectedOption === "cuentaBancaria" && (
+            {selectedOption === "Cuenta Bancaria" && (
               <>
                 <label>Cuenta Bancaria</label>
                 <input
                   type="text"
                   name="cuenta"
-                  value={newBeneficiary.cuenta}
-                  onChange={handleChange}
+                  value={accbsUser_number}
+                  onChange={(e) => setAccbsUser_number(e.target.value)}
                   placeholder="Ingresa el número de cuenta"
                 />
                 <label>Banco</label>
                 <select
                   name="banco"
-                  value={newBeneficiary.banco}
-                  onChange={handleChange}
+                  value={accbsUser_bank}
+                  onChange={(e) => setAccbsUser_bank(e.target.value)}
                 >
                   <option value="">Selecciona el banco</option>
                   <option value="Banco de Venezuela">Banco de Venezuela</option>
@@ -643,7 +648,9 @@ function SendMoney() {
             )}
 
             {/* Botón para guardar */}
-            <button className="submit-button">Guardar Beneficiario</button>
+            <button className="submit-button" onClick={handleAddAccountSubmit}>
+              Guardar Beneficiario
+            </button>
           </div>
         </div>
       )}

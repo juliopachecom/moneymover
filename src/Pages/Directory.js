@@ -8,9 +8,8 @@ import { toast } from 'react-toastify';
 function Directory() {
   const { url, infoTkn } = useDataContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [selectedOption, setSelectedOption] = useState(''); // Controla la opción seleccionada (Pago Móvil o Cuenta Bancaria)
 
-  //DATOS PARA BENEFICIARIO
+  // DATOS PARA BENEFICIARIO
   const [accbsUser_bank, setAccbsUser_bank] = useState('');
   const [accbsUser_owner, setAccbsUser_owner] = useState('');
   const [accbsUser_number, setAccbsUser_number] = useState('');
@@ -18,15 +17,18 @@ function Directory() {
   const [accbsUser_phone, setAccbsUser_phone] = useState('');
   const [accbsUser_type, setAccbsUser_type] = useState('');
 
-  //DATOS DE USUARIO
+  // Estado para validaciones
+  const [errors, setErrors] = useState({});
+
+  // Estado del usuario
   const [user, setUser] = useState([]);
   const [userDirectory, setUserDirectory] = useState([]);
 
-   // Prefijos para cédula y teléfono
-   const [cedulaPrefix, setCedulaPrefix] = useState('V'); // Valor por defecto "V"
-   const [telefonoPrefix, setTelefonoPrefix] = useState('0414'); // Valor por defecto "0414"
+  // Prefijos para cédula y teléfono
+  const [cedulaPrefix, setCedulaPrefix] = useState('V');
+  const [telefonoPrefix, setTelefonoPrefix] = useState('0414');
 
-  // Fetch de datos del usuario (Incluye directorio)
+  // Fetch de datos del usuario
   const fetchDataUser = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/Auth/findByToken/${infoTkn}`, {
@@ -45,67 +47,83 @@ function Directory() {
         }
       );
       setUserDirectory(responseDirectory.data);
-
     } catch (error) {
       console.log(error);
     }
   }, [setUser, infoTkn, url]);
 
-  // const fetchDataAccUser = useCallback(async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `${url}/AccBsUser/user/${user.use_id}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${infoTkn}`,
-  //         },
-  //       }
-  //     );
-  //     setUserDirectory(response.data);
-
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }, [setUserDirectory, infoTkn, url, user]);
-
-  // Función para alternar abrir y cerrar el modal
+  // Alternar modal
   const toggleModal = () => {
-    setIsModalOpen(!isModalOpen)
-  }
+    setIsModalOpen(!isModalOpen);
+  };
 
-  // Función para cambiar el estado de Activo a Inactivo y viceversa
-  // const toggleEstado = (index) => {
-  //   setBeneficiarios((prevBeneficiarios) => {
-  //     const updatedBeneficiarios = [...prevBeneficiarios];
-  //     updatedBeneficiarios[index].estado =
-  //       updatedBeneficiarios[index].estado === 'Activo' ? 'Inactivo' : 'Activo';
-  //     return updatedBeneficiarios;
-  //   });
-  // };
+  // Validación de formulario
+  const validateForm = () => {
+    const newErrors = {};
 
-  const handleAddAccountSubmit = async event => {
+    if (!accbsUser_owner) {
+      newErrors.accbsUser_owner = 'El nombre es requerido.';
+    }
+
+    if (!accbsUser_dni) {
+      newErrors.accbsUser_dni = 'La cédula es requerida.';
+    }
+
+    if (accbsUser_type === 'pagoMovil') {
+      if (!accbsUser_phone) {
+        newErrors.accbsUser_phone = 'El número telefónico es requerido.';
+      } else if (!/^\d+$/.test(accbsUser_phone)) {
+        newErrors.accbsUser_phone = 'El número telefónico solo puede contener dígitos.';
+      }
+      else if (accbsUser_phone.length !== 7) {
+        newErrors.accbsUser_phone = 'El número telefónico debe tener 7 dígitos.';
+      }
+
+    } else if (accbsUser_type === 'cuentaBancaria') {
+      if (!accbsUser_number) {
+        newErrors.accbsUser_number = 'El número de cuenta es requerido.';
+      } else if (!/^\d+$/.test(accbsUser_number)) {
+        newErrors.accbsUser_number = 'El número de cuenta solo puede contener dígitos.';
+      } else if (accbsUser_number.length !== 20) {
+        newErrors.accbsUser_number = 'El número de cuenta debe tener 20 dígitos.';
+      }
+    }
+
+    if (!accbsUser_bank) {
+      newErrors.accbsUser_bank = 'El banco es requerido.';
+    }
+
+    if (!accbsUser_type) {
+      newErrors.accbsUser_type = 'Seleccione un tipo de transacción.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddAccountSubmit = async (event) => {
     event.preventDefault();
-    try {
-      await axios.post(`${url}/AccBsUser/create`,
-        {
-          accbsUser_bank,
-          accbsUser_owner,
-          accbsUser_number,
-          accbsUser_dni: cedulaPrefix + accbsUser_dni,
-          accbsUser_phone: telefonoPrefix + accbsUser_phone, 
-          accbsUser_type,
-          accbsUser_status : 'activo',
-          accbsUser_userId: user.use_id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-          },
-        },
-      );
 
-      // Refresh the page after adding account
-      // fetchDataAccUser();
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      await axios.post(`${url}/AccBsUser/create`, {
+        accbsUser_bank,
+        accbsUser_owner,
+        accbsUser_number,
+        accbsUser_dni: cedulaPrefix + accbsUser_dni,
+        accbsUser_phone: telefonoPrefix + accbsUser_phone,
+        accbsUser_type,
+        accbsUser_status: 'activo',
+        accbsUser_userId: user.use_id,
+      }, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
       window.location.reload();
 
       toast.success('Cuenta agregada con éxito!', {
@@ -138,17 +156,13 @@ function Directory() {
   return (
     <div className="directorio">
       <NavBarUser />
-
       <div className="directorio__header">
         <h1>Tus Beneficiarios</h1>
         <div className="directorio__actions">
           <button className="action-button">Ver inactivos</button>
-          <button className="action-button" onClick={toggleModal}>
-            Nuevo beneficiario
-          </button>
+          <button className="action-button" onClick={toggleModal}>Nuevo beneficiario</button>
         </div>
       </div>
-
       <div className="directorio__list">
         {userDirectory.map((beneficiario) => (
           <div className="beneficiario-card" key={beneficiario.accbsUser_id}>
@@ -163,9 +177,7 @@ function Directory() {
               <p>{beneficiario.accbsUser_type}</p>
             </div>
             <button className="remesa-button">Envía tu Remesa</button>
-            <span className={`estado `}>
-              Activo
-            </span>
+            <span className="estado">Activo</span>
           </div>
         ))}
       </div>
@@ -188,6 +200,7 @@ function Directory() {
               onChange={(e) => setAccbsUser_owner(e.target.value)}
               placeholder="Ingresa el nombre y apellido"
             />
+            {errors.accbsUser_owner && <span className="error">{errors.accbsUser_owner}</span>}
 
             {/* Cédula */}
             <label>Cédula</label>
@@ -211,6 +224,7 @@ function Directory() {
                 placeholder="Ingresa la cédula"
               />
             </div>
+            {errors.accbsUser_dni && <span className="error">{errors.accbsUser_dni}</span>}
 
             {/* Selección de tipo de transacción */}
             <label>Seleccione el tipo de transacción</label>
@@ -219,13 +233,13 @@ function Directory() {
               <option value="pagoMovil">Pago Móvil</option>
               <option value="cuentaBancaria">Cuenta Bancaria</option>
             </select>
+            {errors.accbsUser_type && <span className="error">{errors.accbsUser_type}</span>}
 
             {/* Campos dinámicos */}
             {accbsUser_type === 'pagoMovil' && (
               <>
                 {/* Número de Teléfono */}
-                 {/* Número de Teléfono */}
-                 <label>Número de Teléfono</label>
+                <label>Número de Teléfono</label>
                 <div className="telefono-input">
                   <select
                     name="prefijoTelefono"
@@ -247,15 +261,42 @@ function Directory() {
                     placeholder="Ingresa el número telefónico"
                   />
                 </div>
+                {errors.accbsUser_phone && <span className="error">{errors.accbsUser_phone}</span>}
 
                 <label>Banco</label>
                 <select name="banco" value={accbsUser_bank} onChange={(e) => setAccbsUser_bank(e.target.value)}>
                   <option value="">Selecciona el banco</option>
-                  <option value="Banco de Venezuela">Banco de Venezuela</option>
-                  <option value="Banesco">Banesco</option>
-                  <option value="Mercantil">Mercantil</option>
-                  {/* Otros bancos de Venezuela */}
+                  <option value="0102 - Banco de Venezuela, S.A. Banco Universal">0102 - Banco de Venezuela, S.A. Banco Universal</option>
+                  <option value="0104 - Banco Venezolano de Crédito, S.A. Banco Universal">0104 - Banco Venezolano de Crédito, S.A. Banco Universal</option>
+                  <option value="0105 - Banco Mercantil C.A., Banco Universal">0105 - Banco Mercantil C.A., Banco Universal</option>
+                  <option value="0108 - Banco Provincial, S.A. Banco Universal">0108 - Banco Provincial, S.A. Banco Universal</option>
+                  <option value="0114 - Banco del Caribe C.A., Banco Universal">0114 - Banco del Caribe C.A., Banco Universal</option>
+                  <option value="0115 - Banco Exterior C.A., Banco Universal">0115 - Banco Exterior C.A., Banco Universal</option>
+                  <option value="0128 - Banco Caroní C.A., Banco Universal">0128 - Banco Caroní C.A., Banco Universal</option>
+                  <option value="0134 - Banesco Banco Universal, C.A.">0134 - Banesco Banco Universal, C.A.</option>
+                  <option value="0137 - Banco Sofitasa Banco Universal, C.A.">0137 - Banco Sofitasa Banco Universal, C.A.</option>
+                  <option value="0138 - Banco Plaza, Banco universal">0138 - Banco Plaza, Banco universal</option>
+                  <option value="0146 - Banco de la Gente Emprendedora C.A.">0146 - Banco de la Gente Emprendedora C.A.</option>
+                  <option value="0151 - Banco Fondo Común, C.A Banco Universal">0151 - Banco Fondo Común, C.A Banco Universal</option>
+                  <option value="0156 - 100% Banco, Banco Comercial, C.A">0156 - 100% Banco, Banco Comercial, C.A</option>
+                  <option value="0157 - DelSur, Banco Universal C.A.">0157 - DelSur, Banco Universal C.A.</option>
+                  <option value="0163 - Banco del Tesoro C.A., Banco Universal">0163 - Banco del Tesoro C.A., Banco Universal</option>
+                  <option value="0166 - Banco Agrícola de Venezuela C.A., Banco Universal">0166 - Banco Agrícola de Venezuela C.A., Banco Universal</option>
+                  <option value="0168 - Bancrecer S.A., Banco Microfinanciero">0168 - Bancrecer S.A., Banco Microfinanciero</option>
+                  <option value="0169 - Mi Banco, Banco Microfinanciero, C.A.">0169 - Mi Banco, Banco Microfinanciero, C.A.</option>
+                  <option value="0171 - Banco Activo C.A., Banco Universal">0171 - Banco Activo C.A., Banco Universal</option>
+                  <option value="0172 - Bancamiga Banco Universal, C.A.">0172 - Bancamiga Banco Universal, C.A.</option>
+                  <option value="0173 - Banco Internacional de Desarrollo C.A., Banco Universal">0173 - Banco Internacional de Desarrollo C.A., Banco Universal</option>
+                  <option value="0174 - Banplus Banco Universal, C.A.">0174 - Banplus Banco Universal, C.A.</option>
+                  <option value="0175 - Banco Bicentenario del Pueblo, Banco Universal C.A.">0175 - Banco Bicentenario del Pueblo, Banco Universal C.A.</option>
+                  <option value="0177 - Banco de la Fuerza Armada Nacional Bolivariana, B.U.">0177 - Banco de la Fuerza Armada Nacional Bolivariana, B.U.</option>
+                  <option value="0178 - Banco Digital, Banco Microfinanciero">0178 - Banco Digital, Banco Microfinanciero</option>
+                  <option value="0191 - Banco Nacional de Crédito C.A., Banco Universal">0191 - Banco Nacional de Crédito C.A., Banco Universal</option>
+                  <option value="0601 - Instituto Municipal de Crédito Popular">0601 - Instituto Municipal de Crédito Popular</option>
                 </select>
+
+
+                {errors.accbsUser_bank && <span className="error">{errors.accbsUser_bank}</span>}
               </>
             )}
 
@@ -269,14 +310,16 @@ function Directory() {
                   onChange={(e) => setAccbsUser_number(e.target.value)}
                   placeholder="Ingresa el número de cuenta"
                 />
+                {errors.accbsUser_number && <span className="error">{errors.accbsUser_number}</span>}
+
                 <label>Banco</label>
                 <select name="banco" value={accbsUser_bank} onChange={(e) => setAccbsUser_bank(e.target.value)}>
                   <option value="">Selecciona el banco</option>
                   <option value="Banco de Venezuela">Banco de Venezuela</option>
                   <option value="Banesco">Banesco</option>
                   <option value="Mercantil">Mercantil</option>
-                  {/* Otros bancos de Venezuela */}
                 </select>
+                {errors.accbsUser_bank && <span className="error">{errors.accbsUser_bank}</span>}
               </>
             )}
 

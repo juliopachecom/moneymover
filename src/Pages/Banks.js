@@ -11,6 +11,11 @@ function Banks() {
   const [banksEur, setBanksEUR] = useState([]);
   const [banksUsd, setBanksUSD] = useState([]);
   const [banksGbp, setBanksGBP] = useState([]);
+
+  const [currency, setCurrency] = useState("EUR");
+  const [showEmailField, setShowEmailField] = useState(false);
+
+  const [hideSwiftField, setHideSwiftField] = useState(false);
   // const [banksBs, setBanksBS] = useState([]);
   // const [searchQuery, setSearchQuery] = useState("");
 
@@ -153,11 +158,255 @@ function Banks() {
     setBanks(updatedBanks);
   };
 
+  const handleCurrencyChange = (e) => {
+    const selectedCurrency = e.target.value;
+    setCurrency(selectedCurrency);
+  
+    // Mostrar el campo de correo y ocultar SWIFT solo si la moneda es dólares (USD)
+    if (selectedCurrency === "USD") {
+      setShowEmailField(true);
+      setHideSwiftField(true);
+    } else {
+      setShowEmailField(false);
+      setHideSwiftField(false);
+    }
+    
+  };
+
   useEffect(() => {
     fetchDataEUR();
     fetchDataUSD();
     fetchDataGBP();
   }, [fetchDataEUR, fetchDataUSD, fetchDataGBP]);
+
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+
+  //   if (typeAcc === "EUR") {
+  //     try {
+  //       await axios.post(
+  //         `${url}/Acceur/create`,
+  //         {
+  //           acceur_Bank,
+  //           acceur_owner,
+  //           acceur_number,
+  //           acceur_nie,
+  //           acceur_phone,
+  //           acceur_type: "Normal",
+  //           acceur_status: "Activo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${infoTkn}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+
+  //   if (typeAcc === "GBP") {
+  //     try {
+  //       await axios.post(
+  //         `${url}/Accgbp/create`,
+  //         {
+  //           accgbp_Bank,
+  //           accgbp_owner,
+  //           accgbp_number,
+  //           accgbp_Ident,
+  //           accgbp_phone,
+  //           accgbp_status: "Activo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${infoTkn}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+
+  //   if (typeAcc === "USD") {
+  //     try {
+  //       await axios.post(
+  //         `${url}/Accusd/create`,
+  //         {
+  //           accusd_Bank,
+  //           accusd_owner,
+  //           accusd_email,
+  //           accusd_number,
+  //           accusd_Ident,
+  //           accusd_phone,
+  //           accusd_type: "Normal",
+  //           accusd_status: "Activo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${infoTkn}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
+
+  // const handleEdit = async (event) => {
+  //   event.preventDefault();
+
+  //   if (selectModal.acceur_Bank) {
+  //     try {
+  //       await axios.put(
+  //         `${url}/Acceur/${selectModal.acceur_id}`,
+  //         {
+  //           acceur_status:
+  //             selectModal.acceur_status === "Desactivo"
+  //               ? "Activo"
+  //               : "Desactivo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //       fetchDataBS();
+
+  //       toast.success("¡Datos cambiados con éxito!", {
+  //         position: "bottom-right",
+  //         autoClose: 1000,
+  //         hideProgressBar: false,
+  //         closeOnClick: true,
+  //         pauseOnHover: true,
+  //         draggable: true,
+  //         progress: undefined,
+  //       });
+
+  //       toggle1();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   if (selectModal.accgbp_Bank) {
+  //     try {
+  //       await axios.put(
+  //         `${url}/Accgbp/${selectModal.accgbp_id}`,
+  //         {
+  //           accgbp_status:
+  //             selectModal.accgbp_status === "Desactivo"
+  //               ? "Activo"
+  //               : "Desactivo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //       fetchDataBS();
+
+  //       toast.success("¡Datos cambiados con éxito!", {
+  //         position: "bottom-right",
+  //         autoClose: 1000,
+  //         hideProgressBar: false,
+  //         closeOnClick: true,
+  //         pauseOnHover: true,
+  //         draggable: true,
+  //         progress: undefined,
+  //       });
+
+  //       toggle1();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   if (selectModal.accusd_Bank) {
+  //     try {
+  //       await axios.put(
+  //         `${url}/Accusd/${selectModal.accusd_id}`,
+  //         {
+  //           accusd_status:
+  //             selectModal.accusd_status === "Desactivo"
+  //               ? "Activo"
+  //               : "Desactivo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //       fetchDataBS();
+
+  //       toast.success("¡Datos cambiados con éxito!", {
+  //         position: "bottom-right",
+  //         autoClose: 1000,
+  //         hideProgressBar: false,
+  //         closeOnClick: true,
+  //         pauseOnHover: true,
+  //         draggable: true,
+  //         progress: undefined,
+  //       });
+
+  //       toggle1();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   if (selectModal.accbs_bank) {
+  //     try {
+  //       await axios.put(
+  //         `${url}/Accbs/${selectModal.accbs_id}`,
+  //         {
+  //           accbs_status:
+  //             selectModal.accbs_status === "Desactivo" ? "Activo" : "Desactivo",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
+  //           },
+  //         }
+  //       );
+
+  //       fetchDataEUR();
+  //       fetchDataGBP();
+  //       fetchDataUSD();
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
 
   return (
     <div className="add-banks-dashboard">
@@ -172,7 +421,7 @@ function Banks() {
           </button>
 
           {/* Listado de Bancos */}
-          {banks.length > 0 ? (
+          {filteredBanks.length > 0 ? (
             <table className="banks-table">
               <thead>
                 <tr>
@@ -264,64 +513,17 @@ function Banks() {
         </div>
 
         {/* Modal para agregar banco */}
-        {showModal && (
-          <div className="modal show">
-            <div className="modal-content">
-              <h3>Agregar Nuevo Banco</h3>
-              <form onSubmit={handleAddBank}>
-                <label>
-                  Nombre del Banco:
-                  <input
-                    type="text"
-                    name="bankName"
-                    value={newBank.bankName}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <label>
-                  IBAN:
-                  <input
-                    type="text"
-                    name="iban"
-                    value={newBank.iban}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <label>
-                  SWIFT/BIC:
-                  <input
-                    type="text"
-                    name="swift"
-                    value={newBank.swift}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <label>
-                  Titular de la Cuenta:
-                  <input
-                    type="text"
-                    name="accountHolder"
-                    value={newBank.accountHolder}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <button type="submit" className="btn btn-primary">
-                  Guardar Banco
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={closeModal}
-                >
-                  Cerrar
-                </button>
-              </form>
-            </div>
-          </div>
+        {showEmailField && (
+          <label>
+            Correo Electrónico:
+            <input
+              type="email"
+              name="email"
+              value={newBank.email}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
         )}
       </div>
     </div>
