@@ -28,7 +28,7 @@ function Changes() {
   const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
   const [isRatesModalOpen, setIsRatesModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   // Datos Usuario
   const [user, setUser] = useState([]);
@@ -100,91 +100,91 @@ function Changes() {
     window.open(url, "_blank");
   };
 
-  const handleKycRequest = async () => {
-    setLoading(true); // Activa el estado de carga
-    try {
-      console.log("Solicitando KYC para el usuario ID:", user.use_id);
+  // const handleKycRequest = async () => {
+  //   setLoading(true); // Activa el estado de carga
+  //   try {
+  //     console.log("Solicitando KYC para el usuario ID:", user.use_id);
 
-      // Primero verificamos si ya existe un kyc_link para este usuario
-      const existingKycLinkResponse = await axios.get(
-        `${url}/kyclink/user/${user.use_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //     // Primero verificamos si ya existe un kyc_link para este usuario
+  //     const existingKycLinkResponse = await axios.get(
+  //       `${url}/kyclink/user/${user.use_id}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const existingKycLink = existingKycLinkResponse.data;
+  //     const existingKycLink = existingKycLinkResponse.data;
 
-      if (existingKycLink) {
-        // Si existe un kyc_link, hacemos un PUT para actualizar el kyc_link_status a 'Pending'
-        await axios.put(
-          `${url}/kyclink/${existingKycLink.kyc_link_id}`,
-          {
-            kyc_link_status: "Pending",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-              "Content-Type": "application/json",
-            },
-          }
-        );
+  //     if (existingKycLink) {
+  //       // Si existe un kyc_link, hacemos un PUT para actualizar el kyc_link_status a 'Pending'
+  //       await axios.put(
+  //         `${url}/kyclink/${existingKycLink.kyc_link_id}`,
+  //         {
+  //           kyc_link_status: "Pending",
+  //         },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
 
-        console.log(
-          "KYC link existente actualizado para el usuario:",
-          user.use_id
-        );
-        setKycLink(existingKycLink.kyc_link); // Guardar el enlace KYC si ya existe
-      } else {
-        // Si no existe, creamos un nuevo kyc_link
-        const kycData = {
-          kyc_link: "", // Esto debería generarse en el servidor
-          kyc_link_status: "Pending",
-          kyc_link_date: new Date().toISOString(), // Fecha actual
-          kyc_user_id: user.use_id, // ID del usuario actual
-        };
+  //       console.log(
+  //         "KYC link existente actualizado para el usuario:",
+  //         user.use_id
+  //       );
+  //       setKycLink(existingKycLink.kyc_link); // Guardar el enlace KYC si ya existe
+  //     } else {
+  //       // Si no existe, creamos un nuevo kyc_link
+  //       const kycData = {
+  //         kyc_link: "", // Esto debería generarse en el servidor
+  //         kyc_link_status: "Pending",
+  //         kyc_link_date: new Date().toISOString(), // Fecha actual
+  //         kyc_user_id: user.use_id, // ID del usuario actual
+  //       };
 
-        const newKycResponse = await axios.post(
-          `${url}/kyclink/create`,
-          kycData,
-          {
-            headers: {
-              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-              "Content-Type": "application/json",
-            },
-          }
-        );
+  //       const newKycResponse = await axios.post(
+  //         `${url}/kyclink/create`,
+  //         kycData,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
 
-        console.log("Nuevo KYC link creado para el usuario:", user.use_id);
-        setKycLink(newKycResponse.data.kyc_link); // Guardar el nuevo enlace KYC
-      }
+  //       console.log("Nuevo KYC link creado para el usuario:", user.use_id);
+  //       setKycLink(newKycResponse.data.kyc_link); // Guardar el nuevo enlace KYC
+  //     }
 
-      // Actualizamos el estado del usuario a "En proceso de verificación"
-      await axios.put(
-        `${url}/Users/${user.use_id}`,
-        {
-          use_verif: "E",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //     // Actualizamos el estado del usuario a "En proceso de verificación"
+  //     await axios.put(
+  //       `${url}/Users/${user.use_id}`,
+  //       {
+  //         use_verif: "E",
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      // Mostramos el modal de confirmación
-      // toast.success("¡KYC solicitado con éxito!");
-    } catch (error) {
-      console.error("Error al solicitar el link KYC:", error);
-      // toast.error("Error al solicitar el link KYC.");
-    } finally {
-      setLoading(false); // Desactiva el estado de carga
-    }
-  };
+  //     // Mostramos el modal de confirmación
+  //     // toast.success("¡KYC solicitado con éxito!");
+  //   } catch (error) {
+  //     console.error("Error al solicitar el link KYC:", error);
+  //     // toast.error("Error al solicitar el link KYC.");
+  //   } finally {
+  //     setLoading(false); // Desactiva el estado de carga
+  //   }
+  // };
 
   // Tasas de cambio estáticas
   const userStatusMessage = "Usuario no verificado. Haz clic para verificarte.";

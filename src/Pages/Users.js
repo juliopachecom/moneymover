@@ -115,11 +115,11 @@ function Users() {
     setShowImageModal(true);
   };
 
-  const openMovementImageModal = (mov) => {
-    setSelectedMovement(mov);
-    setShowMovementsModal(false);
-    setShowMovementImageModal(true);
-  };
+ // const openMovementImageModal = (mov) => {
+ //   setSelectedMovement(mov);
+  //  setShowMovementsModal(false);
+  //  setShowMovementImageModal(true);
+  //};
 
   const openEditModal = (user) => {
     setSelectedUser(user);
@@ -195,24 +195,7 @@ function Users() {
   };
 
   // Movimientos ficticios
-  const movimientosFicticios = [
-    {
-      id: 1,
-      fecha: "01/09/2024",
-      tipo: "Recarga",
-      moneda: "EUR",
-      monto: 200,
-      estado: "Aprobado",
-    },
-    {
-      id: 2,
-      fecha: "10/09/2024",
-      tipo: "Remesa",
-      moneda: "USD",
-      monto: 300,
-      estado: "En espera",
-    },
-  ];
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
