@@ -114,5 +114,35 @@
     .table-responsive {
       margin-bottom: 20px;
     }
+
+    /* Estilos para hacer la tabla más amigable en pantallas pequeñas */
+    .movements__table {
+      display: block; /* Cambiar a bloque para mejor control */
+      overflow-x: auto; /* Habilitar scroll */
+      border: 1px solid #e0e0e0; /* Bordes para la tabla en modo bloque */
+    }
+
+    th, td {
+      display: block; /* Cada celda en bloque */
+      text-align: right; /* Alinear texto a la derecha */
+      position: relative; /* Permitir posicionamiento absoluto */
+      padding: 10px; /* Relleno interno */
+    }
+
+    th::before, td::before {
+      position: absolute; /* Posicionar etiquetas antes del contenido */
+      left: 10px;
+      font-weight: bold;
+      text-align: left; /* Alinear etiquetas a la izquierda */
+    }
+
+    th::before {
+      content: attr(data-label); /* Usar atributos para mostrar el nombre de la columna */
+    }
+
+    td::before {
+      content: attr(data-label); /* Usar atributos para mostrar el nombre de la columna */
+      color: #555; /* Color para etiquetas */
+    }
   }
 }

@@ -310,7 +310,10 @@
   @media (max-width: 768px) {
     .rates-modal-content {
       padding: 20px;
+      max-height: 90vh; /* Ajustar para móviles */
+
     }
+    
   
     .rates-table {
       flex-direction: column;
@@ -737,7 +740,7 @@
       }
 
       &:hover {
-        background-color: #4caf50;
+        background-color: #00264b;
         color: white;
         transform: scale(1.05);
       }

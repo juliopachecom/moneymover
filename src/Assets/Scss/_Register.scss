@@ -120,11 +120,13 @@
     }
 
     .button-group {
+      color: white;
       display: flex;
       justify-content: space-between;
       margin-top: 20px;
 
       .btn-primary {
+        color: white;
         background-color: #cc0704;
         border: none;
         padding: 12px 30px;
@@ -140,6 +142,7 @@
       }
 
       .btn-secondary {
+        color: white;
         background-color: #b9bbbd;
         border: none;
         padding: 12px 30px;

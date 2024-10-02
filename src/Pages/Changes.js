@@ -394,7 +394,7 @@ function Changes() {
             </span>
           </div>
           <div className="changes__actions">
-            <button className="action-button green" onClick={openRatesModal}>
+            <button className="tasa-header" onClick={openRatesModal}>
               Tasas para resto de América
             </button>
           </div>
