@@ -33,7 +33,14 @@ function Users() {
   const [use_amountUsd, setAmountUsd] = useState(Number);
   const [use_amountGbp, setAmountGbp] = useState(Number);
 
+  //Datos User
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  //Datos Movemments
+  const [movements, setMovements] = useState([]);
+  const [selectedMovement, setSelectedMovement] = useState(null);
+
   // const [searchTerm, setSearchTerm] = useState("");
   const [newUserModalOpen, setNewUserModalOpen] = useState(false);
 
@@ -61,6 +68,20 @@ function Users() {
     }
   }, [infoTkn, setUsers, url]);
 
+  //Fetch de Movimientos
+  const fetchDataMovements = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Movements`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setMovements(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setMovements, url]);
+
   // Paginación
   // const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,13 +104,6 @@ function Users() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showMovementImageModal, setShowMovementImageModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-
-  // Funciones para abrir los modales
-  const openDetailsModal = (user) => {
-    setSelectedUser(user);
-    setShowDetailsModal(true);
-  };
 
   const openMovementsModal = () => {
     setShowDetailsModal(false);
@@ -101,14 +115,27 @@ function Users() {
     setShowImageModal(true);
   };
 
-  const openMovementImageModal = () => {
-    setShowMovementsModal(false);
-    setShowMovementImageModal(true);
-  };
+ // const openMovementImageModal = (mov) => {
+ //   setSelectedMovement(mov);
+  //  setShowMovementsModal(false);
+  //  setShowMovementImageModal(true);
+  //};
 
-  const openEditModal = () => {
+  const openEditModal = (user) => {
+    setSelectedUser(user);
     setShowDetailsModal(false);
     setShowEditModal(true);
+
+    setNombre(user.use_name);
+    setLastName(user.use_lastName);
+    setEmail(user.use_email);
+    setPassword(user.use_password);
+    setDNI(user.use_dni);
+    setPhone(user.use_phone);
+    setVerif(user.use_verif);
+    setAmountEur(user.use_amountEur);
+    setAmountUsd(user.use_amountUsd);
+    setAmountGbp(user.use_amountGbp);
   };
 
   // Función para cerrar todos los modales
@@ -168,24 +195,7 @@ function Users() {
   };
 
   // Movimientos ficticios
-  const movimientosFicticios = [
-    {
-      id: 1,
-      fecha: "01/09/2024",
-      tipo: "Recarga",
-      moneda: "EUR",
-      monto: 200,
-      estado: "Aprobado",
-    },
-    {
-      id: 2,
-      fecha: "10/09/2024",
-      tipo: "Remesa",
-      moneda: "USD",
-      monto: 300,
-      estado: "En espera",
-    },
-  ];
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -251,7 +261,8 @@ function Users() {
 
   useEffect(() => {
     fetchDataUsers();
-  }, [fetchDataUsers]);
+    fetchDataMovements();
+  }, [fetchDataUsers, fetchDataMovements]);
 
   return (
     <div className="admin-dashboard">
@@ -313,7 +324,10 @@ function Users() {
                   <td>
                     <FaEye
                       className="view-details-icon"
-                      onClick={() => openDetailsModal(user)}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setShowDetailsModal(true);
+                      }}
                     />
                   </td>
                 </tr>
@@ -462,16 +476,16 @@ function Users() {
           <div className="modal">
             <div className="modal-content">
               <h3>
-                Detalles de {selectedUser.nombre} {selectedUser.apellido}
+                Detalles de {selectedUser.use_name} {selectedUser.use_lastName}
               </h3>
               <p>
-                <strong>Teléfono:</strong> {selectedUser.telefono}
+                <strong>Teléfono:</strong> {selectedUser.use_phone}
               </p>
               <p>
-                <strong>Correo:</strong> {selectedUser.email}
+                <strong>Correo:</strong> {selectedUser.use_email}
               </p>
               <p>
-                <strong>DNI:</strong> {selectedUser.dni || "N/A"}
+                <strong>DNI:</strong> {selectedUser.use_dni || "N/A"}
               </p>
               <div className="modal-buttons">
                 <button
@@ -483,7 +497,10 @@ function Users() {
                 <button className="btn btn-primary" onClick={openImageModal}>
                   Ver Imagen
                 </button>
-                <button className="btn btn-secondary" onClick={openEditModal}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => openEditModal(selectedUser)}
+                >
                   Editar
                 </button>
               </div>
@@ -498,7 +515,7 @@ function Users() {
         {showMovementsModal && selectedUser && (
           <div className="modal">
             <div className="modal-content">
-              <h3>Movimientos de {selectedUser.nombre}</h3>
+              <h3>Movimientos de {selectedUser.use_name}</h3>
               <table className="movements__table">
                 <thead>
                   <tr>
@@ -510,33 +527,41 @@ function Users() {
                   </tr>
                 </thead>
                 <tbody>
-                  {movimientosFicticios.map((mov) => (
-                    <tr key={mov.id}>
-                      <td>{mov.fecha}</td>
-                      <td>{mov.tipo}</td>
-                      <td>
-                        {mov.moneda === "EUR"
-                          ? "€"
-                          : mov.moneda === "USD"
-                          ? "$"
-                          : "£"}{" "}
-                        {mov.monto}
-                        {mov.moneda === "EUR" && (
-                          <img src={spainFlag} alt="EUR" />
-                        )}
-                        {mov.moneda === "USD" && (
-                          <img src={usaFlag} alt="USD" />
-                        )}
-                      </td>
-                      <td>{mov.estado}</td>
-                      <td>
-                        <FaEye
-                          className="view-details-icon"
-                          onClick={openMovementImageModal}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                  {movements
+                    .filter((mov) => mov.User.use_id === selectedUser.use_id)
+                    .map((mov) => (
+                      <tr key={mov.mov_id}>
+                        <td>{mov.mov_date}</td>
+                        <td>{mov.mov_type}</td>
+                        <td>
+                          {mov.mov_amount}{' '}
+                          {mov.mov_currency}
+                          {mov.mov_currency === "EUR" && (
+                            <img src={spainFlag} alt="EUR" />
+                          )}
+                          {mov.mov_currency === "USD" && (
+                            <img src={usaFlag} alt="USD" />
+                          )}
+                        </td>
+                        <td>
+                          {mov.mov_status === "V"
+                            ? "Verificada"
+                            : mov.mov_status === "E"
+                            ? "En espera"
+                            : "Rechazada"}
+                        </td>
+                        <td>
+                          <FaEye
+                            className="view-details-icon"
+                            onClick={() => {
+                              setSelectedMovement(mov);
+                              setShowMovementsModal(false);
+                              setShowMovementImageModal(true);
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
               <button onClick={closeModal} className="close-button">
@@ -551,8 +576,11 @@ function Users() {
           <div className="modal">
             <div className="modal-content">
               <h3>Imagen de {selectedUser.nombre}</h3>
-              {selectedUser.img ? (
-                <img src={selectedUser.img} alt="Imagen del Usuario" />
+              {selectedUser.use_img ? (
+                <img
+                  src={`https://apimoneymover-pruebas.up.railway.app/Users/image/${selectedUser.use_img}`}
+                  alt="Imagen del Usuario"
+                />
               ) : (
                 <div className="user-image-placeholder">[Sin Imagen]</div>
               )}
@@ -569,7 +597,14 @@ function Users() {
             <div className="modal-content">
               <h3>Imagen del Movimiento</h3>
               <div className="user-image-placeholder">
-                [Imagen del Movimiento]
+                {selectedMovement.mov_img ? (
+                  <img
+                    src={`https://apimoneymover-pruebas.up.railway.app/Movements/image/${selectedMovement.mov_img}`}
+                    alt="Imagen de Movimiento"
+                  />
+                ) : (
+                  <div className="user-image-placeholder">[Sin Imagen]</div>
+                )}
               </div>
               <button onClick={closeModal} className="close-button">
                 Cerrar
@@ -582,39 +617,48 @@ function Users() {
         {showEditModal && selectedUser && (
           <div className="modal">
             <div className="modal-content">
-              <h3>Editar {selectedUser.nombre}</h3>
+              <h3>Editar {selectedUser.use_name}</h3>
               <form>
                 <label>
                   Nombre:
-                  <input type="text" defaultValue={selectedUser.nombre} />
+                  <input type="text" defaultValue={selectedUser.use_name} />
                 </label>
                 <label>
                   Apellido:
-                  <input type="text" defaultValue={selectedUser.apellido} />
+                  <input type="text" defaultValue={selectedUser.use_lastName} />
                 </label>
                 <label>
                   DNI:
-                  <input type="text" defaultValue={selectedUser.dni} />
+                  <input type="text" defaultValue={selectedUser.use_dni} />
                 </label>
                 <label>
                   Teléfono:
-                  <input type="text" defaultValue={selectedUser.telefono} />
+                  <input type="text" defaultValue={selectedUser.use_phone} />
                 </label>
                 <label>
                   Correo:
-                  <input type="email" defaultValue={selectedUser.email} />
+                  <input type="email" defaultValue={selectedUser.use_email} />
                 </label>
                 <label>
                   Saldo EUR:
-                  <input type="number" defaultValue={selectedUser.saldoEUR} />
+                  <input
+                    type="number"
+                    defaultValue={selectedUser.use_amountEur}
+                  />
                 </label>
                 <label>
                   Saldo GBP:
-                  <input type="number" defaultValue={selectedUser.saldoGBP} />
+                  <input
+                    type="number"
+                    defaultValue={selectedUser.use_amountGbp}
+                  />
                 </label>
                 <label>
                   Saldo USD:
-                  <input type="number" defaultValue={selectedUser.saldoUSD} />
+                  <input
+                    type="number"
+                    defaultValue={selectedUser.use_amountUsd}
+                  />
                 </label>
                 <label>
                   Estado de verificación:

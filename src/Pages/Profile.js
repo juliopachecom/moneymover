@@ -34,7 +34,11 @@ function Profile() {
       const userData = response.data;
       setEmail(userData.use_email);
       setPhone(userData.use_phone);
-      setProfilePhoto(userData.use_profileImg ? `/Users/profileImg/${userData.use_profileImg}` : profileIcon);
+      setProfilePhoto(
+        userData.use_profileImg
+          ? `/Users/profileImg/${userData.use_profileImg}`
+          : profileIcon
+      );
     } catch (err) {
       console.error("Error al obtener datos del perfil:", err);
     }
@@ -53,38 +57,40 @@ function Profile() {
   };
 
   // Manejar cambio de foto de perfil
-  const handlePhotoChange = (e) => {
+  const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const formData = new FormData();
-      formData.append("profileImg", file);
+      formData.append("use_profileImg", file);
 
-      // Realizar la solicitud PUT para subir la imagen
-      axios
-        .put(`${url}/Users/profileImg/${userId}`, formData, {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          const updatedImgUrl = `/Users/profileImg/${response.data.fileName}`;
-          setProfilePhoto(updatedImgUrl);
-          setShowResultModal(true);
-          setIsSuccess(true);
-          setTimeout(() => {
-            setShowResultModal(false);
-          }, 2000);
-        })
-        .catch((err) => {
-          console.error("Error al subir la imagen:", err);
-          setError("Error al subir la imagen.");
-          setShowResultModal(true);
-          setIsSuccess(false);
-          setTimeout(() => {
-            setShowResultModal(false);
-          }, 2000);
-        });
+      try {
+        const response = await axios.put(
+          `${url}/Users/profileImg/${userId}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        const updatedImgUrl = `/Users/profileImg/${response.data.fileName}`;
+        setProfilePhoto(updatedImgUrl);
+        setShowResultModal(true);
+        setIsSuccess(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } catch (err) {
+        console.error("Error al subir la imagen:", err);
+        setError("Error al subir la imagen.");
+        setShowResultModal(true);
+        setIsSuccess(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }
     }
   };
 
@@ -105,15 +111,19 @@ function Profile() {
   const confirmChanges = async () => {
     try {
       // Llamada PUT para actualizar el perfil
-      await axios.put(`${url}/Users/${userId}`, {
-        use_email: email,
-        use_phone: phone,
-        use_password: newPassword || password, // Solo actualizar la contraseña si hay una nueva
-      }, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
+      await axios.put(
+        `${url}/Users/${userId}`,
+        {
+          use_email: email,
+          use_phone: phone,
+          use_password: newPassword || password, // Solo actualizar la contraseña si hay una nueva
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
 
       setShowConfirmationModal(false);
       setShowResultModal(true);
@@ -153,7 +163,11 @@ function Profile() {
         <div className="profile__container">
           {/* Foto de perfil */}
           <div className="profile__photo-wrapper">
-            <img src={profilePhoto} alt="Profile" className="profile__photo" />
+            <img
+              src={`${url}${profilePhoto}`}
+              alt="Profile"
+              className="profile__photo"
+            />
             <div className="profile__photo-overlay">
               <label
                 htmlFor="profile-photo-upload"

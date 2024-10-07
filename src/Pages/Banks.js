@@ -11,11 +11,8 @@ function Banks() {
   const [banksEur, setBanksEUR] = useState([]);
   const [banksUsd, setBanksUSD] = useState([]);
   const [banksGbp, setBanksGBP] = useState([]);
+  const [currency, setCurrency] = useState("EUR"); // Estado para la moneda seleccionada
 
-  const [currency, setCurrency] = useState("EUR");
-  const [showEmailField, setShowEmailField] = useState(false);
-
-  const [hideSwiftField, setHideSwiftField] = useState(false);
   // const [banksBs, setBanksBS] = useState([]);
   // const [searchQuery, setSearchQuery] = useState("");
 
@@ -136,13 +133,20 @@ function Banks() {
   };
 
   // Función para manejar el cambio de input
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  // Función para manejar el cambio de input, incluyendo la moneda
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+  
+  if (name === "currency") {
+    setCurrency(value);
+  } else {
     setNewBank((prevBank) => ({
       ...prevBank,
       [name]: value,
     }));
-  };
+  }
+};
+
 
   // Función para añadir un nuevo banco
   const handleAddBank = (e) => {
@@ -156,21 +160,6 @@ function Banks() {
     const updatedBanks = [...banks];
     updatedBanks[index].active = !updatedBanks[index].active;
     setBanks(updatedBanks);
-  };
-
-  const handleCurrencyChange = (e) => {
-    const selectedCurrency = e.target.value;
-    setCurrency(selectedCurrency);
-  
-    // Mostrar el campo de correo y ocultar SWIFT solo si la moneda es dólares (USD)
-    if (selectedCurrency === "USD") {
-      setShowEmailField(true);
-      setHideSwiftField(true);
-    } else {
-      setShowEmailField(false);
-      setHideSwiftField(false);
-    }
-    
   };
 
   useEffect(() => {
@@ -421,7 +410,7 @@ function Banks() {
           </button>
 
           {/* Listado de Bancos */}
-          {filteredBanks.length > 0 ? (
+          {banks.length > 0 ? (
             <table className="banks-table">
               <thead>
                 <tr>
@@ -513,18 +502,87 @@ function Banks() {
         </div>
 
         {/* Modal para agregar banco */}
-        {showEmailField && (
-          <label>
-            Correo Electrónico:
-            <input
-              type="email"
-              name="email"
-              value={newBank.email}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-        )}
+        {/* Modal para agregar banco */}
+{showModal && (
+  <div className="modal show">
+    <div className="modal-content">
+      <h3>Agregar Nuevo Banco</h3>
+      <form onSubmit={handleAddBank}>
+        <label>
+          Nombre del Banco:
+          <input
+            type="text"
+            name="bankName"
+            value={newBank.bankName}
+            onChange={handleInputChange}
+            required
+          />
+        </label>
+        
+        {/* Select para elegir moneda */}
+        <label className="select-label">Moneda:</label>
+<div className="select-container">
+  <select
+    className="select-currency"
+    name="currency"
+    value={currency}
+    onChange={handleInputChange}
+  >
+    <option value="EUR">EUR</option>
+    <option value="USD">USD</option>
+    <option value="GBP">GBP</option>
+  </select>
+</div>
+
+        <label>
+          IBAN:
+          <input
+            type="text"
+            name="iban"
+            value={newBank.iban}
+            onChange={handleInputChange}
+            required
+          />
+        </label>
+
+        {/* Cambiar campo SWIFT a correo electrónico si la moneda es USD */}
+        <label>
+          {currency === "USD" ? "Correo Electrónico (Zelle)" : "SWIFT/BIC"}:
+          <input
+            type={currency === "USD" ? "email" : "text"}
+            name="swift"
+            value={newBank.swift}
+            onChange={handleInputChange}
+            required
+          />
+        </label>
+
+        <label>
+          Titular de la Cuenta:
+          <input
+            type="text"
+            name="accountHolder"
+            value={newBank.accountHolder}
+            onChange={handleInputChange}
+            required
+          />
+        </label>
+
+        <button type="submit" className="btn btn-primary">
+          Guardar Banco
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={closeModal}
+        >
+          Cerrar
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

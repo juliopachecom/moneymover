@@ -32,7 +32,6 @@ function AdminDashboard() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isRejectionVisible, setIsRejectionVisible] = useState(false);
 
-
   // Fetch de usuarios y filtrado
   const fetchDataUsers = useCallback(async () => {
     try {
@@ -114,13 +113,6 @@ function AdminDashboard() {
       console.log(error);
     }
   }, [infoTkn, setTotalEur, url]);
-
-  const handleCancelRejection = () => {
-    setIsRejectionVisible(false);
-    setRejectionReason(""); // Limpiar el campo de razón de rechazo
-  };
-
-  
 
   // Fetch de Total de Usd
   const fetchDataTotalUsd = useCallback(async () => {
@@ -210,7 +202,7 @@ function AdminDashboard() {
   };
 
   const handleCancel = () => {
-    setShowRejectionReason(false);  // Oculta el cuadro de texto
+    setShowRejectionReason(false); // Oculta el cuadro de texto
   };
 
   useEffect(() => {
@@ -298,6 +290,7 @@ function AdminDashboard() {
             <thead>
               <tr>
                 <th>Fecha</th>
+                <th>Usuario</th>
                 <th>Recarga</th>
                 <th>Enviado</th>
                 <th>Estado</th>
@@ -305,17 +298,6 @@ function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {/* <tr>
-              <td>25/08/2024</td>
-              <td>407843</td>
-              <td>
-                20,00 EUR <img src={spainFlag} alt="EUR" />
-              </td>
-              <td className="cancelled">Cancelado</td>
-              <td>
-                <FaEye className="view-details-icon" />
-              </td>
-            </tr> */}
               {userMovemments.length > 0 ? (
                 userMovemments
                   .filter(
@@ -326,7 +308,8 @@ function AdminDashboard() {
                   .map((movement) => (
                     <tr key={movement.mov_id}>
                       <td>{movement.mov_date}</td>
-                      <td>0001</td>
+                      <td>{movement.User.use_name} {movement.User.use_lastName}</td>
+                      <td>{movement.mov_ref}</td>
                       <td>
                         {movement.mov_currency === "EUR"
                           ? "€"
@@ -349,16 +332,15 @@ function AdminDashboard() {
                             ? "en espera"
                             : "cancelled"
                         }
-                        style={{color: 'orange'}}
                       >
                         En espera
                       </td>
                       <td>
-                      <FaEye
-                        className="view-details-icon"
-                        style={{ cursor: "pointer", textAlign: "center"  } }
-                        onClick={() => openDetailModal(movement)}
-                      />
+                        <FaEye
+                          className="view-details-icon"
+                          style={{ cursor: "pointer", textAlign: "center" }}
+                          onClick={() => openDetailModal(movement)}
+                        />
                       </td>
                     </tr>
                   ))
@@ -369,17 +351,6 @@ function AdminDashboard() {
                   </td>
                 </tr>
               )}
-              {/* <tr>
-              <td>26/08/2024</td>
-              <td>407844</td>
-              <td>
-                30,00 USD <img src={usaFlag} alt="USD" />
-              </td>
-              <td className="completed">Aprobado</td>
-              <td>
-                <FaEye className="view-details-icon" />
-              </td>
-            </tr> */}
             </tbody>
           </table>
         )}
@@ -389,13 +360,14 @@ function AdminDashboard() {
           <table className="movements__table">
             <thead>
               <tr>
-                <th style={{ textAlign: "center" }}>Fecha</th>
-                <th style={{ textAlign: "center" }}>Remesa</th>
-                <th style={{ textAlign: "center" }}>Beneficiario</th>
-                <th style={{ textAlign: "center" }}>Enviado</th>
-                <th style={{ textAlign: "center" }}>Recibido</th>
-                <th style={{ textAlign: "center" }}>Estado</th>
-                <th style={{ textAlign: "center" }}>Detalles</th>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Remesa</th>
+                <th>Beneficiario</th>
+                <th>Enviado</th>
+                <th>Recibido</th>
+                <th>Estado</th>
+                <th>Detalles</th>
               </tr>
             </thead>
             <tbody>
@@ -408,38 +380,29 @@ function AdminDashboard() {
                   )
                   .map((movement) => (
                     <tr key={movement.mov_id}>
-                      <td style={{ textAlign: "center" }}>
-                        {movement.mov_date}
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        {movement.mov_ref}
-                      </td>
-                      <td style={{ textAlign: "center" }}>
+                      <td>{movement.mov_date}</td>
+                      <td>{movement.User.use_name} {movement.User.use_lastName}</td>
+                      <td>{movement.mov_ref}</td>
+                      <td>
                         {movement.User &&
                         movement.User.AccountsBsUser &&
                         movement.User.AccountsBsUser.length > 0
                           ? movement.User.AccountsBsUser[0].accbsUser_owner
                           : "Sin información"}
                       </td>
-                      <td style={{ textAlign: "center", display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        {movement.mov_currency === "EUR"
-                          ? "€"
-                          : movement.mov_currency === "USD"
-                          ? "$"
-                          : "£"}{" "}
+                      <td>
                         {movement.mov_amount}{" "}
                         {movement.mov_currency === "USD" && (
-                          <img  src={usaFlag} alt="USD" />
+                          <img src={usaFlag} alt="USD" />
                         )}
                         {movement.mov_currency === "EUR" && (
-                          <img s src={spainFlag} alt="EUR" />
+                          <img src={spainFlag} alt="EUR" />
                         )}
                       </td>
-                      <td style={{ textAlign: "center"}}>
-                        2000 BS <img  src={venezuelaFlag} alt="USD" />
+                      <td>
+                        2000Bs <img src={venezuelaFlag} alt="Venezuela" />
                       </td>
                       <td
-                        style={{ textAlign: "center", color: 'orange' }}
                         className={
                           movement.mov_status === "S"
                             ? "completed"
@@ -447,11 +410,10 @@ function AdminDashboard() {
                             ? "en espera"
                             : "cancelled"
                         }
-
                       >
                         En espera
                       </td>
-                      <td style={{ textAlign: "center" }}>
+                      <td>
                         <FaEye
                           style={{ cursor: "pointer" }}
                           className="view-details-icon"
@@ -472,86 +434,81 @@ function AdminDashboard() {
         )}
 
         {/* Modales */}
+
         {isDetailModalOpen && selectedMovement && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Detalles del Movimiento</h3>
-            <div className="modal-details">
-              <p>
-                <strong>Monto:</strong>{" "}
-                {selectedMovement.mov_currency === "EUR"
-                  ? "€"
-                  : selectedMovement.mov_currency === "USD"
-                  ? "$"
-                  : "£"}{" "}
-                {selectedMovement.mov_amount}
-              </p>
-              <p>
-                <strong>Banco:</strong> {selectedMovement.bank_name}
-              </p>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h3>Detalles del Movimiento</h3>
+              <div className="modal-details">
+                <p>
+                  <strong>Monto:</strong>{" "}
+                  {selectedMovement.mov_currency === "EUR"
+                    ? "€"
+                    : selectedMovement.mov_currency === "USD"
+                    ? "$"
+                    : "£"}{" "}
+                  {selectedMovement.mov_amount}
+                </p>
+                <p>
+                  <strong>Banco:</strong> {selectedMovement.bank_name}
+                </p>
 
-              {/* Muestra una imagen o un enlace de descarga si es PDF */}
-              {selectedMovement.mov_document ? (
-                selectedMovement.mov_document.endsWith(".pdf") ? (
-                  <a
-                    href={`${url}/download/${selectedMovement.mov_document}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Descargar PDF
-                  </a>
+                {/* Muestra una imagen o un enlace de descarga si es PDF */}
+                {selectedMovement.mov_document ? (
+                  selectedMovement.mov_document.endsWith(".pdf") ? (
+                    <a
+                      href={`${url}/download/${selectedMovement.mov_document}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Descargar PDF
+                    </a>
+                  ) : (
+                    <img
+                      src={`${url}/documents/${selectedMovement.mov_document}`}
+                      alt="Documento"
+                      style={{ maxWidth: "100%" }}
+                    />
+                  )
                 ) : (
-                  <img
-                    src={`${url}/documents/${selectedMovement.mov_document}`}
-                    alt="Documento"
-                    style={{ maxWidth: "100%" }}
-                  />
-                )
-              ) : (
-                <p>No hay documento adjunto.</p>
-              )}
-            </div>
-<div className="modal-buttons">
-            <button className="approve-btn" onClick={handleApprove}>
-                Aprobar
-              </button>
-              <button className="reject-btn" onClick={handleReject1}>
-                Rechazar
-              </button>
-            </div> 
-
-            {isRejectionVisible && (
-              <div className="rejection-reason open">
-                <label htmlFor="rejection-reason">Razón del rechazo:</label>
-                <textarea
-                  id="rejection-reason"
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                />
-                <div className="modal-actions">
-                  <button className="send-btn" onClick={handleSendRejection}>
-                    Enviar
-                  </button>
-                  <button className="cancel-btn" onClick={handleCancelRejection}>
-                    Cancelar
-                  </button>
-                </div>
+                  <p>No hay documento adjunto.</p>
+                )}
               </div>
-            )}
-            <div className="modal-actions">
-              
+              <div className="modal-buttons">
+                <button className="approve-btn" onClick={handleApprove}>
+                  Aprobar
+                </button>
+                <button className="reject-btn" onClick={handleReject1}>
+                  Rechazar
+                </button>
+              </div>
 
-              <button className="close-btn" onClick={closeDetailModal}>
-                Cerrar
-              </button>
+              {isRejectionVisible && (
+                <div className="rejection-reason open">
+                  <label htmlFor="rejection-reason">Razón del rechazo:</label>
+                  <textarea
+                    id="rejection-reason"
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                  />
+                  <div className="modal-actions">
+                    <button className="send-btn" onClick={handleSendRejection}>
+                      Enviar
+                    </button>
+                    <button className="close-btn" onClick={closeDetailModal}>
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className="modal-actions">
+                <button className="close-btn" onClick={closeDetailModal}>
+                  Cerrar
+                </button>
+              </div>
             </div>
-</div>
-
-
-            
-        </div>
-      )}
-
+          </div>
+        )}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
