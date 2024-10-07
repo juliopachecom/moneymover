@@ -11,41 +11,7 @@ function App() {
         <Route
           path="/"
           render={({ location }) => {
-            const isLoginRoute =
-              location.pathname === "/login" ||
-              location.pathname === "/register" ||
-              location.pathname === "/changes" ||
-              location.pathname === "/Changes" ||
-              location.pathname === "/recoverpassword" ||
-              location.pathname === "/recoverupdate" ||
-              location.pathname === "/directory" ||
-              location.pathname === "/sendmoney" ||
-              location.pathname === "/recharge" ||
-              location.pathname === "/profile" ||
-              location.pathname === "/Profile" ||
-              location.pathname === "/movements" ||
-              location.pathname === "/Movements" ||
-              location.pathname === "/accadm" ||
-              location.pathname === "/AccAdm" ||
-              location.pathname === "/admindashboard" ||
-              location.pathname === "/AdminDashboard" ||
-              location.pathname === "/users" ||
-              location.pathname === "/Users" ||
-              location.pathname === "/usersr" ||
-              location.pathname === "/usersR" ||
-              location.pathname === "/userse" ||
-              location.pathname === "/usersE" ||
-              location.pathname === "/usersv" ||
-              location.pathname === "/usersV" ||
-              location.pathname === "/currencyprice" ||
-              location.pathname === "/CurrencyPrice" ||
-              location.pathname === "/currencyPrice" ||
-              location.pathname === "/banks" ||
-              location.pathname === "/Banks" ||
-              location.pathname === "/relation" ||
-              location.pathname === "/Relation" ||
-              location.pathname === "/notfound" ||
-              location.pathname === "/NotFound";
+            const isLoginRoute = location.pathname === "/login" || location.pathname === "/register"  || location.pathname === "/changes" || location.pathname === "/Changes" || location.pathname === "/recoverpassword" || location.pathname === "/recoverupdate" || location.pathname === "/directory"  || location.pathname === "/sendmoney" || location.pathname === "/recharge" || location.pathname === "/profile" || location.pathname === "/Profile" || location.pathname === "/movements" || location.pathname === "/Movements" || location.pathname === "/accadm" || location.pathname === "/AccAdm"   || location.pathname === "/admindashboard" || location.pathname === "/AdminDashboard" || location.pathname === "/users" || location.pathname === "/Users" || location.pathname === "/usersr" || location.pathname === "/UsersR" || location.pathname === "/userse" || location.pathname === "/UsersE" || location.pathname === "/usersv" || location.pathname === "/UsersV" || location.pathname === "/currencyprice" || location.pathname === "/CurrencyPrice" || location.pathname === "/currencyPrice" || location.pathname === "/banks" || location.pathname === "/Banks" || location.pathname === "/relation" || location.pathname === "/Relation" || location.pathname === "/notfound" || location.pathname === "/NotFound"; 
             return (
               <>
                 {!isLoginRoute && <NavBar />}
