@@ -134,19 +134,18 @@ function Banks() {
 
   // Función para manejar el cambio de input
   // Función para manejar el cambio de input, incluyendo la moneda
-const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  
-  if (name === "currency") {
-    setCurrency(value);
-  } else {
-    setNewBank((prevBank) => ({
-      ...prevBank,
-      [name]: value,
-    }));
-  }
-};
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
 
+    if (name === "currency") {
+      setCurrency(value);
+    } else {
+      setNewBank((prevBank) => ({
+        ...prevBank,
+        [name]: value,
+      }));
+    }
+  };
 
   // Función para añadir un nuevo banco
   const handleAddBank = (e) => {
@@ -503,86 +502,88 @@ const handleInputChange = (e) => {
 
         {/* Modal para agregar banco */}
         {/* Modal para agregar banco */}
-{showModal && (
-  <div className="modal show">
-    <div className="modal-content">
-      <h3>Agregar Nuevo Banco</h3>
-      <form onSubmit={handleAddBank}>
-        <label>
-          Nombre del Banco:
-          <input
-            type="text"
-            name="bankName"
-            value={newBank.bankName}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
-        
-        {/* Select para elegir moneda */}
-        <label className="select-label">Moneda:</label>
-<div className="select-container">
-  <select
-    className="select-currency"
-    name="currency"
-    value={currency}
-    onChange={handleInputChange}
-  >
-    <option value="EUR">EUR</option>
-    <option value="USD">USD</option>
-    <option value="GBP">GBP</option>
-  </select>
-</div>
+        {showModal && (
+          <div className="modal show">
+            <div className="modal-content">
+              <h3>Agregar Nuevo Banco</h3>
+              <form onSubmit={handleAddBank}>
+                <label>
+                  Nombre del Banco:
+                  <input
+                    type="text"
+                    name="bankName"
+                    value={newBank.bankName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
 
-        <label>
-          IBAN:
-          <input
-            type="text"
-            name="iban"
-            value={newBank.iban}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
+                {/* Select para elegir moneda */}
+                <label className="select-label">Moneda:</label>
+                <div className="select-container">
+                  <select
+                    className="select-currency"
+                    name="currency"
+                    value={currency}
+                    onChange={handleInputChange}
+                  >
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
 
-        {/* Cambiar campo SWIFT a correo electrónico si la moneda es USD */}
-        <label>
-          {currency === "USD" ? "Correo Electrónico (Zelle)" : "SWIFT/BIC"}:
-          <input
-            type={currency === "USD" ? "email" : "text"}
-            name="swift"
-            value={newBank.swift}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
+                <label>
+                  IBAN:
+                  <input
+                    type="text"
+                    name="iban"
+                    value={newBank.iban}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
 
-        <label>
-          Titular de la Cuenta:
-          <input
-            type="text"
-            name="accountHolder"
-            value={newBank.accountHolder}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
+                {/* Cambiar campo SWIFT a correo electrónico si la moneda es USD */}
+                <label>
+                  {currency === "USD"
+                    ? "Correo Electrónico (Zelle)"
+                    : "SWIFT/BIC"}
+                  :
+                  <input
+                    type={currency === "USD" ? "email" : "text"}
+                    name="swift"
+                    value={newBank.swift}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
 
-        <button type="submit" className="btn btn-primary">
-          Guardar Banco
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={closeModal}
-        >
-          Cerrar
-        </button>
-      </form>
-    </div>
-  </div>
-)}
+                <label>
+                  Titular de la Cuenta:
+                  <input
+                    type="text"
+                    name="accountHolder"
+                    value={newBank.accountHolder}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
 
+                <button type="submit" className="btn btn-primary">
+                  Guardar Banco
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeModal}
+                >
+                  Cerrar
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

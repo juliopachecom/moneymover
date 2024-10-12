@@ -627,7 +627,7 @@ function Recharge() {
       >
         <div className="form-container-edit step-3">
           <h2>Confirmar Comprobante</h2>
-          {file && <p>Archivo seleccionado: {file.name}</p>}
+          <p>Archivo seleccionado: {mov_img ? mov_img.name : "Ningún archivo seleccionado"}</p>
 
           <div className="form-actions">
             <button className="back-button" onClick={handlePreviousStep}>

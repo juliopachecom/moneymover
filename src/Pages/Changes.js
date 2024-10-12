@@ -19,6 +19,8 @@ import { NavBarUser } from "../Components/NavBarUser";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+const apiKey = 'bd2f01e809e6a946c92997f6dafa16e448db';  
+const formId = '8358707b19257049490b9df5216b1ae5e3f8';
 
 function Changes() {
   const { logged, infoTkn, url } = useDataContext();
@@ -28,6 +30,8 @@ function Changes() {
   const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
   const [isRatesModalOpen, setIsRatesModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+  const [kycLink, setKycLink] = useState('');
+
   const [loading, setLoading] = useState(false);
 
   // Datos Usuario
@@ -39,7 +43,133 @@ function Changes() {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
-  const [kycLink, setKycLink] = useState(null); // Estado para almacenar el enlace KYC
+  //kyc
+  const fetchKycLink = async () => {
+    setLoading(true); // Activa el estado de carga
+    try {
+      console.log("Solicitando KYC para el usuario ID:", user.use_id);
+  
+      // 1. Verificar si ya existe un kyc_link para este usuario
+      const existingKycLinkResponse = await axios.get(
+        `${url}/kyclink/user/${user.use_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      const existingKycLink = existingKycLinkResponse.data;
+  
+      if (existingKycLink) {
+        // Si existe un kyc_link, hacemos un PUT para actualizar los datos
+        console.log("KYC link existente encontrado para el usuario:", user.use_id);
+        
+        // 2. Obtener el link de verificación KYC de AMLBot
+        const response = await fetch(`https://kyc-api.amlbot.com/forms/${formId}/urls`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Token ' + apiKey
+          }
+        });
+  
+        const data = await response.json();
+        console.log('Respuesta de la API:', data);
+  
+        if (data && data.form_url) {
+          // Crear el objeto kycData para actualizar
+          const kycData = {
+            kyc_link_status: "Pending",
+            kyc_link_date: new Date().toISOString(), // Fecha actual
+            kyc_user_id: user.use_id, // ID del usuario actual
+            form_id: data.form_id,
+            form_url: data.form_url,
+            verification_id: data.verification_id,
+            form_token: data.form_token,
+            verification_attempts_left: data.verification_attempts_left,
+          };
+  
+          // Realizar PUT para actualizar el enlace KYC
+          await axios.put(
+            `${url}/kyclink/${existingKycLink.kyc_link_id}`,
+            kycData,
+            {
+              headers: {
+                Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+                "Content-Type": "application/json",
+              },
+            }
+          );
+  
+          console.log("KYC link existente actualizado para el usuario:", user.use_id);
+          setKycLink(data.form_url); // Guardar el nuevo enlace KYC
+        } else {
+          setKycLink('No se pudo obtener el enlace de verificación');
+        }
+      } else {
+        // 3. Si no existe, obtener el link de verificación KYC de AMLBot
+        const response = await fetch(`https://kyc-api.amlbot.com/forms/${formId}/urls`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Token ' + apiKey
+          }
+        });
+  
+        const data = await response.json();
+        console.log('Respuesta de la API:', data);
+  
+        if (data && data.form_url) {
+          // Crear el objeto kycData para crear un nuevo enlace KYC
+          const kycData = {
+            kyc_link_status: "Pending",
+            kyc_link_date: new Date().toISOString(), // Fecha actual
+            kyc_user_id: user.use_id, // ID del usuario actual
+            form_id: data.form_id,
+            form_url: data.form_url,
+            verification_id: data.verification_id,
+            form_token: data.form_token,
+            verification_attempts_left: data.verification_attempts_left,
+          };
+  
+          // Realizar POST para crear un nuevo enlace KYC
+          await axios.post(
+            `${url}/kyclink/create`,
+            kycData,
+            {
+              headers: {
+                Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+                "Content-Type": "application/json",
+              },
+            }
+          );
+  
+          console.log("Nuevo KYC link creado para el usuario:", user.use_id);
+          setKycLink(data.form_url); // Guardar el nuevo enlace KYC
+        } else {
+          setKycLink('No se pudo obtener el enlace de verificación');
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setKycLink('Error al conectar con la API');
+    } finally {
+      setLoading(false); // Desactiva el estado de carga
+    }
+  };
+  
+
+  // Función para redirigir al usuario a la URL KYC
+  const handleRedirect = () => {
+    if (kycLink.startsWith('http')) {
+      window.open(kycLink, '_blank'); // Abre el enlace en una nueva pestaña
+    }
+  };
+
+
+
   // Datos para verificación
   // const [use_dni, setUseDNI] = useState("");
   // const [use_phone, setUsePhone] = useState("");
@@ -100,91 +230,6 @@ function Changes() {
     window.open(url, "_blank");
   };
 
-  const handleKycRequest = async () => {
-    setLoading(true); // Activa el estado de carga
-    try {
-      console.log("Solicitando KYC para el usuario ID:", user.use_id);
-
-      // Primero verificamos si ya existe un kyc_link para este usuario
-      const existingKycLinkResponse = await axios.get(
-        `${url}/kyclink/user/${user.use_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const existingKycLink = existingKycLinkResponse.data;
-
-      if (existingKycLink) {
-        // Si existe un kyc_link, hacemos un PUT para actualizar el kyc_link_status a 'Pending'
-        await axios.put(
-          `${url}/kyclink/${existingKycLink.kyc_link_id}`,
-          {
-            kyc_link_status: "Pending",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        console.log(
-          "KYC link existente actualizado para el usuario:",
-          user.use_id
-        );
-        setKycLink(existingKycLink.kyc_link); // Guardar el enlace KYC si ya existe
-      } else {
-        // Si no existe, creamos un nuevo kyc_link
-        const kycData = {
-          kyc_link: "", // Esto debería generarse en el servidor
-          kyc_link_status: "Pending",
-          kyc_link_date: new Date().toISOString(), // Fecha actual
-          kyc_user_id: user.use_id, // ID del usuario actual
-        };
-
-        const newKycResponse = await axios.post(
-          `${url}/kyclink/create`,
-          kycData,
-          {
-            headers: {
-              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        console.log("Nuevo KYC link creado para el usuario:", user.use_id);
-        setKycLink(newKycResponse.data.kyc_link); // Guardar el nuevo enlace KYC
-      }
-
-      // Actualizamos el estado del usuario a "En proceso de verificación"
-      await axios.put(
-        `${url}/Users/${user.use_id}`,
-        {
-          use_verif: "E",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Mostramos el modal de confirmación
-      // toast.success("¡KYC solicitado con éxito!");
-    } catch (error) {
-      console.error("Error al solicitar el link KYC:", error);
-      // toast.error("Error al solicitar el link KYC.");
-    } finally {
-      setLoading(false); // Desactiva el estado de carga
-    }
-  };
 
   // Tasas de cambio estáticas
   const userStatusMessage = "Usuario no verificado. Haz clic para verificarte.";
@@ -199,24 +244,7 @@ function Changes() {
       });
       setUser(response.data);
 
-      // Obtener el KYC link asociado al usuario
-      const kycResponse = await axios.get(
-        `${url}/kyclink/user/${user.use_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-          },
-        }
-      );
-
-      const kycData = kycResponse.data;
-
-      // Si existe un KYC link, lo guardamos en el estado
-      if (kycData && kycData.kyc_link) {
-        setKycLink(kycData.kyc_link);
-      } else {
-        setKycLink(null);
-      }
+     
 
       const responseMovemments = await axios.get(
         `${url}/Movements/user/${response.data.use_id}`,
@@ -669,59 +697,57 @@ function Changes() {
 
       {/* Verificación de usuario */}
       {isVerificationModalOpen && (
-        <div className="kyc-modal-overlay">
-          <div className="kyc-modal-content">
-            <h2>Verificación de Usuario</h2>
-            <p className="kyc-modal-text">
-              Tu usuario necesita verificación. Prepara tu documentación
-              VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo
-              indica el proceso.
-              <strong>
-                {" "}
-                No subas cartón rojo, ni NIE de hoja blanca.
-              </strong>{" "}
-              Evita que tu verificación sea rechazada, subiendo una foto clara
-              de la parte frontal y reverso del documento.
-            </p>
-            <p className="kyc-modal-text">
-              El tiempo estimado de verificación dentro de nuestro horario
-              laboral es de aproximadamente <strong>20 minutos</strong>.
-            </p>
+  <div className="kyc-modal-overlay">
+    <div className="kyc-modal-content">
+      <h2>Verificación de Usuario</h2>
+      <p className="kyc-modal-text">
+        Tu usuario necesita verificación. Prepara tu documentación
+        VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo
+        indica el proceso.
+        <strong>
+          {" "}
+          No subas cartón rojo, ni NIE de hoja blanca.
+        </strong>{" "}
+        Evita que tu verificación sea rechazada, subiendo una foto clara
+        de la parte frontal y reverso del documento.
+      </p>
+      <p className="kyc-modal-text">
+        El tiempo estimado de verificación dentro de nuestro horario
+        laboral es de aproximadamente <strong>20 minutos</strong>.
+      </p>
 
-            {kycLink ? (
-              <button
-                color="primary"
-                className="kyc-modal-button"
-                href={kycLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Ir a la verificación KYC
-              </button>
-            ) : (
-              <p className="kyc-modal-text">
-                Aún no tienes un link asignado. Te llegará un correo en breve
-                con tu link, o podrás hacer clic aquí cuando esté disponible.
-              </p>
-            )}
+      <p className="kyc-modal-text">
+        Si ya has realizado la verificación a través del link, espera a
+        que nuestro equipo valide tu información. El sistema verifica que
+        la documentación adjunta sea vigente y que el video de
+        identificación facial proteja tu identidad. Esta comprobación
+        llevará entre <strong>5 a 20 minutos</strong>.
+      </p>
 
-            <p className="kyc-modal-text">
-              Si ya has realizado la verificación a través del link, espera a
-              que nuestro equipo valide tu información. El sistema verifica que
-              la documentación adjunta sea vigente y que el video de
-              identificación facial proteja tu identidad. Esta comprobación
-              llevará entre <strong>5 a 20 minutos</strong>.
-            </p>
+      {/* Botón para obtener el enlace de verificación KYC y redirigir */}
+      <button className="button-kycaml" onClick={fetchKycLink}>
+        Obtener enlace de verificación KYC
+      </button>
 
-            <button
-              className="close-button"
-              onClick={() => setIsVerificationModalOpen(false)}
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
+      {/* Redirigir automáticamente si existe el enlace */}
+      {kycLink && kycLink.startsWith('http') && (
+        <>
+          <p className="kyc-modal-text" style={{ textAlign: 'center' }}>
+            <strong>Redirigiendo a la verificación KYC...</strong>
+          </p>
+          {handleRedirect()} {/* Llama a la función de redirección */}
+        </>
       )}
+
+      <button
+        className="close-button"
+        onClick={() => setIsVerificationModalOpen(false)}
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+)}
 
       {/* Visualizador de tasas */}
       {isRatesModalOpen && (

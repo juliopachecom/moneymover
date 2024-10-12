@@ -400,6 +400,28 @@
     }
   }
   
+  .action-button {
+    padding: 12px 30px;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    animation: popIn 0.5s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &.green {
+      background-color: #4caf50;
+      margin-bottom: 15px;
+      &:hover {
+        background-color: #388e3c;
+      }
+    }
+  }
 
   .verification-alert {
     background-color: #f6d4b4;
@@ -690,33 +712,32 @@
     }
   }
 
+  .button-kycaml{
+    padding: 12px 30px;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    animation: popIn 0.5s ease;
+    background-color: #003366;
+    margin-bottom: 15px;
+
+    &:hover {
+      background-color: #003e7c;
+      transform: scale(1.05);
+    }
+
+  }
+
   &__actions {
     display: flex;
     justify-content: center;
     gap: 15px;
     margin-bottom: 30px;
 
-    .action-button {
-      padding: 12px 30px;
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      animation: popIn 0.5s ease;
-
-      &:hover {
-        transform: scale(1.05);
-      }
-
-      &.green {
-        background-color: #4caf50;
-        &:hover {
-          background-color: #388e3c;
-        }
-      }
-    }
+   
   }
 
   &__tabs {
