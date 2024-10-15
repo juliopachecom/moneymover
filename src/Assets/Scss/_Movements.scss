@@ -6,143 +6,188 @@
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
+}
 
-  &__tabs {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 20px;
+.movements__tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
 
-    .tab {
-      padding: 12px 30px;
-      background-color: #f1f1f1;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
+  .tab {
+    padding: 12px 30px;
+    background-color: #f1f1f1;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
 
-      &.active {
-        background-color: #003366;
-        color: white;
-      }
-
-      &:hover {
-        background-color: #e0e0e0;
-        transform: scale(1.05);
-      }
-    }
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-
-    .movements__table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-
-      th,
-      td {
-        text-align: left;
-        padding: 12px 15px;
-      }
-
-      th {
-        background-color: #f4f4f4;
-        font-weight: bold;
-        font-size: 14px;
-        color: #555;
-      }
-
-      td {
-        background-color: #fff;
-        border-bottom: 1px solid #e0e0e0;
-        font-size: 14px;
-        color: #333;
-
-        img {
-          margin-left: 5px;
-          width: 16px;
-          height: 16px;
-        }
-
-        &.v {
-          color: #4caf50;
-          font-weight: bold;
-        }
-
-        &.r {
-          color: #f44336;
-          font-weight: bold;
-        }
-
-        &.e {
-          color: #ff9800;
-          font-weight: bold;
-        }
-
-        .view-details-icon {
-          color: #003366;
-          cursor: pointer;
-          font-size: 18px;
-
-          &:hover {
-            color: #0056b3;
-          }
-        }
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    .movements__table {
-      width: 100%;
-      font-size: 12px;
+    &.active {
+      background-color: #003366;
+      color: white;
     }
 
-    th,
-    td {
-      padding: 10px;
-    }
-
-    td img {
-      width: 14px;
-      height: 14px;
-    }
-
-    .table-responsive {
-      margin-bottom: 20px;
-    }
-
-    /* Estilos para hacer la tabla más amigable en pantallas pequeñas */
-    .movements__table {
-      display: block; /* Cambiar a bloque para mejor control */
-      overflow-x: auto; /* Habilitar scroll */
-      border: 1px solid #e0e0e0; /* Bordes para la tabla en modo bloque */
-    }
-
-    th, td {
-      display: block; /* Cada celda en bloque */
-      text-align: right; /* Alinear texto a la derecha */
-      position: relative; /* Permitir posicionamiento absoluto */
-      padding: 10px; /* Relleno interno */
-    }
-
-    th::before, td::before {
-      position: absolute; /* Posicionar etiquetas antes del contenido */
-      left: 10px;
-      font-weight: bold;
-      text-align: left; /* Alinear etiquetas a la izquierda */
-    }
-
-    th::before {
-      content: attr(data-label); /* Usar atributos para mostrar el nombre de la columna */
-    }
-
-    td::before {
-      content: attr(data-label); /* Usar atributos para mostrar el nombre de la columna */
-      color: #555; /* Color para etiquetas */
+    &:hover {
+      background-color: #e0e0e0;
+      transform: scale(1.05);
     }
   }
 }
+
+.table-responsive {
+  overflow-x: auto;
+
+  .movements__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px 15px;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      font-size: 14px;
+      color: #555;
+    }
+
+    td {
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 14px;
+      color: #333;
+
+      img {
+        margin-left: 5px;
+        width: 20px; 
+        height: 20px; 
+      }
+
+      &.v {
+        color: #4caf50;
+        font-weight: bold;
+      }
+
+      &.r {
+        color: #f44336;
+        font-weight: bold;
+      }
+
+      &.e {
+        color: #ff9800;
+        font-weight: bold;
+      }
+
+      .view-details-icon {
+        cursor: pointer;
+        color: #007bff;
+        font-size: 20px;
+
+        &:hover {
+          color: #0056b3;
+        }
+      }
+    }
+  }
+}
+/* Estilo del modal */
+/* Estilo del overlay del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente más oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Estilo del contenido del modal */
+.modal-content {
+  background-color: #f9f9f9; /* Fondo gris claro */
+  padding: 20px; /* Espaciado interior */
+  border-radius: 10px; /* Bordes redondeados */
+  width: 90%;
+  max-width: 600px; /* Ancho máximo */
+  position: relative; /* Posición relativa para el botón de cerrar */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Sombra más suave */
+}
+
+/* Títulos dentro del modal */
+.modal-content h2 {
+  color: #333; /* Color de texto del título */
+  margin-bottom: 15px; /* Espaciado inferior */
+}
+
+/* Detalles dentro del modal */
+.modal-details {
+  display: flex;
+  flex-direction: column; /* Alinear detalles en columna */
+  align-items: flex-start; /* Alinear detalles a la izquierda */
+  text-align: left; /* Alinear el texto a la izquierda */
+}
+
+/* Colores para etiquetas <strong> */
+.modal-details strong {
+  color: #007bff; /* Color azul para las etiquetas strong */
+}
+
+/* Estilo para el botón de cerrar */
+.modal-close {
+  position: absolute; /* Posición absoluta dentro del modal */
+  top: 10px; /* Distancia desde la parte superior */
+  right: 10px; /* Distancia desde la derecha */
+  background: none; /* Sin fondo */
+  border: none; /* Sin borde */
+  font-size: 22px; /* Tamaño del icono de cerrar */
+  color: #dc3545; /* Color rojo para el botón de cerrar */
+  cursor: pointer; /* Cursor de puntero */
+}
+
+/* Estilo para el botón de cerrar al pasar el ratón */
+.modal-close:hover {
+  color: #c82333; /* Color más oscuro al pasar el ratón */
+}
+
+/* Estilo para imágenes dentro del modal */
+.modal-image {
+  max-width: 100%; /* Asegura que la imagen no sobrepase el ancho del modal */
+  margin-top: 15px; /* Espaciado superior */
+  border-radius: 5px; /* Bordes redondeados para la imagen */
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .modal-content {
+      width: 95%; /* Aumentar el ancho en pantallas más pequeñas */
+  }
+}
+  
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+      opacity: 0; /* Comienza invisible */
+  }
+  to {
+      opacity: 1; /* Termina visible */
+  }
+}
+
+@keyframes scaleUp {
+  from {
+      transform: scale(0.8); /* Comienza escalado */
+  }
+  to {
+      transform: scale(1); /* Termina en tamaño normal */
+  }
+}
+

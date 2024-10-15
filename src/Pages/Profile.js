@@ -8,14 +8,14 @@ import { useDataContext } from "../Context/dataContext"; // Para obtener el toke
 
 function Profile() {
   const { url, infoTkn } = useDataContext(); // Obtener el token y la URL de la API desde el contexto
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [countryCode, setCountryCode] = useState("+34"); // Prefijo predeterminado
+  const [currentPassword, setCurrentPassword] = useState(""); // Contraseña actual
+  const [newPassword, setNewPassword] = useState(""); // Nueva contraseña
+  const [confirmPassword, setConfirmPassword] = useState(""); // Confirmar nueva contraseña
   const [profilePhoto, setProfilePhoto] = useState(profileIcon);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
@@ -99,25 +99,54 @@ function Profile() {
     setShowConfirmationModal(!showConfirmationModal);
   };
 
-  const handleSaveChanges = async () => {
-    if (isEditingPassword && newPassword !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
-      return;
+  // Función para validar contraseña actual
+  const verifyCurrentPassword = async () => {
+    try {
+      const response = await axios.get(`${url}/Auth/VerifyPassword/${userId}/${currentPassword}`);
+      return response.data; // Retorna true o false
+    } catch (err) {
+      setError("Error al verificar la contraseña.");
+      return false; // En caso de error, consideramos que no es válida
     }
-    setError("");
+  };
+
+  const handleSaveChanges = async () => {
+    setError(""); // Reiniciar error
+    if (isEditingPhone) {
+      const isPasswordValid = await verifyCurrentPassword();
+      if (!isPasswordValid) {
+        setError("La contraseña actual es incorrecta.");
+        return;
+      }
+    } else if (isEditingPassword) {
+      if (newPassword !== confirmPassword) {
+        setError("Las contraseñas no coinciden.");
+        return;
+      }
+      const isPasswordValid = await verifyCurrentPassword();
+      if (!isPasswordValid) {
+        setError("La contraseña actual es incorrecta.");
+        return;
+      }
+    }
     toggleModal(); // Llamar a toggleModal para abrir el modal de confirmación
   };
 
   const confirmChanges = async () => {
     try {
+      const updatedData = {
+        use_email: email,
+        use_phone: phone,
+      };
+
+      if (isEditingPassword) {
+        updatedData.use_password = newPassword; // Solo actualizar la contraseña si hay una nueva
+      }
+
       // Llamada PUT para actualizar el perfil
       await axios.put(
         `${url}/Users/${userId}`,
-        {
-          use_email: email,
-          use_phone: phone,
-          use_password: newPassword || password, // Solo actualizar la contraseña si hay una nueva
-        },
+        updatedData,
         {
           headers: {
             Authorization: `Bearer ${infoTkn}`,
@@ -130,10 +159,9 @@ function Profile() {
       setIsSuccess(true);
       setTimeout(() => {
         setShowResultModal(false);
-        setIsEditingEmail(false);
         setIsEditingPhone(false);
         setIsEditingPassword(false);
-        setPassword("");
+        setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
       }, 2000);
@@ -146,10 +174,9 @@ function Profile() {
   };
 
   const handleCancelEdit = () => {
-    setIsEditingEmail(false);
     setIsEditingPhone(false);
     setIsEditingPassword(false);
-    setPassword("");
+    setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
     setError("");
@@ -189,24 +216,7 @@ function Profile() {
           <div className="profile__info">
             <div className="profile__info-item">
               <label>Correo Electrónico:</label>
-              {isEditingEmail ? (
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="profile__input"
-                />
-              ) : (
-                <p>{email}</p>
-              )}
-              {!isEditingEmail && (
-                <button
-                  onClick={() => setIsEditingEmail(true)}
-                  className="profile__button edit-field"
-                >
-                  <FaEdit />
-                </button>
-              )}
+              <p>{email}</p>
             </div>
 
             <div className="profile__info-item">
@@ -214,77 +224,110 @@ function Profile() {
               {isEditingPhone ? (
                 <div className="profile__editable-field">
                   <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Contraseña actual"
                     className="profile__input"
                   />
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="profile__input"
+                  >
+                    <option value="+34">+34 (España)</option>
+                    <option value="+58">+58 (Venezuela)</option>
+                    <option value="+55">+55 (Brasil)</option>
+                    <option value="+54">+54 (Argentina)</option>
+                    <option value="+52">+52 (México)</option>
+                    <option value="+57">+57 (Colombia)</option>
+                    <option value="+51">+51 (Perú)</option>
+                    <option value="+506">+506 (Costa Rica)</option>
+                    <option value="+52">+52 (Chile)</option>
+                    <option value="+41">+41 (Suiza)</option>
+                    <option value="+44">+44 (Reino Unido)</option>
+                    <option value="+49">+49 (Alemania)</option>
+                    <option value="+33">+33 (Francia)</option>
+                    <option value="+39">+39 (Italia)</option>
+                    <option value="+31">+31 (Países Bajos)</option>
+                    <option value="+32">+32 (Bélgica)</option>
+                    <option value="+420">+420 (República Checa)</option>
+                  </select>
                   <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Contraseña actual"
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Nuevo número telefónico"
                     className="profile__input"
                   />
                 </div>
               ) : (
-                <p>{phone}</p>
+                <p>{phone}</p> // Mostrar el número si no está en modo de edición
               )}
-              {!isEditingPhone && (
-                <button
-                  onClick={() => setIsEditingPhone(true)}
-                  className="profile__button edit-field"
-                >
-                  <FaEdit />
-                </button>
+              <div className="profile__edit-button">
+                {!isEditingPhone && (
+                  <button
+                    onClick={() => setIsEditingPhone(true)}
+                    className="profile__button edit-field"                  >
+                    <FaEdit /> 
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="profile__info-item">
+              <label>Contraseña Actual:</label>
+              {isEditingPassword ? (
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Contraseña actual"
+                  className="profile__input"
+                />
+              ) : (
+                <p>******</p> // Mostrar asteriscos si no está en modo de edición
               )}
             </div>
 
-            {/* Editar contraseña */}
             <div className="profile__info-item">
-              <label>Contraseña:</label>
+              <label>Nueva Contraseña:</label>
               {isEditingPassword ? (
                 <div className="profile__editable-field">
                   <input
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="profile__input"
-                    placeholder="Contraseña actual"
-                  />
-                  <input
-                    type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="profile__input"
                     placeholder="Nueva contraseña"
+                    className="profile__input"
                   />
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirmar contraseña"
                     className="profile__input"
-                    placeholder="Confirmar nueva contraseña"
                   />
                 </div>
               ) : (
-                <p>*********</p>
+                <p>******</p> // Mostrar asteriscos si no está en modo de edición
               )}
-              {!isEditingPassword && (
-                <button
-                  onClick={() => setIsEditingPassword(true)}
-                  className="profile__button edit-field"
-                >
-                  <FaEdit />
-                </button>
-              )}
+              <div className="profile__edit-button">
+                {!isEditingPassword && (
+                  <button
+                    onClick={() => setIsEditingPassword(true)}
+                    className="profile__button edit-field"                  >
+                    <FaEdit /> 
+                  </button>
+                )}
+              </div>
             </div>
 
             {error && <p className="profile__error">{error}</p>}
 
             {/* Acciones de guardar/cancelar y desloguearse */}
             <div className="profile__actions">
-              {(isEditingEmail || isEditingPhone || isEditingPassword) && (
+              {(isEditingPhone || isEditingPassword) && (
                 <>
                   <button
                     onClick={handleSaveChanges}
@@ -300,7 +343,7 @@ function Profile() {
                   </button>
                 </>
               )}
-              {!isEditingEmail && !isEditingPhone && !isEditingPassword && (
+              {!isEditingPhone && !isEditingPassword && (
                 <button onClick={clearLocal} className="profile__button logout">
                   <FaSignOutAlt /> Desloguearse
                 </button>

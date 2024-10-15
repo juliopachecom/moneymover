@@ -25,11 +25,7 @@ function SendMoney() {
   const [currencyPrice, setCurrencyPrice] = useState([]);
   const [cash, setCash] = useState("");
   const [cashPhone, setCashPhone] = useState("");
-
-  // Datos de los bancos
-  const [banksEUR, setBanksEUR] = useState([]);
-  const [banksUSD, setBanksUSD] = useState([]);
-  const [banksGBP, setBanksGBP] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState("");
 
   //Alertas
   const [showAlert, setShowAlert] = useState(false);
@@ -87,48 +83,6 @@ function SendMoney() {
       console.log(error);
     }
   }, [setCurrencyPrice, url]);
-
-  // Fetch de datos de los bancos en EUR
-  const fetchDataAccEur = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/Acceur`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setBanksEUR(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [url, infoTkn]);
-
-  // Fetch de datos de los bancos en USD
-  const fetchDataAccUsd = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/AccUsd`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setBanksUSD(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [url, infoTkn]);
-
-  // Fetch de datos de los bancos en GBP
-  const fetchDataAccGbp = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/AccGbp`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setBanksGBP(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [url, infoTkn]);
 
   const handleAddAccountSubmit = async (event) => {
     event.preventDefault();
@@ -236,7 +190,8 @@ function SendMoney() {
     //     parseInt(account.accbsUser_id) === parseInt(selectedIdAccount)
     // );
     formData.append(
-      "mov_comment", "Hola"
+      "mov_comment",
+      "Hola"
       // `${
       //   (sendOption === "Cuenta Bancaria" || sendOption === "Pago Movil") &&
       //   `Banco: ` +
@@ -280,6 +235,9 @@ function SendMoney() {
     formData.append("mov_accUsdId", payment === "USD" ? 99 : 0);
     formData.append("mov_accGbpId", payment === "GBP" ? 99 : 0);
     formData.append("mov_userId", user.use_id);
+    formData.append("mov_accBsUserId", selectedBeneficiary.accbsUser_id);
+
+    console.log(selectedBeneficiary);
 
     const formDataUser = new FormData();
     // if (sendOption === "Efectivo") {
@@ -348,7 +306,7 @@ function SendMoney() {
         }
       );
 
-      history.push('/changes')
+      history.push("/changes");
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
@@ -373,16 +331,7 @@ function SendMoney() {
   useEffect(() => {
     fetchCurrencyData();
     fetchDataUser();
-    fetchDataAccEur();
-    fetchDataAccUsd();
-    fetchDataAccGbp();
-  }, [
-    fetchCurrencyData,
-    fetchDataUser,
-    fetchDataAccEur,
-    fetchDataAccUsd,
-    fetchDataAccGbp,
-  ]);
+  }, [fetchCurrencyData, fetchDataUser]);
 
   return (
     <div className="send-money">
@@ -423,6 +372,28 @@ function SendMoney() {
                 <option value="EUR">Euros (€)</option>
                 <option value="USD">Dólares ($)</option>
                 <option value="GBP">Libras (£)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="currency-receive">
+                ¿Qué moneda quieres recibir?
+              </label>
+              <select
+                id="currency-receive"
+                value={selectedCurrency}
+                onChange={(e) => setSelectedCurrency(e.target.value)}
+              >
+                <option value="">Seleccione una moneda</option>
+                <option value="VES">Bolívares</option>
+                <option value="USD">Dólares (USD)</option>
+                <option value="COP">Pesos Colombianos (COP)</option>
+                <option value="CLP">Pesos Chilenos (CLP)</option>
+                <option value="PEN">Soles (PEN)</option>
+                <option value="BRL">Reales Brasileños (BRL)</option>
+                <option value="USD-EC">Dólar Ecuatoriano</option>
+                <option value="USD-PA">Dólar Panameño</option>
+                <option value="MXN">Pesos Mexicanos (MXN)</option>
               </select>
             </div>
 
@@ -543,9 +514,11 @@ function SendMoney() {
             <strong>Banco:</strong> {selectedBeneficiary.accbsUser_bank}
           </p>
           <p>
-            <strong>{selectedBeneficiary.accbsUser_type === "Pago Movil"
-              ? "Teléfono: " + selectedBeneficiary.accbsUser_phone
-              : "Cuenta: " + selectedBeneficiary.accbsUser_number}</strong>
+            <strong>
+              {selectedBeneficiary.accbsUser_type === "Pago Movil"
+                ? "Teléfono: " + selectedBeneficiary.accbsUser_phone
+                : "Cuenta: " + selectedBeneficiary.accbsUser_number}
+            </strong>
           </p>
 
           <div className="form-actions">

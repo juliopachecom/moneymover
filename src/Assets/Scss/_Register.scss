@@ -93,6 +93,7 @@
           height: 48px;
         }
 
+
         input {
           flex-grow: 1;
           padding: 12px;
@@ -111,6 +112,10 @@
 
       input {
         margin-right: 10px;
+      }
+
+      &___Link{
+        text-decoration: none;
       }
 
       label {
@@ -178,6 +183,7 @@
       font-size: 16px;
       border-radius: 25px;
       cursor: pointer;
+      color: white;
       transition: background-color 0.3s ease, transform 0.3s ease;
 
       &:hover {
@@ -192,6 +198,7 @@
       padding: 12px 30px;
       font-size: 16px;
       border-radius: 25px;
+      color: white;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.3s ease;
 

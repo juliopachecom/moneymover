@@ -17,12 +17,19 @@ function AdminDashboard() {
   const [user, setUser] = useState([]);
   const [userMovemments, setUserMovemments] = useState([]);
 
+  //Datos CurrencyPrice
+  const [currencyPrice, setCurrencyPrice] = useState([]);
+
   const [totalEur, setTotalEur] = useState([]);
   const [totalUsd, setTotalUsd] = useState([]);
   const [totalGbp, setTotalGbp] = useState([]);
   const [userCountV, setUserCountV] = useState(0); // Verificados
   const [userCountE, setUserCountE] = useState(0); // En espera
   const [userCountR, setUserCountR] = useState(0); // Rechazados
+
+  // Datos de Remesas
+  const [mov_img, setMovImg] = useState("");
+  const [payment, setPayment] = useState("");
 
   //Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +51,7 @@ function AdminDashboard() {
       const allUsers = response.data;
 
       // Filtramos los usuarios por su estado de verificación
-      const verifiedUsers = allUsers.filter((user) => user.use_verif === "V");
+      const verifiedUsers = allUsers.filter((user) => user.use_verif === "S");
       const pendingUsers = allUsers.filter((user) => user.use_verif === "E");
       const rejectedUsers = allUsers.filter((user) => user.use_verif === "N");
 
@@ -78,7 +85,7 @@ function AdminDashboard() {
     }
   }, [setUser, infoTkn, url]);
 
-  // Fetch de datos del admin
+  // Fetch de datos Movements
   const fetchDataMovemments = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/Movements`, {
@@ -158,6 +165,20 @@ function AdminDashboard() {
     }
   }, [infoTkn, setTotalGbp, url]);
 
+  // Fetch de CurrencyPrice
+  const fetchDataCurrencyPrice = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/CurrencyPrice/1`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setCurrencyPrice(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [infoTkn, setCurrencyPrice, url]);
+
   const openDetailModal = (movement) => {
     setSelectedMovement(movement);
     setIsDetailModalOpen(true);
@@ -182,10 +203,296 @@ function AdminDashboard() {
     setRejectionReason(""); // Limpiar la razón de rechazo
   };
 
-  const handleApprove = () => {
-    // Lógica para aprobar el movimiento
-    console.log("Aprobado");
-    closeModal();
+  //Agregar saldo después de recargar
+  const handleSubmitSummary = () => {
+    const totalAmountEur = parseFloat(selectedMovement.User.use_amountEur);
+    const totalAmountUsd = parseFloat(selectedMovement.User.use_amountUsd);
+    const totalAmountGbp = parseFloat(selectedMovement.User.use_amountGbp);
+    const formData = new FormData();
+    if (selectedMovement.mov_currency === "EUR") {
+      formData.append(
+        "use_amountEur",
+        totalAmountEur + selectedMovement.mov_amount
+      );
+    }
+    if (selectedMovement.mov_currency === "USD") {
+      formData.append(
+        "use_amountUsd",
+        totalAmountUsd + selectedMovement.mov_amount
+      );
+    }
+    if (selectedMovement.mov_currency === "GBP") {
+      formData.append(
+        "use_amountGbp",
+        totalAmountGbp + selectedMovement.mov_amount
+      );
+    }
+
+    try {
+      axios.put(`${url}/Users/${selectedMovement.User.use_id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      console.log("Request send successfully");
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // Aprobar Recarga
+  const handleSubmitVerify = async (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().slice(0, 10);
+    formData.append("mov_date", formattedDate);
+
+    try {
+      await axios.get(`${url}/Movements/verif/${selectedMovement.mov_id}`, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      await axios.put(`${url}/Movements/${selectedMovement.mov_id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      await axios.post(
+        `${url}/Mailer/EmailVtransfer/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+
+      if (selectedMovement.mov_currency === "EUR") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accEurId: selectedMovement.AccountsEur.acceur_id,
+            tor_currencyPrice: currencyPrice.cur_EurToBs,
+            tor_date: formattedDate,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "USD") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accUsdId: selectedMovement.AccountsUsd.accusd_id,
+            tor_currencyPrice: currencyPrice.cur_UsdToBs,
+            tor_date: formattedDate,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "GBP") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accGbpId: selectedMovement.AccountsGbp.accgbp_id,
+            tor_currencyPrice: currencyPrice.cur_GbpToBs,
+            tor_date: formattedDate,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+
+      closeDetailModal();
+
+      handleSubmitSummary();
+      fetchDataMovemments();
+
+      console.log("Request sent successfully");
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  //Aprobar Remesa
+  const handleSubmitSendVerify = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().slice(0, 10);
+
+    if (selectedMovement.mov_typeOutflow === "Efectivo") {
+      formData.append("mov_currency", "USD");
+      formData.append("mov_accEurId", 0);
+      formData.append("mov_accGbpId", 0);
+      formData.append("mov_amount", selectedMovement.mov_amount);
+      formData.append("mov_date", formattedDate);
+    } else {
+      formData.append(
+        "mov_currency",
+        selectedMovement.mov_currency === "USD" ||
+          selectedMovement.mov_currency === "EUR" ||
+          selectedMovement.mov_currency === "GBP"
+          ? payment
+          : selectedMovement.mov_currency
+      );
+      formData.append("mov_accEurId", 0);
+      formData.append("mov_accGbpId", 0);
+      formData.append("mov_accUsdId", payment === "USD" ? 1 : 0);
+      formData.append("mov_accBsId", payment === "BS" ? 1 : 0);
+      formData.append("mov_img", mov_img);
+      formData.append(
+        "mov_amount",
+        selectedMovement.mov_currency === payment
+          ? parseFloat(selectedMovement.mov_amount)
+          : selectedMovement.mov_currency === "USD" &&
+            selectedMovement.mov_currency !== payment
+          ? parseFloat(selectedMovement.mov_amount) * currencyPrice.cur_UsdToBs
+          : selectedMovement.mov_currency === "EUR"
+          ? parseFloat(selectedMovement.mov_amount) * currencyPrice.cur_EurToBs
+          : selectedMovement.mov_currency === "GBP"
+          ? parseFloat(selectedMovement.mov_amount) * currencyPrice.cur_GbpToBs
+          : parseFloat(selectedMovement.mov_amount)
+      );
+      formData.append("mov_date", formattedDate);
+    }
+
+    try {
+      await axios.put(`${url}/Movements/${selectedMovement.mov_id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      await axios.get(`${url}/Movements/verif/${selectedMovement.mov_id}`, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      await axios.post(
+        `${url}/Mailer/EmailVtransfer/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+
+      if (selectedMovement.mov_currency === "EUR" && payment === "BS") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accBsId: 1,
+            tor_currencyPrice: parseFloat(currencyPrice.cur_EurToBs),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "EUR" && payment === "USD") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accUsdId: 1,
+            tor_currencyPrice: parseInt(currencyPrice.cur_EurToUsd),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "USD" && payment === "BS") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accBsId: 1,
+            tor_currencyPrice: parseFloat(currencyPrice.cur_UsdToBs),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "USD" && payment === "USD") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accUsdId: 1,
+            tor_currencyPrice: 1,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "GBP" && payment === "BS") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accBsId: 1,
+            tor_currencyPrice: parseFloat(currencyPrice.cur_GbpToBs),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+      if (selectedMovement.mov_currency === "GBP" && payment === "USD") {
+        await axios.post(
+          `${url}/TotalRegister/create`,
+          {
+            tor_accUsdId: 1,
+            tor_currencyPrice: parseFloat(currencyPrice.cur_GbpToUsd),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+
+      // Cerrar el modal
+      closeModal();
+      fetchDataMovemments();
+
+      console.log("Request send successfully");
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const handleReject = () => {
@@ -212,6 +519,7 @@ function AdminDashboard() {
     fetchDataTotalUsd();
     fetchDataTotalGbp();
     fetchDataUsers();
+    fetchDataCurrencyPrice();
   }, [
     fetchDataAdm,
     fetchDataMovemments,
@@ -219,6 +527,7 @@ function AdminDashboard() {
     fetchDataTotalUsd,
     fetchDataTotalGbp,
     fetchDataUsers,
+    fetchDataCurrencyPrice,
   ]);
 
   return (
@@ -308,7 +617,9 @@ function AdminDashboard() {
                   .map((movement) => (
                     <tr key={movement.mov_id}>
                       <td>{movement.mov_date}</td>
-                      <td>{movement.User.use_name} {movement.User.use_lastName}</td>
+                      <td>
+                        {movement.User.use_name} {movement.User.use_lastName}
+                      </td>
                       <td>{movement.mov_ref}</td>
                       <td>
                         {movement.mov_currency === "EUR"
@@ -371,7 +682,7 @@ function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {userMovemments.length > 0 ? (
+              {userMovemments && userMovemments.length > 0 ? (
                 userMovemments
                   .filter(
                     (movement) =>
@@ -381,13 +692,14 @@ function AdminDashboard() {
                   .map((movement) => (
                     <tr key={movement.mov_id}>
                       <td>{movement.mov_date}</td>
-                      <td>{movement.User.use_name} {movement.User.use_lastName}</td>
+                      <td>
+                        {movement.User && movement.User.use_name}{" "}
+                        {movement.User && movement.User.use_lastName}
+                      </td>
                       <td>{movement.mov_ref}</td>
                       <td>
-                        {movement.User &&
-                        movement.User.AccountsBsUser &&
-                        movement.User.AccountsBsUser.length > 0
-                          ? movement.User.AccountsBsUser[0].accbsUser_owner
+                        {movement.AccountsBsUser
+                          ? movement.AccountsBsUser.accbsUser_owner
                           : "Sin información"}
                       </td>
                       <td>
@@ -417,7 +729,10 @@ function AdminDashboard() {
                         <FaEye
                           style={{ cursor: "pointer" }}
                           className="view-details-icon"
-                          onClick={() => openModal(movement)}
+                          onClick={() => {
+                            setSelectedMovement(movement); // Establece el movimiento seleccionado
+                            setIsModalOpen(true); // Abre el modal
+                          }}
                         />
                       </td>
                     </tr>
@@ -450,14 +765,23 @@ function AdminDashboard() {
                   {selectedMovement.mov_amount}
                 </p>
                 <p>
-                  <strong>Banco:</strong> {selectedMovement.bank_name}
+                  <strong>
+                    Banco:{" "}
+                    {selectedMovement.AccountsEur
+                      ? selectedMovement.AccountsEur.acceur_Bank
+                      : selectedMovement.AccountsUsd
+                      ? selectedMovement.AccountsUsd.accusd_Bank
+                      : selectedMovement.AccountsGbp
+                      ? selectedMovement.AccountsGbp.accgbp_Bank
+                      : "Sin banco"}
+                  </strong>
                 </p>
 
                 {/* Muestra una imagen o un enlace de descarga si es PDF */}
-                {selectedMovement.mov_document ? (
-                  selectedMovement.mov_document.endsWith(".pdf") ? (
+                {selectedMovement.mov_img ? (
+                  selectedMovement.mov_img.endsWith(".pdf") ? (
                     <a
-                      href={`${url}/download/${selectedMovement.mov_document}`}
+                      href={`${url}/download/${selectedMovement.mov_img}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -465,7 +789,7 @@ function AdminDashboard() {
                     </a>
                   ) : (
                     <img
-                      src={`${url}/documents/${selectedMovement.mov_document}`}
+                      src={`${url}/Movements/image/${selectedMovement.mov_img}`}
                       alt="Documento"
                       style={{ maxWidth: "100%" }}
                     />
@@ -475,7 +799,7 @@ function AdminDashboard() {
                 )}
               </div>
               <div className="modal-buttons">
-                <button className="approve-btn" onClick={handleApprove}>
+                <button className="approve-btn" onClick={handleSubmitVerify}>
                   Aprobar
                 </button>
                 <button className="reject-btn" onClick={handleReject1}>
@@ -517,32 +841,61 @@ function AdminDashboard() {
                 <div className="modal-details">
                   <p>
                     <strong>Propietario:</strong>{" "}
-                    {selectedMovement.User.AccountsBsUser[0].accbsUser_owner}
+                    {selectedMovement.AccountsBsUser
+                      ? selectedMovement.AccountsBsUser.accbsUser_owner
+                      : "Sin información"}
                   </p>
                   <p>
                     <strong>Banco:</strong>{" "}
-                    {selectedMovement.User.AccountsBsUser[0].accbsUser_bank}
+                    {selectedMovement.AccountsBsUser
+                      ? selectedMovement.AccountsBsUser.accbsUser_bank
+                      : "Sin información"}
                   </p>
                   <p>
                     <strong>DNI:</strong>{" "}
-                    {selectedMovement.User.AccountsBsUser[0].accbsUser_dni}
+                    {selectedMovement.AccountsBsUser
+                      ? selectedMovement.AccountsBsUser.accbsUser_dni
+                      : "Sin información"}
                   </p>
                   <p>
                     <strong>
-                      {selectedMovement.User.AccountsBsUser[0]
-                        .accbsUser_type === "Pago Movil"
-                        ? "Teléfono: " +
-                          selectedMovement.User.AccountsBsUser[0]
-                            .accbsUser_phone
-                        : "Cuenta: " +
-                          selectedMovement.User.AccountsBsUser[0]
-                            .accbsUser_number}
+                      {selectedMovement.AccountsBsUser
+                        ? selectedMovement.AccountsBsUser.accbsUser_type ===
+                          "Pago Movil"
+                          ? "Teléfono: " +
+                            selectedMovement.AccountsBsUser.accbsUser_phone
+                          : "Cuenta: " +
+                            selectedMovement.AccountsBsUser.accbsUser_number
+                        : "Sin información"}
                     </strong>
+                  </p>
+                  <p>
+                    <strong>Monto: {selectedMovement.mov_amount} </strong>
                   </p>
                 </div>
               ) : (
                 <p>Cargando datos...</p>
               )}
+
+              <div className="modal-actions">
+                <label className="select-label">Selecciona una Moneda</label>
+                <select
+                  id="payment"
+                  value={payment}
+                  onChange={(e) => setPayment(e.target.value)}
+                >
+                  <option>Selecciona una moneda...</option>
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                  <option value="BS">BS</option>
+                  <option value="ARS">ARS</option>
+                  <option value="COP">COP</option>
+                  <option value="SOL">SOL</option>
+                  <option value="CHL">CHL</option>
+                  <option value="ECU">ECU</option>
+                </select>
+              </div>
 
               <div className="modal-actions">
                 <label class="file-label" for="file-upload">
@@ -552,7 +905,7 @@ function AdminDashboard() {
               </div>
 
               <div className="modal-buttons">
-                <button className="approve-btn" onClick={handleApprove}>
+                <button className="approve-btn" onClick={handleSubmitSendVerify}>
                   Aprobar
                 </button>
                 <button className="reject-btn" onClick={handleReject}>

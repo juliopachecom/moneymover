@@ -43,20 +43,26 @@ function Home() {
   const [receiveCountry, setReceiveCountry] = useState("VEF");
 
   const calculateRemittance = useCallback(() => {
-    if (exchangeRate.length === 0) return; // Asegúrate de que haya datos antes de intentar calcular.
+    if (exchangeRate.length === 0) {
+      console.log('Exchange rate is empty or not loaded.');
+      return; 
+    }
   
-    // Encuentra la tasa de cambio dependiendo de la moneda seleccionada
+    console.log('Calculating remittance with:', { sendCountry, receiveCountry, sendAmount, exchangeRate });
+  
+  
     let selectedRate = 1;
   
-    // Cambios a VEF
+  
     if (sendCountry === "EUR" && receiveCountry === "VEF") {
       selectedRate = exchangeRate[0].cur_EurToBs;
     } else if (sendCountry === "USD" && receiveCountry === "VEF") {
       selectedRate = exchangeRate[0].cur_UsdToBs;
-    } 
-    // Continuar con los otros pares de divisas
+    }
+  
   
     const result = sendAmount * selectedRate;
+    console.log('Calculated receive amount:', result);
     setReceiveAmount(result);
   }, [sendCountry, receiveCountry, sendAmount, exchangeRate]);
   

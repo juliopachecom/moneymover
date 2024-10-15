@@ -1,0 +1,77 @@
+.terms-page {
+    background-color: #f9f9f9; // Fondo gris claro para la página
+    padding: 20px;
+    margin-top: 30px !important;
+  
+    .terms-container {
+      max-width: 900px; // Ancho máximo para limitar el contenido y hacerlo más legible
+      margin: 0 auto; // Centrar el contenedor
+      background-color: #fff; // Fondo blanco para el texto
+      padding: 40px;
+      border-radius: 10px; // Bordes redondeados para darle un aspecto suave
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Sombra ligera para que se vea elevado
+  
+      h1 {
+        font-size: 2.5rem; // Tamaño de la fuente para el título principal
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center; // Centrar el título
+      }
+  
+      h2 {
+        font-size: 1.75rem; // Tamaño de la fuente para los subtítulos
+        color: #555;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #e0e0e0; // Línea decorativa debajo del subtítulo
+        padding-bottom: 10px;
+      }
+  
+      p {
+        font-size: 1rem;
+        line-height: 1.6; // Aumenta el espacio entre líneas para mejor legibilidad
+        color: #666;
+        margin-bottom: 20px;
+        text-align: justify; // Justifica el texto para alinearlo en ambos lados
+  
+        strong {
+          color: #333; // Resalta los textos en negrita
+        }
+  
+        a {
+          color: #007bff; // Color azul para los enlaces
+          text-decoration: none;
+  
+          &:hover {
+            text-decoration: underline; // Subraya al pasar el mouse
+          }
+        }
+      }
+  
+      ul {
+        margin-left: 20px;
+        padding-left: 20px;
+        text-align: justify; // Justifica el texto dentro de las listas
+  
+        li {
+          margin-bottom: 10px; // Espacio entre los elementos de lista
+          font-size: 1rem;
+          color: #666;
+        }
+      }
+  
+      // Estilo para la fecha de vigencia
+      p:first-of-type {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 30px;
+      }
+  
+      // Estilo para los correos electrónicos y links
+      a[href^="mailto"] {
+        color: #dc3545; // Un color rojo para correos electrónicos
+      }
+    }
+  }
+  

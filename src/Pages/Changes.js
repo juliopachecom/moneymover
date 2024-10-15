@@ -19,8 +19,8 @@ import { NavBarUser } from "../Components/NavBarUser";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-const apiKey = 'bd2f01e809e6a946c92997f6dafa16e448db';  
-const formId = '8358707b19257049490b9df5216b1ae5e3f8';
+const apiKey = "bd2f01e809e6a946c92997f6dafa16e448db";
+const formId = "8358707b19257049490b9df5216b1ae5e3f8";
 
 function Changes() {
   const { logged, infoTkn, url } = useDataContext();
@@ -30,7 +30,7 @@ function Changes() {
   const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
   const [isRatesModalOpen, setIsRatesModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const [kycLink, setKycLink] = useState('');
+  const [kycLink, setKycLink] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -48,7 +48,7 @@ function Changes() {
     setLoading(true); // Activa el estado de carga
     try {
       console.log("Solicitando KYC para el usuario ID:", user.use_id);
-  
+
       // 1. Verificar si ya existe un kyc_link para este usuario
       const existingKycLinkResponse = await axios.get(
         `${url}/kyclink/user/${user.use_id}`,
@@ -59,25 +59,31 @@ function Changes() {
           },
         }
       );
-  
+
       const existingKycLink = existingKycLinkResponse.data;
-  
+
       if (existingKycLink) {
         // Si existe un kyc_link, hacemos un PUT para actualizar los datos
-        console.log("KYC link existente encontrado para el usuario:", user.use_id);
-        
+        console.log(
+          "KYC link existente encontrado para el usuario:",
+          user.use_id
+        );
+
         // 2. Obtener el link de verificación KYC de AMLBot
-        const response = await fetch(`https://kyc-api.amlbot.com/forms/${formId}/urls`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Token ' + apiKey
+        const response = await fetch(
+          `https://kyc-api.amlbot.com/forms/${formId}/urls`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Token " + apiKey,
+            },
           }
-        });
-  
+        );
+
         const data = await response.json();
-        console.log('Respuesta de la API:', data);
-  
+        console.log("Respuesta de la API:", data);
+
         if (data && data.form_url) {
           // Crear el objeto kycData para actualizar
           const kycData = {
@@ -90,7 +96,7 @@ function Changes() {
             form_token: data.form_token,
             verification_attempts_left: data.verification_attempts_left,
           };
-  
+
           // Realizar PUT para actualizar el enlace KYC
           await axios.put(
             `${url}/kyclink/${existingKycLink.kyc_link_id}`,
@@ -102,25 +108,31 @@ function Changes() {
               },
             }
           );
-  
-          console.log("KYC link existente actualizado para el usuario:", user.use_id);
+
+          console.log(
+            "KYC link existente actualizado para el usuario:",
+            user.use_id
+          );
           setKycLink(data.form_url); // Guardar el nuevo enlace KYC
         } else {
-          setKycLink('No se pudo obtener el enlace de verificación');
+          setKycLink("No se pudo obtener el enlace de verificación");
         }
       } else {
         // 3. Si no existe, obtener el link de verificación KYC de AMLBot
-        const response = await fetch(`https://kyc-api.amlbot.com/forms/${formId}/urls`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Token ' + apiKey
+        const response = await fetch(
+          `https://kyc-api.amlbot.com/forms/${formId}/urls`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Token " + apiKey,
+            },
           }
-        });
-  
+        );
+
         const data = await response.json();
-        console.log('Respuesta de la API:', data);
-  
+        console.log("Respuesta de la API:", data);
+
         if (data && data.form_url) {
           // Crear el objeto kycData para crear un nuevo enlace KYC
           const kycData = {
@@ -133,42 +145,35 @@ function Changes() {
             form_token: data.form_token,
             verification_attempts_left: data.verification_attempts_left,
           };
-  
+
           // Realizar POST para crear un nuevo enlace KYC
-          await axios.post(
-            `${url}/kyclink/create`,
-            kycData,
-            {
-              headers: {
-                Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-                "Content-Type": "application/json",
-              },
-            }
-          );
-  
+          await axios.post(`${url}/kyclink/create`, kycData, {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+              "Content-Type": "application/json",
+            },
+          });
+
           console.log("Nuevo KYC link creado para el usuario:", user.use_id);
           setKycLink(data.form_url); // Guardar el nuevo enlace KYC
         } else {
-          setKycLink('No se pudo obtener el enlace de verificación');
+          setKycLink("No se pudo obtener el enlace de verificación");
         }
       }
     } catch (error) {
-      console.error('Error:', error);
-      setKycLink('Error al conectar con la API');
+      console.error("Error:", error);
+      setKycLink("Error al conectar con la API");
     } finally {
       setLoading(false); // Desactiva el estado de carga
     }
   };
-  
 
   // Función para redirigir al usuario a la URL KYC
   const handleRedirect = () => {
-    if (kycLink.startsWith('http')) {
-      window.open(kycLink, '_blank'); // Abre el enlace en una nueva pestaña
+    if (kycLink.startsWith("http")) {
+      window.open(kycLink, "_blank"); // Abre el enlace en una nueva pestaña
     }
   };
-
-
 
   // Datos para verificación
   // const [use_dni, setUseDNI] = useState("");
@@ -230,7 +235,6 @@ function Changes() {
     window.open(url, "_blank");
   };
 
-
   // Tasas de cambio estáticas
   const userStatusMessage = "Usuario no verificado. Haz clic para verificarte.";
 
@@ -243,8 +247,6 @@ function Changes() {
         },
       });
       setUser(response.data);
-
-     
 
       const responseMovemments = await axios.get(
         `${url}/Movements/user/${response.data.use_id}`,
@@ -268,7 +270,7 @@ function Changes() {
     } catch (error) {
       console.log(error);
     }
-  }, [setUser, infoTkn, url, user]);
+  }, [setUser, infoTkn, url]);
 
   // Fetch de datos de la tasa de cambio
   const fetchCurrencyData = useCallback(async () => {
@@ -290,10 +292,12 @@ function Changes() {
       <NavBarUser />
 
       {/* Mensaje de verificación */}
-      <div className="verification-alert" onClick={toggleModal}>
-        <FaExclamationTriangle className="warning-icon" />
-        <span>{userStatusMessage}</span>
-      </div>
+      {(user.use_verif === "N" || user.use_verif === "E") && (
+        <div className="verification-alert" onClick={toggleModal}>
+          <FaExclamationTriangle className="warning-icon" />
+          <span>{userStatusMessage}</span>
+        </div>
+      )}
 
       {/* Modal personalizado */}
       {isModalOpen && (
@@ -478,24 +482,13 @@ function Changes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* <tr>
-                    <td>25/08/2024</td>
-                    <td>407843</td>
-                    <td>
-                      20,00 EUR <img src={spainFlag} alt="EUR" />
-                    </td>
-                    <td className="cancelled">Cancelado</td>
-                    <td>
-                      <FaEye className="view-details-icon" />
-                    </td>
-                  </tr> */}
                   {userMovemments.length > 0 ? (
                     userMovemments
                       .filter((movement) => movement.mov_type === "Deposito")
                       .map((movement) => (
                         <tr key={movement.mov_id}>
                           <td>{movement.mov_date}</td>
-                          <td>0001</td>
+                          <td>{movement.mov_ref}</td>
                           <td>
                             {movement.mov_currency === "EUR"
                               ? "€"
@@ -537,17 +530,6 @@ function Changes() {
                       </td>
                     </tr>
                   )}
-                  {/* <tr>
-                    <td>26/08/2024</td>
-                    <td>407844</td>
-                    <td>
-                      30,00 USD <img src={usaFlag} alt="USD" />
-                    </td>
-                    <td className="completed">Aprobado</td>
-                    <td>
-                      <FaEye className="view-details-icon" />
-                    </td>
-                  </tr> */}
                 </tbody>
               </table>
             </div>
@@ -569,34 +551,24 @@ function Changes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* <tr>
-                    <td>25/08/2024</td>
-                    <td>407845</td>
-                    <td>Maribel Esther M...</td>
-                    <td>
-                      20,00 EUR <img src={spainFlag} alt="EUR" />
-                    </td>
-                    <td>
-                      86,20 VEF <img src={venezuelaFlag} alt="VEF" />
-                    </td>
-                    <td className="cancelled">Cancelado</td>
-                    <td>
-                      <FaEye
-                        className="view-details-icon"
-                        onClick={openDetailsModal}
-                      />
-                    </td>
-                  </tr> */}
                   {userMovemments.length > 0 ? (
                     userMovemments
                       .filter((movement) => movement.mov_type === "Retiro")
                       .map((movement) => (
                         <tr key={movement.mov_id}>
                           <td>{movement.mov_date}</td>
-                          <td>0001</td>
-                          <td>Carlos Pérez</td>
+                          <td>{movement.mov_ref}</td>
                           <td>
-                            50,00 USD <img src={usaFlag} alt="USD" />
+                            {movement.AccountsBsUser ? movement.AccountsBsUser.accbsUser_owner: 'Sin información'}
+                          </td>
+                          <td>
+                            {movement.mov_amount}{" "}
+                            {movement.mov_currency === "USD" && (
+                              <img src={usaFlag} alt="USD" />
+                            )}
+                            {movement.mov_currency === "EUR" && (
+                              <img src={spainFlag} alt="EUR" />
+                            )}
                           </td>
                           <td>
                             {movement.mov_currency === "BS"
@@ -642,21 +614,6 @@ function Changes() {
                       </td>
                     </tr>
                   )}
-                  {/* <tr>
-                    <td>26/08/2024</td>
-                    <td>407846</td>
-                    <td>Carlos Pérez</td>
-                    <td>
-                      50,00 USD <img src={usaFlag} alt="USD" />
-                    </td>
-                    <td>
-                      150,00 VEF <img src={venezuelaFlag} alt="VEF" />
-                    </td>
-                    <td className="pending">En espera</td>
-                    <td>
-                      <FaEye className="view-details-icon" />
-                    </td>
-                  </tr> */}
                 </tbody>
               </table>
             </div>
@@ -697,57 +654,57 @@ function Changes() {
 
       {/* Verificación de usuario */}
       {isVerificationModalOpen && (
-  <div className="kyc-modal-overlay">
-    <div className="kyc-modal-content">
-      <h2>Verificación de Usuario</h2>
-      <p className="kyc-modal-text">
-        Tu usuario necesita verificación. Prepara tu documentación
-        VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo
-        indica el proceso.
-        <strong>
-          {" "}
-          No subas cartón rojo, ni NIE de hoja blanca.
-        </strong>{" "}
-        Evita que tu verificación sea rechazada, subiendo una foto clara
-        de la parte frontal y reverso del documento.
-      </p>
-      <p className="kyc-modal-text">
-        El tiempo estimado de verificación dentro de nuestro horario
-        laboral es de aproximadamente <strong>20 minutos</strong>.
-      </p>
+        <div className="kyc-modal-overlay">
+          <div className="kyc-modal-content">
+            <h2>Verificación de Usuario</h2>
+            <p className="kyc-modal-text">
+              Tu usuario necesita verificación. Prepara tu documentación
+              VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo
+              indica el proceso.
+              <strong>
+                {" "}
+                No subas cartón rojo, ni NIE de hoja blanca.
+              </strong>{" "}
+              Evita que tu verificación sea rechazada, subiendo una foto clara
+              de la parte frontal y reverso del documento.
+            </p>
+            <p className="kyc-modal-text">
+              El tiempo estimado de verificación dentro de nuestro horario
+              laboral es de aproximadamente <strong>20 minutos</strong>.
+            </p>
 
-      <p className="kyc-modal-text">
-        Si ya has realizado la verificación a través del link, espera a
-        que nuestro equipo valide tu información. El sistema verifica que
-        la documentación adjunta sea vigente y que el video de
-        identificación facial proteja tu identidad. Esta comprobación
-        llevará entre <strong>5 a 20 minutos</strong>.
-      </p>
+            <p className="kyc-modal-text">
+              Si ya has realizado la verificación a través del link, espera a
+              que nuestro equipo valide tu información. El sistema verifica que
+              la documentación adjunta sea vigente y que el video de
+              identificación facial proteja tu identidad. Esta comprobación
+              llevará entre <strong>5 a 20 minutos</strong>.
+            </p>
 
-      {/* Botón para obtener el enlace de verificación KYC y redirigir */}
-      <button className="button-kycaml" onClick={fetchKycLink}>
-        Obtener enlace de verificación KYC
-      </button>
+            {/* Botón para obtener el enlace de verificación KYC y redirigir */}
+            <button className="button-kycaml" onClick={fetchKycLink}>
+              Obtener enlace de verificación KYC
+            </button>
 
-      {/* Redirigir automáticamente si existe el enlace */}
-      {kycLink && kycLink.startsWith('http') && (
-        <>
-          <p className="kyc-modal-text" style={{ textAlign: 'center' }}>
-            <strong>Redirigiendo a la verificación KYC...</strong>
-          </p>
-          {handleRedirect()} {/* Llama a la función de redirección */}
-        </>
+            {/* Redirigir automáticamente si existe el enlace */}
+            {kycLink && kycLink.startsWith("http") && (
+              <>
+                <p className="kyc-modal-text" style={{ textAlign: "center" }}>
+                  <strong>Redirigiendo a la verificación KYC...</strong>
+                </p>
+                {handleRedirect()} {/* Llama a la función de redirección */}
+              </>
+            )}
+
+            <button
+              className="close-button"
+              onClick={() => setIsVerificationModalOpen(false)}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
       )}
-
-      <button
-        className="close-button"
-        onClick={() => setIsVerificationModalOpen(false)}
-      >
-        Cerrar
-      </button>
-    </div>
-  </div>
-)}
 
       {/* Visualizador de tasas */}
       {isRatesModalOpen && (

@@ -19,13 +19,24 @@ import { CurrencyPrice } from "../Pages/CurrencyPrice";
 import { Banks } from "../Pages/Banks";
 import { Relation } from "../Pages/Relation";
 import { NotFound } from "../Pages/NotFound"; 
-
+import { TermsAndConditions } from "../Pages/TermsandConditions"; 
+import { Privacy } from "../Pages/Privacy";
 const routes = [
  {
     title: "404 Not Found",
     path: "/notfound",
     component: NotFound,
  }, 
+{
+  title: "Privacy",
+  path: "/privacy",
+  component: Privacy, 
+}, 
+{
+  title: "Terms and Conditions",
+  path: "/termsandconditions",
+  component: TermsAndConditions,
+},
  {
     title: "Relation",
     path: "/Relation",

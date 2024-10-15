@@ -4,6 +4,9 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
+import { Link } from 'react-router-dom';
+
+
 
 function Register() {
   const history = useHistory();
@@ -195,8 +198,9 @@ function Register() {
             onChange={(e) => setTermsAccepted(e.target.checked)}
             required
           />
-          <label htmlFor="termsAccepted">
-            Acepto los términos y condiciones
+          <label htmlFor="termsAccepted" >
+            <Link className='Link' to='/TermsAndConditions'>
+            Acepto los términos y condiciones</Link>
           </label>
         </div>
         <div className="button-group">
