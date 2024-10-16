@@ -4,7 +4,7 @@ import { FaDollarSign, FaEuroSign, FaPoundSign } from "react-icons/fa";
 
 function Relation() {
   // Datos de prueba para recargas y retiros
-  const [transacciones, setTransacciones] = useState([
+  const transacciones = ([
     { nombre: "Ruben Quintana", recarga: 100, retirada: 30, venezuela: 1200, tasa: 40, moneda: "USD", fecha: "2024-09-16" },
     { nombre: "Wilfredo Vargas", recarga: 80, retirada: 20, venezuela: 1000, tasa: 50, moneda: "EUR", fecha: "2024-09-17" },
     { nombre: "Andrea Quintero", recarga: 80, retirada: 0, venezuela: 3200, tasa: 40, moneda: "GBP", fecha: "2024-09-17" },
@@ -15,7 +15,7 @@ function Relation() {
   const [fechaFiltro, setFechaFiltro] = useState("");
   
   // Datos de prueba para usuarios con saldos positivos (EUR, USD, GBP)
-  const [usuariosSaldoPositivo, setUsuariosSaldoPositivo] = useState([
+  const usuariosSaldoPositivo = ([
     { nombre: "Ruben Quintana", saldoEur: 70, saldoUsd: 50, saldoGbp: 30 },
     { nombre: "Wilfredo Vargas", saldoEur: 880, saldoUsd: 300, saldoGbp: 0 },
     // ... agregar más datos

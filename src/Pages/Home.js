@@ -8,9 +8,9 @@ import opcionesIcon from "../Assets/Images/menu.png";
 import seguroIcon from "../Assets/Images/verified.png";
 import featureVideo from "../Assets/Images/featurevideo.mp4";
 import arrowIcon from "../Assets/Images/arrow.png";
-import spainFlag from "../Assets/Images/spain.png";
-import usaFlag from "../Assets/Images/usa.png";
-import germanyFlag from "../Assets/Images/germany.png";
+// import spainFlag from "../Assets/Images/spain.png";
+// import usaFlag from "../Assets/Images/usa.png";
+// import germanyFlag from "../Assets/Images/germany.png";
 import colombiaFlag from "../Assets/Images/colombia.png";
 import argentinaFlag from "../Assets/Images/argentina.png";
 import panamaFlag from "../Assets/Images/panama.png";
@@ -29,44 +29,44 @@ function Home() {
 
   //Calculator
   const [exchangeRate, setExchangeRate] = useState([]);
-  const [eurAmount, setEurAmount] = useState(0);
-  const [vefAmount, setVefAmount] = useState(0);
+  // const [eurAmount, setEurAmount] = useState(0);
+  // const [vefAmount, setVefAmount] = useState(0);
   const [sendAmount, setSendAmount] = useState(100);
   const [receiveAmount, setReceiveAmount] = useState(0);
-  const [rate, setRate] = useState(1)
+  // const [rate, setRate] = useState(1)
 
   //Anexos
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
 
   const [sendCountry, setSendCountry] = useState("EUR");
   const [receiveCountry, setReceiveCountry] = useState("VEF");
 
   const calculateRemittance = useCallback(() => {
     if (exchangeRate.length === 0) {
-      console.log('Exchange rate is empty or not loaded.');
-      return; 
+      console.log("Exchange rate is empty or not loaded.");
+      return;
     }
-  
-    console.log('Calculating remittance with:', { sendCountry, receiveCountry, sendAmount, exchangeRate });
-  
-  
+
+    console.log("Calculating remittance with:", {
+      sendCountry,
+      receiveCountry,
+      sendAmount,
+      exchangeRate,
+    });
+
     let selectedRate = 1;
-  
-  
+
     if (sendCountry === "EUR" && receiveCountry === "VEF") {
       selectedRate = exchangeRate[0].cur_EurToBs;
     } else if (sendCountry === "USD" && receiveCountry === "VEF") {
       selectedRate = exchangeRate[0].cur_UsdToBs;
     }
-  
-  
+
     const result = sendAmount * selectedRate;
-    console.log('Calculated receive amount:', result);
+    console.log("Calculated receive amount:", result);
     setReceiveAmount(result);
   }, [sendCountry, receiveCountry, sendAmount, exchangeRate]);
-  
-
   const fetchExchangeRate = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/CurrencyPrice`, {
@@ -76,36 +76,31 @@ function Home() {
       });
       setExchangeRate(response.data);
       console.log(response.data); // Puedes quitar este console.log si ya no lo necesitas.
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
       console.error("Error fetching exchange rate", error);
-      setError("Error fetching exchange rate");
-      setLoading(false);
+      // setError("Error fetching exchange rate");
+      // setLoading(false);
     }
   }, [infoTkn, url]);
-  
-
-  const handleSendCountryChange = (event) => {
-    setSendCountry(event.target.value);
-  };
-
-  const handleReceiveCountryChange = (event) => {
-    setReceiveCountry(event.target.value);
-  };
 
   useEffect(() => {
     AOS.init({ duration: 1200 });
+    console.log("Fetching exchange rate...");
     fetchExchangeRate(); // Solo ejecuta esta función una vez al montar el componente.
-  }, []); // Dependencias vacías para ejecutarlo solo una vez.
+  }, [fetchExchangeRate]); // Lista de dependencias con fetchExchangeRate
 
-  
   useEffect(() => {
     if (exchangeRate.length > 0) {
       calculateRemittance();
     }
-  }, [sendCountry, receiveCountry, sendAmount, exchangeRate]); 
-  
-
+  }, [
+    sendCountry,
+    receiveCountry,
+    sendAmount,
+    exchangeRate,
+    calculateRemittance,
+  ]);
 
   return (
     <div className="home">
@@ -139,7 +134,9 @@ function Home() {
             />
             <select
               value={sendCountry}
-              onChange={(e)=> {setSendCountry(e.target.value)}}
+              onChange={(e) => {
+                setSendCountry(e.target.value);
+              }}
               className="flag-select"
             >
               <option value="EUR">🇪🇸 EUR</option>
@@ -153,7 +150,9 @@ function Home() {
             <input type="text" value={receiveAmount.toFixed(2)} readOnly />
             <select
               value={receiveCountry}
-              onChange={(e)=> {setReceiveCountry(e.target.value)}}
+              onChange={(e) => {
+                setReceiveCountry(e.target.value);
+              }}
               className="flag-select"
             >
               <option value="VEF">🇻🇪 VEF</option>

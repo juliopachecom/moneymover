@@ -3,15 +3,15 @@ import venezuelaFlag from "../Assets/Images/venezuela.png";
 import { NavBarUser } from "../Components/NavBarUser";
 import { FaCheckCircle } from "react-icons/fa"; // Icono de check para confirmación
 import { StepTracker } from "../Components/StepTracker"; // Importación del componente StepTracker
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 
 function SendMoney() {
-  const { logged, infoTkn, url } = useDataContext();
+  const {  infoTkn, url } = useDataContext();
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1); // Controla los pasos del formulario
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
@@ -20,28 +20,28 @@ function SendMoney() {
 
   // Datos Usuario
   const [user, setUser] = useState([]);
-  const [userMovemments, setUserMovemments] = useState([]);
+  // const [userMovemments, setUserMovemments] = useState([]);
   const [userDirectory, setUserDirectory] = useState([]);
   const [currencyPrice, setCurrencyPrice] = useState([]);
-  const [cash, setCash] = useState("");
-  const [cashPhone, setCashPhone] = useState("");
+  // const [cash, setCash] = useState("");
+  // const [cashPhone, setCashPhone] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState("");
 
   //Alertas
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  // const [alertMessage, setAlertMessage] = useState("");
+  // const [alertType, setAlertType] = useState("");
 
   // Datos de Envio de remesas
   const [payment, setPayment] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState("");
+  // const [selectedMethod, setSelectedMethod] = useState("");
   const [amount, setAmount] = useState("");
   const [amountToReceive, setAmountToReceive] = useState("");
-  const [sendAmount, setSendAmount] = useState("");
+  // const [sendAmount, setSendAmount] = useState("");
   // const [receiveAmount, setReceiveAmount] = useState(0);
-  const [bankOptionPay, setBankOptionPay] = useState("");
-  const [mov_img, setMov_img] = useState("");
-  const [showConfirmationr, setShowConfirmationr] = useState(false);
+  // const [bankOptionPay, setBankOptionPay] = useState("");
+  // const [mov_img, setMov_img] = useState("");
+  // const [showConfirmationr, setShowConfirmationr] = useState(false);
 
   //DATOS PARA BENEFICIARIO
   const [accbsUser_bank, setAccbsUser_bank] = useState("");
@@ -168,11 +168,6 @@ function SendMoney() {
     setStep(3); // Pasar al paso de confirmación
   };
 
-  const handleConfirm = () => {
-    // Lógica de envío de los datos
-    setShowAlert(true); // Mostrar alerta de éxito
-  };
-
   //Enviar a espera un retiro
   const handleSubmitSend = async (event) => {
     event.preventDefault();
@@ -275,7 +270,7 @@ function SendMoney() {
     );
 
     try {
-      setLoading(true);
+      // setLoading(true);
       axios.post(`${url}/Movements/create`, formData, {
         headers: {
           Authorization: `Bearer ${infoTkn}`,
@@ -310,9 +305,7 @@ function SendMoney() {
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const openModal = () => {

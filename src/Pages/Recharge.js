@@ -2,27 +2,27 @@ import React, { useState, useEffect, useCallback } from "react";
 import { NavBarUser } from "../Components/NavBarUser";
 import { FaCheck, FaCheckCircle, FaTimesCircle } from "react-icons/fa"; // FaTimesCircle para el ícono de error
 import { CSSTransition } from "react-transition-group";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 
 function Recharge() {
-  const { logged, infoTkn, url } = useDataContext();
-  const [loading, setLoading] = useState(false);
+  const { infoTkn, url } = useDataContext();
+  // const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1);
-  const [file, setFile] = useState(null);
+  // const [file, setFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState(""); // Para manejar el error en el paso 4
   const [transactionError, setTransactionError] = useState(false); // Controla si hubo un problema
   const [transactionDone, setTransactionDone] = useState(false); // Controla si la transacción ya fue intentada
 
   // Datos Usuario
   const [user, setUser] = useState([]);
-  const [userMovemments, setUserMovemments] = useState([]);
-  const [userDirectory, setUserDirectory] = useState([]);
-  const [currencyPrice, setCurrencyPrice] = useState([]);
-  const [cash, setCash] = useState("");
-  const [cashPhone, setCashPhone] = useState("");
+  // const [userMovemments, setUserMovemments] = useState([]);
+  // const [userDirectory, setUserDirectory] = useState([]);
+  // const [currencyPrice, setCurrencyPrice] = useState([]);
+  // const [cash, setCash] = useState("");
+  // const [cashPhone, setCashPhone] = useState("");
 
   // Datos de los bancos
   const [banksEUR, setBanksEUR] = useState([]);
@@ -30,19 +30,19 @@ function Recharge() {
   const [banksGBP, setBanksGBP] = useState([]);
 
   //Alertas
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  // const [showAlert, setShowAlert] = useState(false);
+  // const [alertMessage, setAlertMessage] = useState("");
+  // const [alertType, setAlertType] = useState("");
 
   // Datos de la recarga
   const [payment, setPayment] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
-  const [amount, setAmount] = useState("");
+  // const [amount, setAmount] = useState("");
   const [sendAmount, setSendAmount] = useState("");
   // const [receiveAmount, setReceiveAmount] = useState(0);
   const [bankOptionPay, setBankOptionPay] = useState("");
   const [mov_img, setMov_img] = useState("");
-  const [showConfirmationr, setShowConfirmationr] = useState(false);
+  // const [showConfirmationr, setShowConfirmationr] = useState(false);
 
   // Fetch de datos del usuario (Incluye movimientos y directorio)
   const fetchDataUser = useCallback(async () => {
@@ -54,31 +54,21 @@ function Recharge() {
       });
       setUser(response.data);
 
-      const responseDirectory = await axios.get(
-        `${url}/AccBsUser/${response.data.use_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-          },
-        }
-      );
-      setUserDirectory(responseDirectory.data);
-
-      setShowAlert(true);
+      // setShowAlert(true);
     } catch (error) {
       console.log(error);
     }
   }, [setUser, infoTkn, url]);
 
   // Fetch de datos de la tasa de cambio
-  const fetchCurrencyData = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/currencyPrice`);
-      setCurrencyPrice(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [setCurrencyPrice, url]);
+  // const fetchCurrencyData = useCallback(async () => {
+  //   try {
+  //     const response = await axios.get(`${url}/currencyPrice`);
+  //     setCurrencyPrice(response.data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }, [setCurrencyPrice, url]);
 
   // Fetch de datos de los bancos en EUR
   const fetchDataAccEur = useCallback(async () => {
@@ -159,8 +149,8 @@ function Recharge() {
     formData.append("mov_type", "Deposito");
     formData.append("mov_status", "E");
     formData.append("mov_comment", findBankName());
-    formData.append("mov_code", cash);
-    formData.append("mov_phone", cashPhone);
+    formData.append("mov_code", 'cash');
+    formData.append("mov_phone", 'cashPhone');
     formData.append("mov_img", mov_img);
     formData.append(
       "mov_accEurId",
@@ -173,7 +163,7 @@ function Recharge() {
     formData.append("mov_userId", user.use_id);
 
     try {
-      setLoading(true);
+      // setLoading(true);
       axios.post(`${url}/Movements/create`, formData, {
         headers: {
           Authorization: `Bearer ${infoTkn}`,
@@ -196,24 +186,22 @@ function Recharge() {
         }
       );
 
-      setShowConfirmationr(false);
+      // setShowConfirmationr(false);
 
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {
-    fetchCurrencyData();
+    // fetchCurrencyData();
     fetchDataUser();
     fetchDataAccEur();
     fetchDataAccUsd();
     fetchDataAccGbp();
   }, [
-    fetchCurrencyData,
+    // fetchCurrencyData,
     fetchDataUser,
     fetchDataAccEur,
     fetchDataAccUsd,
@@ -250,10 +238,6 @@ function Recharge() {
     //     setReceiveAmount(parseFloat(inputAmount) * coin.cur_UsdToBs);
     //   }
     // });
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
   };
 
   const validateStep = () => {
@@ -325,8 +309,8 @@ function Recharge() {
     setPayment("");
     setSelectedMethod("");
     setBankOptionPay("");
-    setAmount("");
-    setFile(null);
+    // setAmount("");
+    // setFile(null);
     setTransactionError(false);
     setTransactionDone(false);
   };

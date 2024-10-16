@@ -192,11 +192,6 @@ function AdminDashboard() {
     setSelectedMovement(null);
   };
 
-  const openModal = (movement) => {
-    setSelectedMovement(movement); // Establece el movimiento seleccionado
-    setIsModalOpen(true); // Abre el modal
-  };
-
   const closeModal = () => {
     setIsModalOpen(false); // Cierra el modal
     setShowRejectionReason(false); // Resetea el campo de rechazo
@@ -901,7 +896,7 @@ function AdminDashboard() {
                 <label class="file-label" for="file-upload">
                   Subir Imagen
                 </label>
-                <input type="file" id="file-upload" />
+                <input type="file" id="file-upload" onChange={(e)=> setMovImg(e.target.files[0])}/>
               </div>
 
               <div className="modal-buttons">

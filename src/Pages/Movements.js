@@ -7,10 +7,10 @@ import axios from "axios";
 // Importar las banderas
 import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
-import germanyFlag from "../Assets/Images/germany.png";
+// import germanyFlag from "../Assets/Images/germany.png";
 import colombiaFlag from "../Assets/Images/colombia.png";
-import argentinaFlag from "../Assets/Images/argentina.png";
-import panamaFlag from "../Assets/Images/panama.png";
+// import argentinaFlag from "../Assets/Images/argentina.png";
+// import panamaFlag from "../Assets/Images/panama.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import brasilFlag from "../Assets/Images/square.png";
 import peruFlag from "../Assets/Images/peru.png";

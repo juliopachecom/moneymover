@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { FaClipboardList, FaUserFriends, FaUserCircle, FaMoneyCheckAlt, FaBars } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import logo from '../Assets/Images/logo.jpeg'; // Asegúrate de que el logo esté correctamente ubicado en la carpeta
+import React, { useState } from "react";
+import {
+  FaClipboardList,
+  FaUserFriends,
+  FaUserCircle,
+  FaMoneyCheckAlt,
+  FaBars,
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
+import logo from "../Assets/Images/logo.jpeg"; // Asegúrate de que el logo esté correctamente ubicado en la carpeta
 
 function NavBarUser() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,14 +16,15 @@ function NavBarUser() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  
   return (
     <nav className="navbaruser">
       <div className="navbaruser__logo-container">
-        <img src={logo} alt="Logo" className="navbaruser__logo" />
+        <Link to="/changes">
+          <img src={logo} alt="Logo" className="navbaruser__logo" />
+        </Link>
       </div>
       <FaBars className="navbaruser__hamburger" onClick={toggleMenu} />
-      <ul className={`navbaruser__list ${isMenuOpen ? 'active' : ''}`}>
+      <ul className={`navbaruser__list ${isMenuOpen ? "active" : ""}`}>
         <Link to="/movements" className="navbaruser__link">
           <li className="navbaruser__item">
             <FaClipboardList className="navbaruser__icon" />

@@ -7,8 +7,8 @@ import axios from "axios";
 import { useDataContext } from "../Context/dataContext"; // Para obtener el token y la URL
 
 function Profile() {
-  const { url, infoTkn, userId, setUserId } = useDataContext(); // Asegúrate de incluir setUserId
-  
+  const { url, infoTkn } = useDataContext(); // Asegúrate de incluir setUserId
+
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -23,27 +23,39 @@ function Profile() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  // Datos del usuario
+  const [user, setUser] = useState([]);
+
   // Obtener datos del perfil
   const fetchUserData = useCallback(async () => {
     try {
-      const response = await axios.get(`${url}/Users/${userId}`, {
+      const response = await axios.get(`${url}/Auth/findByToken/${infoTkn}`, {
         headers: {
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-      const userData = response.data;
+      setUser(response.data);
+
+      const responseUser = await axios.get(
+        `${url}/Users/${response.data.use_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+      const userData = responseUser.data;
       setEmail(userData.use_email);
       setPhone(userData.use_phone);
       setProfilePhoto(
-        userData.use_profileImg
-          ? `/Users/profileImg/${userData.use_profileImg}`
-          : profileIcon
+        userData.use_profileImg && userData.use_profileImg.trim() !== ""
+          ? `${url}/Users/profileImg/${userData.use_profileImg}`
+          : profileIcon // fixeado por Ruben para que no se rompa si no hay imagen
       );
     } catch (err) {
       console.error("Error al obtener datos del perfil:", err);
     }
-  }, [userId, url, infoTkn]);
-  
+  }, [url, infoTkn]);
 
   useEffect(() => {
     fetchUserData();
@@ -66,7 +78,7 @@ function Profile() {
 
       try {
         const response = await axios.put(
-          `${url}/Users/profileImg/${userId}`,
+          `${url}/Users/profileImg/${user.use_id}`,
           formData,
           {
             headers: {
@@ -103,8 +115,10 @@ function Profile() {
   // Función para validar contraseña actual
   const verifyCurrentPassword = async () => {
     try {
-      const response = await axios.get(`${url}/Auth/VerifyPassword/${userId}/${currentPassword}`);
-      return response.data; // Retorna true o false
+      const response = await axios.get(
+        `${url}/Auth/VerifyPassword/${user.use_id}/${currentPassword}`
+      );
+      return response.data.success; // Retorna true o false
     } catch (err) {
       setError("Error al verificar la contraseña.");
       return false; // En caso de error, consideramos que no es válida
@@ -120,13 +134,13 @@ function Profile() {
         return;
       }
     } else if (isEditingPassword) {
-      if (newPassword !== confirmPassword) {
-        setError("Las contraseñas no coinciden.");
-        return;
-      }
       const isPasswordValid = await verifyCurrentPassword();
       if (!isPasswordValid) {
         setError("La contraseña actual es incorrecta.");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setError("Las contraseñas no coinciden.");
         return;
       }
     }
@@ -135,19 +149,26 @@ function Profile() {
 
   const confirmChanges = async () => {
     try {
-      const updatedData = {
-        use_email: email,
-        use_phone: phone,
-      };
-
       if (isEditingPassword) {
-        updatedData.use_password = newPassword; // Solo actualizar la contraseña si hay una nueva
+        await axios.put(
+          `${url}/Users/PasswordRecovery/${user.use_id}`,
+          {
+            use_password: newPassword,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
       }
 
       // Llamada PUT para actualizar el perfil
       await axios.put(
-        `${url}/Users/${userId}`,
-        updatedData,
+        `${url}/Users/${user.use_id}`,
+        {
+          use_phone: phone,
+        },
         {
           headers: {
             Authorization: `Bearer ${infoTkn}`,
@@ -183,6 +204,8 @@ function Profile() {
     setError("");
   };
 
+  
+
   return (
     <div className="profile-page">
       <div className="profile">
@@ -192,7 +215,7 @@ function Profile() {
           {/* Foto de perfil */}
           <div className="profile__photo-wrapper">
             <img
-              src={`${url}${profilePhoto}`}
+              src={profilePhoto}
               alt="Profile"
               className="profile__photo"
             />
@@ -269,8 +292,9 @@ function Profile() {
                 {!isEditingPhone && (
                   <button
                     onClick={() => setIsEditingPhone(true)}
-                    className="profile__button edit-field"                  >
-                    <FaEdit /> 
+                    className="profile__button edit-field"
+                  >
+                    <FaEdit />
                   </button>
                 )}
               </div>
@@ -317,8 +341,9 @@ function Profile() {
                 {!isEditingPassword && (
                   <button
                     onClick={() => setIsEditingPassword(true)}
-                    className="profile__button edit-field"                  >
-                    <FaEdit /> 
+                    className="profile__button edit-field"
+                  >
+                    <FaEdit />
                   </button>
                 )}
               </div>

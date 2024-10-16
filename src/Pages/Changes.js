@@ -14,7 +14,7 @@ import {
   FaWhatsapp,
 } from "react-icons/fa"; // FaExclamationTriangle para el ícono de advertencia
 import { NavBarUser } from "../Components/NavBarUser";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
@@ -25,14 +25,14 @@ const formId = "8358707b19257049490b9df5216b1ae5e3f8";
 function Changes() {
   const { logged, infoTkn, url } = useDataContext();
 
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState(profileIcon);
+
   const [activeTab, setActiveTab] = useState("recargar"); // Cambio entre recarga y retiro
   const [isTasaOpen, setIsTasaOpen] = useState(false); // Desplegar tasas
   const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de verificación
   const [isRatesModalOpen, setIsRatesModalOpen] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [kycLink, setKycLink] = useState("");
-
-  const [loading, setLoading] = useState(false);
 
   // Datos Usuario
   const [user, setUser] = useState([]);
@@ -45,7 +45,6 @@ function Changes() {
 
   //kyc
   const fetchKycLink = async () => {
-    setLoading(true); // Activa el estado de carga
     try {
       console.log("Solicitando KYC para el usuario ID:", user.use_id);
 
@@ -163,8 +162,6 @@ function Changes() {
     } catch (error) {
       console.error("Error:", error);
       setKycLink("Error al conectar con la API");
-    } finally {
-      setLoading(false); // Desactiva el estado de carga
     }
   };
 
@@ -201,6 +198,7 @@ function Changes() {
   const closeRatesModal = () => {
     setIsRatesModalOpen(false);
   };
+
   const toggleVerificationModal = () => {
     setIsModalOpen(false); // Cierra el primer modal
     setIsVerificationModalOpen(true); // Abre el modal de verificación
@@ -268,6 +266,14 @@ function Changes() {
         }
       );
       setUserMovemments(responseMovemments.data);
+
+      // Manejo de la imagen de perfil
+      const profilePhotoUrl =
+        response.data.use_profileImg &&
+        response.data.use_profileImg.trim() !== ""
+          ? `${url}/Users/profileImg/${response.data.use_profileImg}`
+          : profileIcon;
+      setProfilePhotoUrl(profilePhotoUrl);
 
       // const responseDirectory = await axios.get(
       //   `${url}/AccBsUser/${response.data.use_id}`,
@@ -365,7 +371,9 @@ function Changes() {
       <div className="changes__header">
         <h1>Bienvenido, {user.use_name}</h1>
         <div className="changes__profile">
-          <img src={profileIcon} alt="Profile" className="profile-pic" />
+          <Link to="/profile">
+            <img src={profilePhotoUrl} alt="Profile" className="profile-pic" />
+          </Link>
         </div>
       </div>
 
@@ -532,7 +540,6 @@ function Changes() {
                           <td>
                             <FaEye className="view-details-icon" />
                             onClick={openDetailsIModal}
-
                           </td>
                         </tr>
                       ))
@@ -572,7 +579,9 @@ function Changes() {
                           <td>{movement.mov_date}</td>
                           <td>{movement.mov_ref}</td>
                           <td>
-                            {movement.AccountsBsUser ? movement.AccountsBsUser.accbsUser_owner: 'Sin información'}
+                            {movement.AccountsBsUser
+                              ? movement.AccountsBsUser.accbsUser_owner
+                              : "Sin información"}
                           </td>
                           <td>
                             {movement.mov_amount}{" "}
