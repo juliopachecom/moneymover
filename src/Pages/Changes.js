@@ -212,6 +212,7 @@ function Changes() {
   }, [isModalOpen]);
 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isDetailsIModalOpen, setIsDetailIsModalOpen] = useState(false);
   const [selectedMovement, setSelectedMovement] = useState(null);
 
   // Función para abrir el modal con detalles del movimiento
@@ -220,9 +221,19 @@ function Changes() {
     setIsDetailsModalOpen(true);
   };
 
+  const openDetailsIModal = (movement) => {
+    setSelectedMovement(movement);
+    setIsDetailIsModalOpen(true);
+  };
+
   // Función para cerrar el modal con detalles del movimiento
   const closeModal = () => {
     setIsDetailsModalOpen(false);
+    setSelectedMovement(null);
+  };
+
+  const closeModalI = () => {
+    setIsDetailIsModalOpen(false);
     setSelectedMovement(null);
   };
 
@@ -520,6 +531,8 @@ function Changes() {
                           </td>
                           <td>
                             <FaEye className="view-details-icon" />
+                            onClick={openDetailsIModal}
+
                           </td>
                         </tr>
                       ))
@@ -620,6 +633,37 @@ function Changes() {
           </div>
         )}
       </div>
+
+      {isDetailsIModalOpen && (
+        <div className="details-modal-overlay">
+          <div className="details-modal-content">
+            <h2>Detalles del Movimiento</h2>
+            <p>
+              <strong>Fecha:</strong> {selectedMovement.mov_date}
+            </p>
+            <p>
+              <strong># Remesa:</strong> {selectedMovement.mov_id}
+            </p>
+            <p>
+              <strong>Monto:</strong>{" "}
+              {selectedMovement.mov_currency === "EUR" ? "€" : "$"}
+              {selectedMovement.mov_amount}
+            </p>
+            <p>
+              <strong>Beneficiario:</strong> {selectedMovement.beneficiary}
+            </p>
+            <p>
+              <strong>Estado:</strong> {selectedMovement.status}
+            </p>
+            <p>
+              <strong>Imagen:</strong> imagen
+            </p>
+            <button className="close-button" onClick={closeModalI}>
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
 
       {isDetailsModalOpen && (
         <div className="details-modal-overlay">

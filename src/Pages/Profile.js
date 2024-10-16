@@ -7,7 +7,8 @@ import axios from "axios";
 import { useDataContext } from "../Context/dataContext"; // Para obtener el token y la URL
 
 function Profile() {
-  const { url, infoTkn } = useDataContext(); // Obtener el token y la URL de la API desde el contexto
+  const { url, infoTkn, userId, setUserId } = useDataContext(); // Asegúrate de incluir setUserId
+  
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -21,7 +22,6 @@ function Profile() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
-  const userId = 1; // Aquí deberías obtener el ID del usuario autenticado.
 
   // Obtener datos del perfil
   const fetchUserData = useCallback(async () => {
@@ -43,6 +43,7 @@ function Profile() {
       console.error("Error al obtener datos del perfil:", err);
     }
   }, [userId, url, infoTkn]);
+  
 
   useEffect(() => {
     fetchUserData();
