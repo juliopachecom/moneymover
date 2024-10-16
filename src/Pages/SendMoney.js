@@ -9,7 +9,7 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 
 function SendMoney() {
-  const {  infoTkn, url } = useDataContext();
+  const { infoTkn, url } = useDataContext();
   const history = useHistory();
   // const [loading, setLoading] = useState(false);
 
@@ -305,7 +305,7 @@ function SendMoney() {
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
-    } 
+    }
   };
 
   const openModal = () => {
@@ -368,77 +368,100 @@ function SendMoney() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="currency-receive">
-                ¿Qué moneda quieres recibir?
-              </label>
-              <select
-                id="currency-receive"
-                value={selectedCurrency}
-                onChange={(e) => setSelectedCurrency(e.target.value)}
-              >
-                <option value="">Seleccione una moneda</option>
-                <option value="VES">Bolívares</option>
-                <option value="USD">Dólares (USD)</option>
-                <option value="COP">Pesos Colombianos (COP)</option>
-                <option value="CLP">Pesos Chilenos (CLP)</option>
-                <option value="PEN">Soles (PEN)</option>
-                <option value="BRL">Reales Brasileños (BRL)</option>
-                <option value="USD-EC">Dólar Ecuatoriano</option>
-                <option value="USD-PA">Dólar Panameño</option>
-                <option value="MXN">Pesos Mexicanos (MXN)</option>
-              </select>
-            </div>
+            {payment && (
+              <div className="form-group">
+                <label htmlFor="currency-receive">
+                  ¿Qué moneda quieres recibir?
+                </label>
+                <select
+                  id="currency-receive"
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                >
+                  <option value="">Seleccione una moneda</option>
+                  <option value="VES">Bolívares</option>
+                  <option value="USD">Dólares (USD)</option>
+                  <option value="COP">Pesos Colombianos (COP)</option>
+                  <option value="CLP">Pesos Chilenos (CLP)</option>
+                  <option value="PEN">Soles (PEN)</option>
+                  <option value="BRL">Reales Brasileños (BRL)</option>
+                  <option value="USD-EC">Dólar Ecuatoriano</option>
+                  <option value="USD-PA">Dólar Panameño</option>
+                  <option value="MXN">Pesos Mexicanos (MXN)</option>
+                </select>
+              </div>
+            )}
 
-            <div className="form-group">
-              <label htmlFor="amount-send">Monto a enviar</label>
-              <input
-                type="number"
-                id="amount-send"
-                value={amount}
-                onChange={handleamountChange}
-                placeholder="Ingrese monto"
-              />
-              <small>
-                Saldo disponible:{" "}
-                {payment === "EUR"
-                  ? `€${user.use_amountEur}`
-                  : payment === "USD"
-                  ? `$${user.use_amountUsd}`
-                  : `£${user.use_amountGbp}`}
-              </small>
-            </div>
+            {selectedCurrency && (
+              <div className="form-group">
+                <label htmlFor="amount-send">Monto a enviar</label>
+                <input
+                  type="number"
+                  id="amount-send"
+                  value={amount}
+                  onChange={handleamountChange}
+                  placeholder="Ingrese monto"
+                />
+                <small>
+                  Saldo disponible:{" "}
+                  {payment === "EUR"
+                    ? `€${user.use_amountEur}`
+                    : payment === "USD"
+                    ? `$${user.use_amountUsd}`
+                    : `£${user.use_amountGbp}`}
+                </small>
+              </div>
+            )}
 
-            <div className="form-group">
-              <label htmlFor="amount-receive">Monto a recibir</label>
-              <input
-                type="number"
-                id="amount-receive"
-                value={amountToReceive}
-                readOnly
-                placeholder="Calculando..."
-              />
-            </div>
+            {amount && (
+              <div className="form-group">
+                <label htmlFor="amount-receive">Monto a recibir</label>
+                <input
+                  type="number"
+                  id="amount-receive"
+                  value={amountToReceive}
+                  readOnly
+                  placeholder="Calculando..."
+                />
+              </div>
+            )}
 
-            <div className="exchange-rate-box">
-              <h4>Tasa de cambio</h4>
-              {currencyPrice.forEach((coin) => {
-                if (payment === "EUR") {
-                  <p>{`1 ${payment} = ${coin.cur_EurToBs} Bs.`}</p>;
-                } else if (payment === "GBP") {
-                  <p>{`1 ${payment} = ${coin.cur_GbpToBs} Bs.`}</p>;
-                } else if (payment === "USD") {
-                  <p>{`1 ${payment} = ${coin.cur_UsdToBs} Bs.`}</p>;
-                }
-              })}
-            </div>
+            {amount && (
+              <div className="exchange-rate-box">
+                <h4>Tasa de cambio</h4>
+                {currencyPrice.forEach((coin) => {
+                  if (payment === "EUR") {
+                    return (
+                      <p
+                        key={coin.cur_EurToBs}
+                      >{`1 ${payment} = ${coin.cur_EurToBs} Bs.`}</p>
+                    );
+                  } else if (payment === "GBP") {
+                    return (
+                      <p
+                        key={coin.cur_GbpToBs}
+                      >{`1 ${payment} = ${coin.cur_GbpToBs} Bs.`}</p>
+                    );
+                  } else if (payment === "USD") {
+                    return (
+                      <p
+                        key={coin.cur_UsdToBs}
+                      >{`1 ${payment} = ${coin.cur_UsdToBs} Bs.`}</p>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            )}
 
             {/* Botón de continuar */}
-            <div className="form-actions">
-              <button className="continue-button" onClick={handleContinue}>
-                Continúa
-              </button>
-            </div>
+            {amount && (
+              <div className="form-actions">
+                <button className="continue-button" onClick={handleContinue}>
+                  Continúa
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}
