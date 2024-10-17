@@ -367,6 +367,9 @@ function Directory() {
                     {errors.accbsUser_bank && (
                       <span className="error">{errors.accbsUser_bank}</span>
                     )}
+
+<button onClick={handleAddAccountSubmit} className="submit-button">Guardar Beneficiario</button>
+
                   </>
                 )}
               </>
