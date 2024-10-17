@@ -41,7 +41,8 @@ function Recharge() {
   const [sendAmount, setSendAmount] = useState("");
   // const [receiveAmount, setReceiveAmount] = useState(0);
   const [bankOptionPay, setBankOptionPay] = useState("");
-  const [mov_img, setMov_img] = useState("");
+  const [mov_img, setMov_img] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
   // const [showConfirmationr, setShowConfirmationr] = useState(false);
 
   // Fetch de datos del usuario (Incluye movimientos y directorio)
@@ -59,16 +60,6 @@ function Recharge() {
       console.log(error);
     }
   }, [setUser, infoTkn, url]);
-
-  // Fetch de datos de la tasa de cambio
-  // const fetchCurrencyData = useCallback(async () => {
-  //   try {
-  //     const response = await axios.get(`${url}/currencyPrice`);
-  //     setCurrencyPrice(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }, [setCurrencyPrice, url]);
 
   // Fetch de datos de los bancos en EUR
   const fetchDataAccEur = useCallback(async () => {
@@ -149,8 +140,8 @@ function Recharge() {
     formData.append("mov_type", "Deposito");
     formData.append("mov_status", "E");
     formData.append("mov_comment", findBankName());
-    formData.append("mov_code", 'cash');
-    formData.append("mov_phone", 'cashPhone');
+    formData.append("mov_code", "cash");
+    formData.append("mov_phone", "cashPhone");
     formData.append("mov_img", mov_img);
     formData.append(
       "mov_accEurId",
@@ -191,7 +182,7 @@ function Recharge() {
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -247,7 +238,10 @@ function Recharge() {
         return false;
       }
 
-      if (selectedMethod === "transferencia" && (!bankOptionPay || !sendAmount)) {
+      if (
+        selectedMethod === "transferencia" &&
+        (!bankOptionPay || !sendAmount)
+      ) {
         setErrorMessage("Por favor, selecciona un banco y un monto.");
         return false;
       }
@@ -313,6 +307,12 @@ function Recharge() {
     // setFile(null);
     setTransactionError(false);
     setTransactionDone(false);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setMov_img(file);
+    setImageUrl(URL.createObjectURL(file));
   };
 
   return (
@@ -443,7 +443,9 @@ function Recharge() {
           </select>
 
           {/* Campos para Transferencia Bancaria */}
-          {selectedMethod === "transferencia" && (
+          {(selectedMethod === "transferencia" ||
+            selectedMethod === "transferenciaUSA" ||
+            selectedMethod === "transferenciaUK") && (
             <div className="bank-details">
               <label>Selecciona el banco:</label>
               <select
@@ -576,10 +578,7 @@ function Recharge() {
                 {selectedMethod !== "efectivoMadrid" && (
                   <>
                     <h4>Adjuntar comprobante de pago</h4>
-                    <input
-                      type="file"
-                      onChange={(e) => setMov_img(e.target.files[0])}
-                    />
+                    <input type="file" onChange={handleFileChange} />
                   </>
                 )}
               </div>
@@ -611,7 +610,17 @@ function Recharge() {
       >
         <div className="form-container-edit step-3">
           <h2>Confirmar Comprobante</h2>
-          <p>Archivo seleccionado: {mov_img ? mov_img.name : "Ningún archivo seleccionado"}</p>
+          <p>
+            {mov_img ? (
+              <img
+                src={imageUrl}
+                alt="Imagen seleccionada"
+                style={{ width: "300px", alignItems: "center" }}
+              />
+            ) : (
+              "Ningún archivo seleccionado"
+            )}
+          </p>
 
           <div className="form-actions">
             <button className="back-button" onClick={handlePreviousStep}>

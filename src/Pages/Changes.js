@@ -454,18 +454,12 @@ function Changes() {
 
       {/* Alternal entre recargar y enviar remesas */}
       <div className="changes__actions">
-        <button onClick={toggle} className="action-button green">
-          Recargar Saldo
-        </button>
-        {/* <Link to="/recharge">
-          {" "}
-        </Link>
+        <Link to="/recharge">
+          <button className="action-button green">Recargar Saldo</button>
+        </Link>{" "}
         <Link to="/sendmoney">
-          {" "}
-        </Link> */}
-        <button onClick={toggle} className="action-button green">
-          Enviar Remesas
-        </button>
+          <button className="action-button green">Enviar Remesas</button>
+        </Link>
       </div>
 
       {/* Alterna entre moivimientos de recargas y envios de remesas */}
