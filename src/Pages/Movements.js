@@ -18,7 +18,7 @@ import chileFlag from "../Assets/Images/chile.png";
 
 // Mapa de banderas
 const flagMap = {
-  VES: venezuelaFlag,
+  BS: venezuelaFlag,
   USD: usaFlag,
   COP: colombiaFlag,
   CLP: chileFlag,
@@ -175,7 +175,7 @@ function Movements() {
                 {selectedMovement.mov_currency}
               </p>
               <p>
-                <strong>Estado:</strong> {selectedMovement.mov_status}
+                <strong>Estado:</strong> {selectedMovement.mov_status === "E" ? "En espera" : selectedMovement.mov_status === "V" ? "Aprobada" : "Rechazada"}
               </p>
               <p>
                 <strong>Fecha:</strong> {selectedMovement.mov_date}

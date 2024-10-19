@@ -11,31 +11,33 @@ function Banks() {
   const [banksEur, setBanksEUR] = useState([]);
   const [banksUsd, setBanksUSD] = useState([]);
   const [banksGbp, setBanksGBP] = useState([]);
-  const [currency, setCurrency] = useState("EUR"); // Estado para la moneda seleccionada
+  const [currency, setCurrency] = useState(""); // Estado para la moneda seleccionada
 
   // const [banksBs, setBanksBS] = useState([]);
-  // const [searchQuery, setSearchQuery] = useState("");
 
   // const [admin, setAdmin] = useState([]);
 
-  // const [acceur_Bank, setAcceur_Bank] = useState("");
-  // const [acceur_owner, setAcceur_owner] = useState("");
-  // const [acceur_number, setAcceur_number] = useState("");
-  // const [acceur_nie, setAcceur_nie] = useState("");
-  // const [acceur_phone, setAcceur_phone] = useState("");
+  const [acceur_Bank, setAcceur_Bank] = useState("");
+  const [acceur_owner, setAcceur_owner] = useState("");
+  const [acceur_number, setAcceur_number] = useState("");
+  const [acceur_nie, setAcceur_nie] = useState("");
+  const [acceur_swift, setAcceur_swift] = useState("");
+  const [acceur_phone, setAcceur_phone] = useState("");
 
-  // const [accgbp_Bank, setAccgbp_Bank] = useState("");
-  // const [accgbp_owner, setAccgbp_owner] = useState("");
-  // const [accgbp_number, setAccgbp_number] = useState("");
-  // const [accgbp_Ident, setAccgbp_Ident] = useState("");
-  // const [accgbp_phone, setAccgbp_phone] = useState("");
+  const [accgbp_Bank, setAccgbp_Bank] = useState("");
+  const [accgbp_owner, setAccgbp_owner] = useState("");
+  const [accgbp_number, setAccgbp_number] = useState("");
+  const [accgbp_Ident, setAccgbp_Ident] = useState("");
+  const [accgbp_swift, setAccgbp_swift] = useState("");
+  const [accgbp_codSucursal, setAccgbp_codSucursal] = useState("");
+  const [accgbp_phone, setAccgbp_phone] = useState("");
 
-  // const [accusd_Bank, setAccusd_Bank] = useState("");
-  // const [accusd_owner, setAccusd_owner] = useState("");
-  // const [accusd_email, setAccusd_email] = useState("");
-  // const [accusd_number, setAccusd_number] = useState("");
-  // const [accusd_Ident, setAccusd_Ident] = useState("");
-  // const [accusd_phone, setAccusd_phone] = useState("");
+  const [accusd_Bank, setAccusd_Bank] = useState("");
+  const [accusd_owner, setAccusd_owner] = useState("");
+  const [accusd_email, setAccusd_email] = useState("");
+  const [accusd_number, setAccusd_number] = useState("");
+  const [accusd_Ident, setAccusd_Ident] = useState("");
+  const [accusd_phone, setAccusd_phone] = useState("");
 
   // const [accbs_bank, setAccbs_bank] = useState("");
   // const [accbs_owner, setAccbs_owner] = useState("");
@@ -125,40 +127,117 @@ function Banks() {
     accountHolder: "",
   });
 
+  const handleStatus = async (bank) => {
+    try {
+      if (bank.acceur_status === "Inactivo") {
+        await axios.put(
+          `${url}/Acceur/${bank.acceur_id}`,
+          {
+            acceur_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else if (bank.acceur_status === "Activo") {
+        await axios.put(
+          `${url}/Acceur/${bank.acceur_id}`,
+          {
+            acceur_status: "Inactivo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else if (bank.accusd_status === "Inactivo") {
+        await axios.put(
+          `${url}/Accusd/${bank.accusd_id}`,
+          {
+            accusd_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else if (bank.accusd_status === "Activo") {
+        await axios.put(
+          `${url}/Accusd/${bank.accusd_id}`,
+          {
+            accusd_status: "Inactivo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else if (bank.accgbp_status === "Inactivo") {
+        await axios.put(
+          `${url}/Accgbp/${bank.accgbp_id}`,
+          {
+            accgbp_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else if (bank.accgbp_status === "Activo") {
+        await axios.put(
+          `${url}/Accgbp/${bank.accgbp_id}`,
+          {
+            accgbp_status: "Inactivo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+
+      fetchDataEUR();
+      fetchDataUSD();
+      fetchDataGBP();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Función para abrir el modal
   const openModal = () => setShowModal(true);
   const closeModal = () => {
     setShowModal(false);
-    setNewBank({ bankName: "", iban: "", swift: "", accountHolder: "" });
-  };
+    setAcceur_Bank("");
+    setAcceur_owner("");
+    setAcceur_number("");
+    setAcceur_nie("");
+    setAcceur_swift("");
+    setAcceur_phone("");
 
-  // Función para manejar el cambio de input
-  // Función para manejar el cambio de input, incluyendo la moneda
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    setAccgbp_Bank("");
+    setAccgbp_owner("");
+    setAccgbp_number("");
+    setAccgbp_Ident("");
+    setAccgbp_swift("");
+    setAccgbp_codSucursal("");
+    setAccgbp_phone("");
 
-    if (name === "currency") {
-      setCurrency(value);
-    } else {
-      setNewBank((prevBank) => ({
-        ...prevBank,
-        [name]: value,
-      }));
-    }
-  };
+    setAccusd_Bank("");
+    setAccusd_owner("");
+    setAccusd_email("");
+    setAccusd_number("");
+    setAccusd_Ident("");
+    setAccusd_phone("");
 
-  // Función para añadir un nuevo banco
-  const handleAddBank = (e) => {
-    e.preventDefault();
-    setBanks((prevBanks) => [...prevBanks, { ...newBank, active: true }]);
-    closeModal();
-  };
-
-  // Función para alternar el estado activo/inactivo de un banco
-  const toggleBankStatus = (index) => {
-    const updatedBanks = [...banks];
-    updatedBanks[index].active = !updatedBanks[index].active;
-    setBanks(updatedBanks);
+    setCurrency("");
   };
 
   useEffect(() => {
@@ -167,234 +246,105 @@ function Banks() {
     fetchDataGBP();
   }, [fetchDataEUR, fetchDataUSD, fetchDataGBP]);
 
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  //   if (typeAcc === "EUR") {
-  //     try {
-  //       await axios.post(
-  //         `${url}/Acceur/create`,
-  //         {
-  //           acceur_Bank,
-  //           acceur_owner,
-  //           acceur_number,
-  //           acceur_nie,
-  //           acceur_phone,
-  //           acceur_type: "Normal",
-  //           acceur_status: "Activo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${infoTkn}`,
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
+    if (currency === "EUR") {
+      try {
+        await axios.post(
+          `${url}/Acceur/create`,
+          {
+            acceur_Bank,
+            acceur_owner,
+            acceur_number,
+            acceur_nie,
+            acceur_swift,
+            acceur_phone,
+            acceur_type: "Normal",
+            acceur_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
+        fetchDataEUR();
+        fetchDataGBP();
+        fetchDataUSD();
 
-  //   if (typeAcc === "GBP") {
-  //     try {
-  //       await axios.post(
-  //         `${url}/Accgbp/create`,
-  //         {
-  //           accgbp_Bank,
-  //           accgbp_owner,
-  //           accgbp_number,
-  //           accgbp_Ident,
-  //           accgbp_phone,
-  //           accgbp_status: "Activo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${infoTkn}`,
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
+        closeModal();
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
+    if (currency === "GBP") {
+      try {
+        await axios.post(
+          `${url}/Accgbp/create`,
+          {
+            accgbp_Bank,
+            accgbp_owner,
+            accgbp_number,
+            accgbp_Ident,
+            accgbp_swift,
+            accgbp_codSucursal,
+            accgbp_phone,
+            accgbp_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-  //   if (typeAcc === "USD") {
-  //     try {
-  //       await axios.post(
-  //         `${url}/Accusd/create`,
-  //         {
-  //           accusd_Bank,
-  //           accusd_owner,
-  //           accusd_email,
-  //           accusd_number,
-  //           accusd_Ident,
-  //           accusd_phone,
-  //           accusd_type: "Normal",
-  //           accusd_status: "Activo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${infoTkn}`,
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
+        fetchDataEUR();
+        fetchDataGBP();
+        fetchDataUSD();
 
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // };
+        closeModal();
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-  // const handleEdit = async (event) => {
-  //   event.preventDefault();
+    if (currency === "USD") {
+      try {
+        await axios.post(
+          `${url}/Accusd/create`,
+          {
+            accusd_Bank,
+            accusd_owner,
+            accusd_email,
+            accusd_number,
+            accusd_Ident,
+            accusd_phone,
+            accusd_type: "Normal",
+            accusd_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-  //   if (selectModal.acceur_Bank) {
-  //     try {
-  //       await axios.put(
-  //         `${url}/Acceur/${selectModal.acceur_id}`,
-  //         {
-  //           acceur_status:
-  //             selectModal.acceur_status === "Desactivo"
-  //               ? "Activo"
-  //               : "Desactivo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
-  //           },
-  //         }
-  //       );
+        fetchDataEUR();
+        fetchDataGBP();
+        fetchDataUSD();
 
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //       fetchDataBS();
-
-  //       toast.success("¡Datos cambiados con éxito!", {
-  //         position: "bottom-right",
-  //         autoClose: 1000,
-  //         hideProgressBar: false,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         progress: undefined,
-  //       });
-
-  //       toggle1();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   if (selectModal.accgbp_Bank) {
-  //     try {
-  //       await axios.put(
-  //         `${url}/Accgbp/${selectModal.accgbp_id}`,
-  //         {
-  //           accgbp_status:
-  //             selectModal.accgbp_status === "Desactivo"
-  //               ? "Activo"
-  //               : "Desactivo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
-  //           },
-  //         }
-  //       );
-
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //       fetchDataBS();
-
-  //       toast.success("¡Datos cambiados con éxito!", {
-  //         position: "bottom-right",
-  //         autoClose: 1000,
-  //         hideProgressBar: false,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         progress: undefined,
-  //       });
-
-  //       toggle1();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   if (selectModal.accusd_Bank) {
-  //     try {
-  //       await axios.put(
-  //         `${url}/Accusd/${selectModal.accusd_id}`,
-  //         {
-  //           accusd_status:
-  //             selectModal.accusd_status === "Desactivo"
-  //               ? "Activo"
-  //               : "Desactivo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
-  //           },
-  //         }
-  //       );
-
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //       fetchDataBS();
-
-  //       toast.success("¡Datos cambiados con éxito!", {
-  //         position: "bottom-right",
-  //         autoClose: 1000,
-  //         hideProgressBar: false,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         progress: undefined,
-  //       });
-
-  //       toggle1();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   if (selectModal.accbs_bank) {
-  //     try {
-  //       await axios.put(
-  //         `${url}/Accbs/${selectModal.accbs_id}`,
-  //         {
-  //           accbs_status:
-  //             selectModal.accbs_status === "Desactivo" ? "Activo" : "Desactivo",
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${accessAdminToken.access_token}`,
-  //           },
-  //         }
-  //       );
-
-  //       fetchDataEUR();
-  //       fetchDataGBP();
-  //       fetchDataUSD();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // };
+        closeModal();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   return (
     <div className="add-banks-dashboard">
@@ -446,7 +396,13 @@ function Banks() {
                           ? bank.accusd_number
                           : bank.accgbp_number}
                       </td>
-                      <td>bank.swift</td>
+                      <td>
+                        {bank.acceur_swift
+                          ? bank.acceur_swift
+                          : bank.accusd_email
+                          ? bank.accusd_email
+                          : bank.accgbp_swift}
+                      </td>
                       <td>
                         {bank.acceur_owner
                           ? bank.acceur_owner
@@ -464,17 +420,13 @@ function Banks() {
                       <td>
                         <button
                           className={`btn ${
-                            bank.active ? "btn-danger" : "btn-success"
+                            bank.acceur_status === "Activo" ||
+                            bank.accusd_status === "Activo" ||
+                            bank.accgbp_status === "Activo"
+                              ? "btn-danger"
+                              : "btn-success"
                           }`}
-                          onClick={() =>
-                            toggleBankStatus(
-                              bank.acceur_id
-                                ? bank.acceur_id
-                                : bank.accusd_id
-                                ? bank.accusd_id
-                                : bank.accgbp_id
-                            )
-                          }
+                          onClick={() => handleStatus(bank)}
                         >
                           {bank.acceur_status && bank.acceur_id
                             ? bank.acceur_status === "Activo"
@@ -506,18 +458,7 @@ function Banks() {
           <div className="modal show">
             <div className="modal-content">
               <h3>Agregar Nuevo Banco</h3>
-              <form onSubmit={handleAddBank}>
-                <label>
-                  Nombre del Banco:
-                  <input
-                    type="text"
-                    name="bankName"
-                    value={newBank.bankName}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-
+              <form onSubmit={handleSubmit}>
                 {/* Select para elegir moneda */}
                 <label className="select-label">Moneda:</label>
                 <div className="select-container">
@@ -525,51 +466,214 @@ function Banks() {
                     className="select-currency"
                     name="currency"
                     value={currency}
-                    onChange={handleInputChange}
+                    onChange={(e) => setCurrency(e.target.value)}
                   >
+                    <option>Seleccione una moneda</option>
                     <option value="EUR">EUR</option>
                     <option value="USD">USD</option>
                     <option value="GBP">GBP</option>
                   </select>
                 </div>
-
-                <label>
-                  IBAN:
-                  <input
-                    type="text"
-                    name="iban"
-                    value={newBank.iban}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-
-                {/* Cambiar campo SWIFT a correo electrónico si la moneda es USD */}
-                <label>
-                  {currency === "USD"
-                    ? "Correo Electrónico (Zelle)"
-                    : "SWIFT/BIC"}
-                  :
-                  <input
-                    type={currency === "USD" ? "email" : "text"}
-                    name="swift"
-                    value={newBank.swift}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Titular de la Cuenta:
-                  <input
-                    type="text"
-                    name="accountHolder"
-                    value={newBank.accountHolder}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-
+                {currency === "EUR" ? (
+                  <>
+                    <label>
+                      Nombre del Banco:
+                      <input
+                        type="text"
+                        name="acceur_Bank"
+                        value={acceur_Bank}
+                        onChange={(e) => setAcceur_Bank(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Titular de la Cuenta:
+                      <input
+                        type="text"
+                        name="acceur_owner"
+                        value={acceur_owner}
+                        onChange={(e) => setAcceur_owner(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Número de Cuenta:
+                      <input
+                        type="text"
+                        name="acceur_number"
+                        value={acceur_number}
+                        onChange={(e) => setAcceur_number(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      NIE/NIF:
+                      <input
+                        type="text"
+                        name="acceur_nie"
+                        value={acceur_nie}
+                        onChange={(e) => setAcceur_nie(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      SWIFT/BIC:
+                      <input
+                        type="text"
+                        name="acceur_swift"
+                        value={acceur_swift}
+                        onChange={(e) => setAcceur_swift(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Teléfono:
+                      <input
+                        type="text"
+                        name="acceur_phone"
+                        value={acceur_phone}
+                        onChange={(e) => setAcceur_phone(e.target.value)}
+                        required
+                      />
+                    </label>
+                  </>
+                ) : currency === "GBP" ? (
+                  <>
+                    <label>
+                      Nombre del Banco:
+                      <input
+                        type="text"
+                        name="accgbp_Bank"
+                        value={accgbp_Bank}
+                        onChange={(e) => setAccgbp_Bank(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Titular de la Cuenta:
+                      <input
+                        type="text"
+                        name="accgbp_owner"
+                        value={accgbp_owner}
+                        onChange={(e) => setAccgbp_owner(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Número de Cuenta:
+                      <input
+                        type="text"
+                        name="accgbp_number"
+                        value={accgbp_number}
+                        onChange={(e) => setAccgbp_number(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Identificación:
+                      <input
+                        type="text"
+                        name="accgbp_Ident"
+                        value={accgbp_Ident}
+                        onChange={(e) => setAccgbp_Ident(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      SWIFT/BIC:
+                      <input
+                        type="text"
+                        name="accgbp_swift"
+                        value={accgbp_swift}
+                        onChange={(e) => setAccgbp_swift(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Código de Sucursal:
+                      <input
+                        type="text"
+                        name="accgbp_codSucursal"
+                        value={accgbp_codSucursal}
+                        onChange={(e) => setAccgbp_codSucursal(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Teléfono:
+                      <input
+                        type="text"
+                        name="accgbp_phone"
+                        value={accgbp_phone}
+                        onChange={(e) => setAccgbp_phone(e.target.value)}
+                        required
+                      />
+                    </label>
+                  </>
+                ) : currency === "USD" ? (
+                  <>
+                    <label>
+                      Nombre del Banco:
+                      <input
+                        type="text"
+                        name="accusd_Bank"
+                        value={accusd_Bank}
+                        onChange={(e) => setAccusd_Bank(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Titular de la Cuenta:
+                      <input
+                        type="text"
+                        name="accusd_owner"
+                        value={accusd_owner}
+                        onChange={(e) => setAccusd_owner(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Correo Electrónico:
+                      <input
+                        type="email"
+                        name="accusd_email"
+                        value={accusd_email}
+                        onChange={(e) => setAccusd_email(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Número de Cuenta:
+                      <input
+                        type="text"
+                        name="accusd_number"
+                        value={accusd_number}
+                        onChange={(e) => setAccusd_number(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Identificación:
+                      <input
+                        type="text"
+                        name="accusd_Ident"
+                        value={accusd_Ident}
+                        onChange={(e) => setAccusd_Ident(e.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Teléfono:
+                      <input
+                        type="text"
+                        name="accusd_phone"
+                        value={accusd_phone}
+                        onChange={(e) => setAccusd_phone(e.target.value)}
+                        required
+                      />
+                    </label>
+                  </>
+                ) : null}
                 <button type="submit" className="btn btn-primary">
                   Guardar Banco
                 </button>

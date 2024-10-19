@@ -7,6 +7,7 @@ import spainFlag from "../Assets/Images/spain.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import verification from "../Assets/Images/giphy.gif";
 import usaFlag from "../Assets/Images/usa.png";
+import { NotFound } from "../Components/NotFound";
 import {
   FaEye,
   FaExclamationTriangle,
@@ -42,6 +43,10 @@ function Changes() {
   //Enviar a Whatsapp
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+
+  //Toggle de imagen
+  const [imgTogle, setImgTogle] = useState(false);
+  const toggleImg = () => setImgTogle(!imgTogle);
 
   //kyc
   const fetchKycLink = async () => {
@@ -172,13 +177,6 @@ function Changes() {
     }
   };
 
-  // Datos para verificación
-  // const [use_dni, setUseDNI] = useState("");
-  // const [use_phone, setUsePhone] = useState("");
-  // const [use_img, setUseImg] = useState("");
-  // const [use_imgDni, setUseImgDni] = useState("");
-  // const [termsCheckbox, setTermsCheckbox] = useState(false);
-
   // Alternar entre recarga y retiro
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -270,7 +268,7 @@ function Changes() {
       // Manejo de la imagen de perfil
       const profilePhotoUrl =
         response.data.use_profileImg &&
-        response.data.use_profileImg.trim() !== ""
+          response.data.use_profileImg.trim() !== ""
           ? `${url}/Users/profileImg/${response.data.use_profileImg}`
           : profileIcon;
       setProfilePhotoUrl(profilePhotoUrl);
@@ -454,13 +452,38 @@ function Changes() {
 
       {/* Alternal entre recargar y enviar remesas */}
       <div className="changes__actions">
-        <Link to="/recharge">
-          <button className="action-button green">Recargar Saldo</button>
-        </Link>{" "}
-        <Link to="/sendmoney">
-          <button className="action-button green">Enviar Remesas</button>
-        </Link>
-      </div>
+  {/* Botón para Recargar Saldo */}
+  <button
+    className="action-button green"
+    onClick={() => {
+      if (user.use_verif === "N" || user.use_verif === "E") {
+        toggleModal(); // Abre el modal si el estado de verificación es "N" o "E"
+      } else {
+        // Redirigir a la página de recarga si el usuario está verificado
+        window.location.href = "/recharge";
+      }
+    }}
+  >
+    Recargar Saldo
+  </button>
+
+  {/* Botón para Enviar Remesas */}
+  <button
+    className="action-button green"
+    onClick={() => {
+      if (user.use_verif === "N" || user.use_verif === "E") {
+        toggleModal(); // Abre el modal si el estado de verificación es "N" o "E"
+      } else {
+        // Redirigir a la página de envío de dinero si el usuario está verificado
+        window.location.href = "/sendmoney";
+      }
+    }}
+  >
+    Enviar Remesas
+  </button>
+</div>
+
+
 
       {/* Alterna entre moivimientos de recargas y envios de remesas */}
       <div className="changes__tabs">
@@ -506,8 +529,8 @@ function Changes() {
                             {movement.mov_currency === "EUR"
                               ? "€"
                               : movement.mov_currency === "USD"
-                              ? "$"
-                              : "£"}{" "}
+                                ? "$"
+                                : "£"}{" "}
                             {movement.mov_amount}{" "}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
@@ -518,22 +541,26 @@ function Changes() {
                           </td>
                           <td
                             className={
-                              movement.mov_status === "S"
+                              movement.mov_status === "V"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                ? "en espera"
-                                : "cancelled"
+                                  ? "en espera"
+                                  : "cancelled"
                             }
                           >
-                            {movement.mov_status === "S"
+                            {movement.mov_status === "V"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                              ? "En espera"
-                              : "Rechazado"}
+                                ? "En espera"
+                                : "Rechazado"}
                           </td>
                           <td>
-                            <FaEye className="view-details-icon" />
-                            onClick={openDetailsIModal}
+                            <FaEye
+                              className="view-details-icon"
+                              onClick={() => {
+                                openDetailsIModal(movement);
+                              }}
+                            />
                           </td>
                         </tr>
                       ))
@@ -578,7 +605,9 @@ function Changes() {
                               : "Sin información"}
                           </td>
                           <td>
-                            {movement.mov_amount}{" "}
+                            {movement.mov_status === "V"
+                              ? movement.mov_amount / movement.mov_currencyPrice
+                              : movement.mov_amount}{" "}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
                             )}
@@ -587,12 +616,17 @@ function Changes() {
                             )}
                           </td>
                           <td>
-                            {movement.mov_currency === "BS"
-                              ? "Bs"
-                              : movement.mov_currency === "USD"
-                              ? "$"
-                              : "£"}{" "}
-                            {movement.mov_amount}{" "}
+                            {movement.mov_status !== "R" &&
+                              movement.mov_status !== "E" &&
+                              movement.mov_currency === "BS"
+                              ? "Bs " + movement.mov_amount
+                              : movement.mov_status !== "R" &&
+                                movement.mov_status !== "E" &&
+                                movement.mov_currency === "USD"
+                                ? "$ " + movement.mov_amount
+                                : movement.mov_status === "R"
+                                  ? "Rechazado"
+                                  : "En espera"}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
                             )}
@@ -602,23 +636,25 @@ function Changes() {
                           </td>
                           <td
                             className={
-                              movement.mov_status === "S"
+                              movement.mov_status === "V"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                ? "en espera"
-                                : "cancelled"
+                                  ? "en espera"
+                                  : "cancelled"
                             }
                           >
-                            {movement.mov_status === "S"
+                            {movement.mov_status === "V"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                              ? "En espera"
-                              : "Rechazado"}
+                                ? "En espera"
+                                : "Rechazado"}
                           </td>
                           <td>
                             <FaEye
                               className="view-details-icon"
-                              onClick={openDetailsModal}
+                              onClick={() => {
+                                openDetailsModal(movement);
+                              }}
                             />
                           </td>
                         </tr>
@@ -637,6 +673,7 @@ function Changes() {
         )}
       </div>
 
+      {/* Modal de detalles de recarga */}
       {isDetailsIModalOpen && (
         <div className="details-modal-overlay">
           <div className="details-modal-content">
@@ -645,7 +682,7 @@ function Changes() {
               <strong>Fecha:</strong> {selectedMovement.mov_date}
             </p>
             <p>
-              <strong># Remesa:</strong> {selectedMovement.mov_id}
+              <strong># Remesa:</strong> {selectedMovement.mov_ref}
             </p>
             <p>
               <strong>Monto:</strong>{" "}
@@ -653,13 +690,23 @@ function Changes() {
               {selectedMovement.mov_amount}
             </p>
             <p>
-              <strong>Beneficiario:</strong> {selectedMovement.beneficiary}
+              <strong>Estado:</strong>{" "}
+              {selectedMovement.mov_status === "V"
+                ? "Aprobado"
+                : selectedMovement.mov_status === "E"
+                  ? "En espera"
+                  : "Rechazado"}
             </p>
+            {selectedMovement.mov_status === "R" && (
+              <p>
+                <strong>Comentario:</strong> {selectedMovement.mov_comment}
+              </p>
+            )}
             <p>
-              <strong>Estado:</strong> {selectedMovement.status}
-            </p>
-            <p>
-              <strong>Imagen:</strong> imagen
+              <strong>Imagen:</strong>{" "}
+              <button className="button" onClick={toggleImg}>
+                Visualizar Imagen
+              </button>
             </p>
             <button className="close-button" onClick={closeModalI}>
               Cerrar
@@ -668,6 +715,7 @@ function Changes() {
         </div>
       )}
 
+      {/* Modal de detalles de remesa */}
       {isDetailsModalOpen && (
         <div className="details-modal-overlay">
           <div className="details-modal-content">
@@ -676,21 +724,73 @@ function Changes() {
               <strong>Fecha:</strong> {selectedMovement.mov_date}
             </p>
             <p>
-              <strong># Remesa:</strong> {selectedMovement.mov_id}
+              <strong># Remesa:</strong> {selectedMovement.mov_ref}
             </p>
             <p>
               <strong>Monto:</strong>{" "}
-              {selectedMovement.mov_currency === "EUR" ? "€" : "$"}
-              {selectedMovement.mov_amount}
+              {selectedMovement.mov_status !== "R" &&
+                selectedMovement.mov_status !== "E" &&
+                selectedMovement.mov_currency === "BS"
+                ? "Bs " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "USD"
+                  ? "$ " + selectedMovement.mov_amount
+                  : selectedMovement.mov_status !== "R" &&
+                    selectedMovement.mov_status !== "E" &&
+                    selectedMovement.mov_currency === "ARS"
+                    ? "ARS " + selectedMovement.mov_amount
+                    : selectedMovement.mov_status !== "R" &&
+                      selectedMovement.mov_status !== "E" &&
+                      selectedMovement.mov_currency === "CLP"
+                      ? "CLP " + selectedMovement.mov_amount
+                      : selectedMovement.mov_status !== "R" &&
+                        selectedMovement.mov_status !== "E" &&
+                        selectedMovement.mov_currency === "MXN"
+                        ? "MXN " + selectedMovement.mov_amount
+                        : selectedMovement.mov_status !== "R" &&
+                          selectedMovement.mov_status !== "E" &&
+                          selectedMovement.mov_currency === "BRL"
+                          ? "BRL " + selectedMovement.mov_amount
+                          : selectedMovement.mov_status !== "R" &&
+                            selectedMovement.mov_status !== "E" &&
+                            selectedMovement.mov_currency === "PEN"
+                            ? "PEN " + selectedMovement.mov_amount
+                            : selectedMovement.mov_status !== "R" &&
+                              selectedMovement.mov_status !== "E" &&
+                              selectedMovement.mov_currency === "COP"
+                              ? "COP " + selectedMovement.mov_amount
+                              : selectedMovement.mov_status !== "R" &&
+                                selectedMovement.mov_status !== "E" &&
+                                selectedMovement.mov_currency === "USD-EC"
+                                ? "USD-EC " + selectedMovement.mov_amount
+                                : selectedMovement.mov_status !== "R" &&
+                                  selectedMovement.mov_status !== "E" &&
+                                  selectedMovement.mov_currency === "USD-PA"
+                                  ? "USD-PA " + selectedMovement.mov_amount
+                                  : selectedMovement.mov_status === "E"
+                                    ? "Por establecer"
+                                    : "Rechazado"}
             </p>
             <p>
-              <strong>Beneficiario:</strong> {selectedMovement.beneficiary}
+              <strong>Beneficiario:</strong>{" "}
+              {selectedMovement.AccountsBsUser
+                ? selectedMovement.AccountsBsUser.accbsUser_owner
+                : "Sin información"}
             </p>
             <p>
-              <strong>Estado:</strong> {selectedMovement.status}
+              <strong>Estado:</strong>{" "}
+              {selectedMovement.mov_status === "V"
+                ? "Aprobado"
+                : selectedMovement.mov_status === "E"
+                  ? "En espera"
+                  : "Rechazado"}
             </p>
             <p>
-              <strong>Imagen:</strong> imagen
+              <strong>Imagen:</strong>{" "}
+              <button className="button" onClick={toggleImg}>
+                Visualizar Imagen
+              </button>
             </p>
             <button className="close-button" onClick={closeModal}>
               Cerrar
@@ -927,9 +1027,45 @@ function Changes() {
           </div>
         </div>
       )}
+
+      {/* Modal de visualización de imagen */}
+      {imgTogle && selectedMovement && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Imagen de Recarga</h3>
+            <div className="modal-details">
+              {/* Muestra una imagen o un enlace de descarga si es PDF */}
+              {selectedMovement.mov_img ? (
+                selectedMovement.mov_img.endsWith(".pdf") ? (
+                  <a
+                    href={`${url}/download/${selectedMovement.mov_img}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Descargar PDF
+                  </a>
+                ) : (
+                  <img
+                    src={`${url}/Movements/image/${selectedMovement.mov_img}`}
+                    alt="Documento"
+                    style={{ maxWidth: "100%" }}
+                  />
+                )
+              ) : (
+                <p>No hay documento adjunto.</p>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="close-btn" onClick={toggleImg}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   ) : (
-    "Log In"
+    <NotFound />
   );
 }
 

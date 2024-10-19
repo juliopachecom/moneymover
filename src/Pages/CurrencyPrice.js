@@ -6,6 +6,7 @@ import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
 import ukFlag from "../Assets/Images/uk.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
+import { toast, ToastContainer } from "react-toastify";
 
 function CurrencyPrice() {
   const { infoTkn, url } = useDataContext();
@@ -119,8 +120,8 @@ function CurrencyPrice() {
     try {
       await axios.put(`${url}/CurrencyPrice/1`, formData, {
         headers: {
-          Authorization: `Bearer ${infoTkn}`
-        }
+          Authorization: `Bearer ${infoTkn}`,
+        },
       });
 
       fetchData();
@@ -137,8 +138,8 @@ function CurrencyPrice() {
 
         const response = await axios.get(`${url}/PorcentPrice/${id}`, {
           headers: {
-            Authorization: `Bearer ${infoTkn}`
-          }
+            Authorization: `Bearer ${infoTkn}`,
+          },
         });
         setPorcent(response.data);
 
@@ -155,17 +156,17 @@ function CurrencyPrice() {
         setAdditionalInfo(response.data.por_comment);
       } else {
         setFormDataPorcent({
-          por_porcentGbp: '',
-          por_porcentEur: '',
-          por_porcentUsd: '',
-          por_deliveryPrice: '',
-          por_status: '',
-          por_comment: '',
+          por_porcentGbp: "",
+          por_porcentEur: "",
+          por_porcentUsd: "",
+          por_deliveryPrice: "",
+          por_status: "",
+          por_comment: "",
         });
 
         setPorcent(null);
-        setLocation('');
-        setAdditionalInfo('');
+        setLocation("");
+        setAdditionalInfo("");
       }
     } catch (error) {
       console.log(error);
@@ -187,13 +188,14 @@ function CurrencyPrice() {
 
       await axios.put(`${url}/PorcentPrice/${id}`, requestData, {
         headers: {
-          Authorization: `Bearer ${infoTkn}`
-        }
+          Authorization: `Bearer ${infoTkn}`,
+        },
       });
+      toast.success("Tasas cambiadas con exito");
 
       handleFetchingPorcent();
     } catch (error) {
-      console.error('Error al actualizar los datos de porcentaje:', error);
+      console.error("Error al actualizar los datos de porcentaje:", error);
     }
   };
 
@@ -245,56 +247,83 @@ function CurrencyPrice() {
           <div className="main-rates-section">
             <h3>Tasas Principales</h3>
             <div className="rate-inputs">
-              <label>
-                <img src={spainFlag} alt="EUR" className="flag" /> EUR a Bs:
-                <input
-                  type="number"
-                  name="cur_EurToBs"
-                  value={formData.cur_EurToBs}
-                  onChange={handleInputChange}
-                />
-                <img src={venezuelaFlag} alt="Bs" className="flag" />
-              </label>
-              <label>
-                <img src={spainFlag} alt="EUR" className="flag" /> EUR a USD:
-                <input
-                  type="number"
-                  name="cur_EurToUsd"
-                  value={formData.cur_EurToUsd}
-                  onChange={handleInputChange}
-                />
-                <img src={usaFlag} alt="USD" className="flag" />
-              </label>
-              <label>
-                <img src={usaFlag} alt="USDT" className="flag" /> USDT a Bs:
-                <input
-                  type="number"
-                  name="cur_UsdtToBs"
-                  value={formData.cur_UsdtToBs}
-                  onChange={handleInputChange}
-                />
-                <img src={venezuelaFlag} alt="Bs" className="flag" />
-              </label>
-              <label>
-                <img src={ukFlag} alt="GBP" className="flag" /> GBP a USD:
-                <input
-                  type="number"
-                  name="cur_GbpToUsd"
-                  value={formData.cur_GbpToUsd}
-                  onChange={handleInputChange}
-                />
-                <img src={usaFlag} alt="USD" className="flag" />
-              </label>
-              <label>
-                <img src={ukFlag} alt="GBP" className="flag" /> GBP a Bs:
-                <input
-                  type="number"
-                  name="cur_GbpToBs"
-                  value={formData.cur_GbpToBs}
-                  onChange={handleInputChange}
-                />
-                <img src={venezuelaFlag} alt="Bs" className="flag" />
-              </label>
+              {currencyPrice.length > 0 ? (
+                <>
+                  <label>
+                    <img src={spainFlag} alt="EUR" className="flag" /> EUR a Bs:
+                    <input
+                      type="number"
+                      name="cur_EurToBs"
+                      value={
+                        formData.cur_EurToBs ||
+                        currencyPrice[0]?.cur_EurToBs ||
+                        ""
+                      } // Usa el valor de currencyPrice o el de formData
+                      onChange={handleInputChange}
+                    />
+                    <img src={venezuelaFlag} alt="Bs" className="flag" />
+                  </label>
+                  <label>
+                    <img src={spainFlag} alt="EUR" className="flag" /> EUR a
+                    USD:
+                    <input
+                      type="number"
+                      name="cur_EurToUsd"
+                      value={
+                        formData.cur_EurToUsd ||
+                        currencyPrice[0]?.cur_EurToUsd ||
+                        ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                    <img src={usaFlag} alt="USD" className="flag" />
+                  </label>
+                  <label>
+                    <img src={usaFlag} alt="USDT" className="flag" /> USDT a Bs:
+                    <input
+                      type="number"
+                      name="cur_UsdtToBs"
+                      value={
+                        formData.cur_UsdtToBs ||
+                        currencyPrice[0]?.cur_UsdtToBs ||
+                        ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                    <img src={venezuelaFlag} alt="Bs" className="flag" />
+                  </label>
+                  <label>
+                    <img src={ukFlag} alt="GBP" className="flag" /> GBP a USD:
+                    <input
+                      type="number"
+                      name="cur_GbpToUsd"
+                      value={
+                        formData.cur_GbpToUsd ||
+                        currencyPrice[0]?.cur_GbpToUsd ||
+                        ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                    <img src={usaFlag} alt="USD" className="flag" />
+                  </label>
+                  <label>
+                    <img src={ukFlag} alt="GBP" className="flag" /> GBP a Bs:
+                    <input
+                      type="number"
+                      name="cur_GbpToBs"
+                      value={
+                        formData.cur_GbpToBs ||
+                        currencyPrice[0]?.cur_GbpToBs ||
+                        ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                    <img src={venezuelaFlag} alt="Bs" className="flag" />
+                  </label>
+                </>
+              ) : (
+                <p>No hay tasas de cambio disponibles.</p>
+              )}
             </div>
             <button className="btn btn-primary" onClick={openModal}>
               Editar Tasas Secundarias
@@ -308,92 +337,119 @@ function CurrencyPrice() {
         {activeMainTab === "Efectivo" && (
           <div className="cash-delivery-section">
             <h3>Configuración de Entrega en Efectivo</h3>
-            <div className="delivery-inputs">
-              <label>
-                Porcentaje GBP:
-                <input
-                  type="number"
-                  name="por_porcentGbp"
-                  value={formDataPorcent.por_porcentGbp}
-                  onChange={handleInputChangePorcent}
-                />
-              </label>
-              <label>
-                Porcentaje USD:
-                <input
-                  type="number"
-                  name="por_porcentUsd"
-                  value={formDataPorcent.por_porcentUsd}
-                  onChange={handleInputChangePorcent}
-                />
-              </label>
-              <label>
-                Porcentaje EUR:
-                <input
-                  type="number"
-                  name="por_porcentEur"
-                  value={formDataPorcent.por_porcentEur}
-                  onChange={handleInputChangePorcent}
-                />
-              </label>
 
-              <label>
-                Localización:
-                <select
-                  name="por_stateLocation"
-                  value={formDataPorcent.por_stateLocation}
-                  onChange={handleInputChangePorcent}
-                >
-                  <option value="Zulia">Zulia</option>
-                  <option value="Caracas">Caracas</option>
-                  <option value="Valencia">Valencia</option>
-                </select>
-              </label>
-
-              <label>
-                Estado de Entrega:
-                <select
-                  name="por_status"
-                  value={formDataPorcent.por_status}
-                  onChange={handleInputChangePorcent}
-                >
-                  <option value="obligatorio">Obligatorio</option>
-                  <option value="oficina">Oficina</option>
-                  <option value="desactivado">Desactivado</option>
-                </select>
-              </label>
-
-              {formDataPorcent.por_status === "obligatorio" && (
-                <label>
-                  Precio de Entrega:
-                  <input
-                    type="number"
-                    name="por_deliveryPrice"
-                    value={formDataPorcent.por_deliveryPrice}
-                    onChange={handleInputChangePorcent}
-                  />
-                </label>
-              )}
-
-              {formDataPorcent.por_status === "oficina" && (
-                <label>
-                  Comentario:
-                  <input
-                    type="text"
-                    name="por_comment"
-                    value={formDataPorcent.por_comment}
-                    onChange={handleInputChangePorcent}
-                  />
-                </label>
-              )}
+            {/* Dropdown to Select a Location's Percentage Configuration */}
+            <div className="currency">
+              <label>Selecciona una ubicación:</label>
+              <select
+                name="porcentPrice"
+                id="porcentPrice"
+                onChange={(e) => handleFetchingPorcent(e.target.value)}
+              >
+                <option value="">Selecciona una opción</option>
+                {porcentPrice.map((por) => (
+                  <option key={por.por_id} value={por.por_id}>
+                    {por.por_stateLocation}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <button
-              className="btn btn-primary"
-              onClick={handleUpdatePorcentaje}
-            >
-              Guardar Configuración
-            </button>
+            {/* Form to Update Selected Percentage */}
+            {porcent && (
+              <div className="delivery-inputs">
+                <label>
+                  Porcentaje GBP:
+                  <input
+                    type="number"
+                    name="por_porcentGbp"
+                    value={formDataPorcent.por_porcentGbp}
+                    onChange={handleInputChangePorcent}
+                  />
+                </label>
+                <label>
+                  Porcentaje USD:
+                  <input
+                    type="number"
+                    name="por_porcentUsd"
+                    value={formDataPorcent.por_porcentUsd}
+                    onChange={handleInputChangePorcent}
+                  />
+                </label>
+                <label>
+                  Porcentaje EUR:
+                  <input
+                    type="number"
+                    name="por_porcentEur"
+                    value={formDataPorcent.por_porcentEur}
+                    onChange={handleInputChangePorcent}
+                  />
+                </label>
+
+                {/* Delivery Price based on "Obligatorio" status */}
+                {location === "Obligatorio" && (
+                  <label>
+                    Precio de Entrega:
+                    <input
+                      type="number"
+                      name="por_deliveryPrice"
+                      value={formDataPorcent.por_deliveryPrice}
+                      onChange={handleInputChangePorcent}
+                    />
+                  </label>
+                )}
+
+                {/* Delivery Status */}
+                <div className="delivery-status">
+                  <h5>Estado de Entrega</h5>
+                  <button
+                    className={location === "Obligatorio" ? "active" : ""}
+                    onClick={() => setLocation("Obligatorio")}
+                  >
+                    Obligatorio
+                  </button>
+                  <button
+                    className={location === "No obligatorio" ? "active" : ""}
+                    onClick={() => setLocation("No obligatorio")}
+                  >
+                    No obligatorio
+                  </button>
+                  <button
+                    className={location === "Oficina" ? "active" : ""}
+                    onClick={() => setLocation("Oficina")}
+                  >
+                    Oficina
+                  </button>
+                  <button
+                    className={location === "Desactivado" ? "active" : ""}
+                    onClick={() => setLocation("Desactivado")}
+                  >
+                    Desactivado
+                  </button>
+
+                  {/* Additional Info for "Oficina" or "No obligatorio" */}
+                  {(location === "Oficina" ||
+                    location === "No obligatorio") && (
+                    <label>
+                      Comentario:
+                      <textarea
+                        value={additionalInfo}
+                        onChange={(e) => setAdditionalInfo(e.target.value)}
+                        placeholder="Ingrese información adicional aquí..."
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  className="btn btn-primary"
+                  onClick={handleUpdatePorcentaje}
+                >
+                  Guardar Configuración
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -678,6 +734,7 @@ function CurrencyPrice() {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -6,6 +6,24 @@
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Permite el desplazamiento si hay mucho contenido */
+
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto; /* Permite el desplazamiento horizontal en dispositivos pequeños */
+    }
+    
+    .table-responsive table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table-responsive th,
+    .table-responsive td {
+      padding: 10px;
+      text-align: left;
+    }
 
     .users-section {
       position: relative;
@@ -65,8 +83,16 @@
 
 .users-section {
 
+  .table-responsive {
+    overflow-x: auto; // Permite el desplazamiento horizontal
+    margin-top: 20px; // Espaciado opcional
+    -webkit-overflow-scrolling: touch; // Mejora el desplazamiento en dispositivos táctiles
+  }
+
   
   table {
+    
+    
     width: 100%;
     border-collapse: collapse;
     background-color: #fff;
@@ -239,10 +265,12 @@
     }
   }
 
+
   table.movements__table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    
 
     thead {
       tr {
@@ -375,5 +403,50 @@
   .modal-buttons .btn {
     padding: 6px;
     font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .users-section table thead th {
+      font-size: 12px;
+      padding: 8px;
+    }
+
+    .users-section table tbody td {
+      font-size: 10px;
+      padding: 8px;
+    }
+
+    .pagination button {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .modal .modal-content {
+      width: 100%;
+      padding: 10px;
+    }
+
+    .modal .modal-content h3 {
+      font-size: 18px;
+    }
+
+    .modal .modal-content table.movements__table th, 
+    .modal .modal-content table.movements__table td {
+      font-size: 12px;
+      padding: 6px;
+    }
+
+    .modal-buttons .btn {
+      padding: 6px;
+      font-size: 12px;
+    }
+
+    .modal .close-button {
+      font-size: 18px;
+    }
+
+    .modal .user-image-placeholder {
+      height: 150px; // Ajustar altura para pantallas pequeñas
+    }
   }
 }

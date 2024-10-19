@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
-import venezuelaFlag from "../Assets/Images/venezuela.png";
 import { format } from "date-fns";
 import NavBarAdmin from "../Components/NavBarAdmin";
 import { FaEye } from "react-icons/fa";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 function AdminDashboard() {
   const { infoTkn, url } = useDataContext();
@@ -316,7 +316,6 @@ function AdminDashboard() {
       }
 
       closeDetailModal();
-
       handleSubmitSummary();
       fetchDataMovemments();
 
@@ -480,6 +479,17 @@ function AdminDashboard() {
         );
       }
 
+      // Colocamos el toast modal
+      toast.success("¡Accion Realizada!", {
+        position: "bottom-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+
       // Cerrar el modal
       closeModal();
       fetchDataMovemments();
@@ -498,9 +508,76 @@ function AdminDashboard() {
     setIsRejectionVisible(true);
   };
 
-  const handleSendRejection = () => {
-    console.log("Rechazado por: ", rejectionReason);
-    closeModal();
+  // Rechazar Movimiento
+  const handleSendRejection = async (event) => {
+    event.preventDefault();
+
+    try {
+      await axios.get(`${url}/Movements/reject/${selectedMovement.mov_id}`, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+
+      if (selectedMovement.mov_type === "Retiro") {
+        await axios.put(
+          `${url}/Movements/${selectedMovement.mov_id}`,
+          {
+            mov_comment: rejectionReason,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+        handleSubmitSummary();
+      }
+
+      if (selectedMovement.mov_type === "Deposito") {
+        await axios.put(
+          `${url}/Movements/${selectedMovement.mov_id}`,
+          {
+            mov_comment: rejectionReason,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+
+      closeDetailModal();
+      closeModal();
+      fetchDataMovemments();
+
+      await axios.post(
+        `${url}/Mailer/EmailRtransfer/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+
+      // Cerrar el modal
+      toast.success("¡Datos enviados con éxito!", {
+        position: "bottom-right",
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+
+      console.log("Request sent successfully");
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const handleCancel = () => {
@@ -572,24 +649,26 @@ function AdminDashboard() {
 
       {/* Sección de Movimientos */}
       <div className="transactions-section">
-        {/* Tabs */}
-        <div className="tabs">
-          <button
-            className={activeTab === "recargas" ? "active" : "inactive"}
-            onClick={() => handleTabChange("recargas")}
-          >
-            Movimientos de Recarga
-          </button>
-          <button
-            className={activeTab === "remesas" ? "active" : "inactive"}
-            onClick={() => handleTabChange("remesas")}
-          >
-            Movimientos de Remesas
-          </button>
-        </div>
+  {/* Tabs */}
+  <div className="tabs">
+    <button
+      className={activeTab === "recargas" ? "active" : "inactive"}
+      onClick={() => handleTabChange("recargas")}
+    >
+      Movimientos de Recarga ({userMovemments.filter(movement => movement.mov_type === "Deposito" && movement.mov_status === "E").length})
+    </button>
+    <button
+      className={activeTab === "remesas" ? "active" : "inactive"}
+      onClick={() => handleTabChange("remesas")}
+    >
+      Movimientos de Remesas ({userMovemments.filter(movement => movement.mov_type === "Retiro" && movement.mov_status === "E").length})
+    </button>
+  </div>
+
 
         {/* Tabla de Recargas */}
         {activeTab === "recargas" && (
+          <div className="table-responsive">
           <table className="movements__table">
             <thead>
               <tr>
@@ -632,7 +711,7 @@ function AdminDashboard() {
                       </td>
                       <td
                         className={
-                          movement.mov_status === "S"
+                          movement.mov_status === "V"
                             ? "completed"
                             : movement.mov_status === "E"
                             ? "en espera"
@@ -644,7 +723,7 @@ function AdminDashboard() {
                       <td>
                         <FaEye
                           className="view-details-icon"
-                          style={{ cursor: "pointer", textAlign: "center" }}
+                          style={{ cursor: "pointer", textAlign: "center", width: "20px" }}
                           onClick={() => openDetailModal(movement)}
                         />
                       </td>
@@ -659,10 +738,12 @@ function AdminDashboard() {
               )}
             </tbody>
           </table>
+          </div>
         )}
 
         {/* Tabla de Remesas */}
         {activeTab === "remesas" && (
+          <div className="table-responsive">
           <table className="movements__table">
             <thead>
               <tr>
@@ -695,7 +776,7 @@ function AdminDashboard() {
                       <td>
                         {movement.AccountsBsUser
                           ? movement.AccountsBsUser.accbsUser_owner
-                          : "Sin información"}
+                          : movement.mov_typeOutflow === "efectivo" ? "Retiro en Efectivo" : "Sin beneficiario"} 
                       </td>
                       <td>
                         {movement.mov_amount}{" "}
@@ -707,7 +788,7 @@ function AdminDashboard() {
                         )}
                       </td>
                       <td>
-                        2000Bs <img src={venezuelaFlag} alt="Venezuela" />
+                        {movement.mov_typeOutflow === 'efectivo'? movement.mov_amount : movement.mov_amount * movement.mov_currencyPrice}
                       </td>
                       <td
                         className={
@@ -722,7 +803,7 @@ function AdminDashboard() {
                       </td>
                       <td>
                         <FaEye
-                          style={{ cursor: "pointer" }}
+                          style={{ cursor: "pointer", height: "20px" }}
                           className="view-details-icon"
                           onClick={() => {
                             setSelectedMovement(movement); // Establece el movimiento seleccionado
@@ -741,10 +822,12 @@ function AdminDashboard() {
               )}
             </tbody>
           </table>
+          </div>
         )}
 
         {/* Modales */}
 
+        {/* Modal de Recarga */}
         {isDetailModalOpen && selectedMovement && (
           <div className="modal-overlay">
             <div className="modal-content">
@@ -786,7 +869,7 @@ function AdminDashboard() {
                     <img
                       src={`${url}/Movements/image/${selectedMovement.mov_img}`}
                       alt="Documento"
-                      style={{ maxWidth: "100%" }}
+                      style={{ width: "200px" }}
                     />
                   )
                 ) : (
@@ -828,79 +911,111 @@ function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* Modal de Remesa */}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
               <h3>Detalles del Beneficiario</h3>
               {selectedMovement ? (
                 <div className="modal-details">
-                  <p>
-                    <strong>Propietario:</strong>{" "}
-                    {selectedMovement.AccountsBsUser
-                      ? selectedMovement.AccountsBsUser.accbsUser_owner
-                      : "Sin información"}
-                  </p>
-                  <p>
-                    <strong>Banco:</strong>{" "}
-                    {selectedMovement.AccountsBsUser
-                      ? selectedMovement.AccountsBsUser.accbsUser_bank
-                      : "Sin información"}
-                  </p>
-                  <p>
-                    <strong>DNI:</strong>{" "}
-                    {selectedMovement.AccountsBsUser
-                      ? selectedMovement.AccountsBsUser.accbsUser_dni
-                      : "Sin información"}
-                  </p>
-                  <p>
-                    <strong>
-                      {selectedMovement.AccountsBsUser
-                        ? selectedMovement.AccountsBsUser.accbsUser_type ===
-                          "Pago Movil"
-                          ? "Teléfono: " +
-                            selectedMovement.AccountsBsUser.accbsUser_phone
-                          : "Cuenta: " +
-                            selectedMovement.AccountsBsUser.accbsUser_number
-                        : "Sin información"}
-                    </strong>
-                  </p>
-                  <p>
-                    <strong>Monto: {selectedMovement.mov_amount} </strong>
-                  </p>
+                  {selectedMovement.AccountsBsUser ? (
+                    <>
+                      <p>
+                        <strong>Propietario:</strong>{" "}
+                        {selectedMovement.AccountsBsUser
+                          ? selectedMovement.AccountsBsUser.accbsUser_owner
+                          : "Sin información"}
+                      </p>
+                      <p>
+                        <strong>Banco:</strong>{" "}
+                        {selectedMovement.AccountsBsUser
+                          ? selectedMovement.AccountsBsUser.accbsUser_bank
+                          : "Sin información"}
+                      </p>
+                      <p>
+                        <strong>DNI:</strong>{" "}
+                        {selectedMovement.AccountsBsUser
+                          ? selectedMovement.AccountsBsUser.accbsUser_dni
+                          : "Sin información"}
+                      </p>
+                      <p>
+                        <strong>
+                          {selectedMovement.AccountsBsUser
+                            ? selectedMovement.AccountsBsUser.accbsUser_type ===
+                              "Pago Movil"
+                              ? "Teléfono: " +
+                                selectedMovement.AccountsBsUser.accbsUser_phone
+                              : "Cuenta: " +
+                                selectedMovement.AccountsBsUser.accbsUser_number
+                            : "Sin información"}
+                        </strong>
+                      </p>
+                      <p>
+                        <strong>
+                          Monto:{" "}
+                          {selectedMovement.mov_amount *
+                            selectedMovement.mov_currencyPrice}{" "}
+                        </strong>
+                      </p>
+                    </>
+                  ) : (
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          selectedMovement &&
+                          selectedMovement.mov_comment.replace(/\n/g, "<br/>"),
+                      }}
+                    />
+                  )}
                 </div>
               ) : (
                 <p>Cargando datos...</p>
               )}
 
-              <div className="modal-actions">
-                <label className="select-label">Selecciona una Moneda</label>
-                <select
-                  id="payment"
-                  value={payment}
-                  onChange={(e) => setPayment(e.target.value)}
-                >
-                  <option>Selecciona una moneda...</option>
-                  <option value="EUR">EUR</option>
-                  <option value="USD">USD</option>
-                  <option value="GBP">GBP</option>
-                  <option value="BS">BS</option>
-                  <option value="ARS">ARS</option>
-                  <option value="COP">COP</option>
-                  <option value="SOL">SOL</option>
-                  <option value="CHL">CHL</option>
-                  <option value="ECU">ECU</option>
-                </select>
-              </div>
+              {selectedMovement.mov_typeOutflow !== "efectivo" && (
+                <>
+                  <div className="modal-actions">
+                    <label className="select-label">
+                      Selecciona una Moneda
+                    </label>
+                    <select
+                      id="payment"
+                      value={payment}
+                      onChange={(e) => setPayment(e.target.value)}
+                    >
+                      <option>Selecciona una moneda...</option>
+                      <option value="BS">Bolívares</option>
+                      <option value="USD">Dólares (USD)</option>
+                      <option value="ARS">Pesos Argentinos</option>
+                      <option value="COP">Pesos Colombianos (COP)</option>
+                      <option value="CLP">Pesos Chilenos (CLP)</option>
+                      <option value="MXN">Pesos Mexicanos (MXN)</option>
+                      <option value="PEN">Soles (PEN)</option>
+                      <option value="BRL">Reales Brasileños (BRL)</option>
+                      <option value="USD-EC">Dólar Ecuatoriano</option>
+                      <option value="USD-PA">Dólar Panameño</option>
+                    </select>
+                  </div>
 
-              <div className="modal-actions">
-                <label class="file-label" for="file-upload">
-                  Subir Imagen
-                </label>
-                <input type="file" id="file-upload" onChange={(e)=> setMovImg(e.target.files[0])}/>
-              </div>
+                  <div className="modal-actions">
+                    <label class="file-label" for="file-upload">
+                      Subir Imagen
+                    </label>
+                    <input
+                      type="file"
+                      id="file-upload"
+                      onChange={(e) => setMovImg(e.target.files[0])}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="modal-buttons">
-                <button className="approve-btn" onClick={handleSubmitSendVerify}>
+                <button
+                  className="approve-btn"
+                  onClick={handleSubmitSendVerify}
+                >
                   Aprobar
                 </button>
                 <button className="reject-btn" onClick={handleReject}>
@@ -932,6 +1047,7 @@ function AdminDashboard() {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 }

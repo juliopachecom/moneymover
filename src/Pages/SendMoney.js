@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
+import chile from "../Assets/Images/chile.png";
+import colombia from "../Assets/Images/colombia.png";
+import ecuador from "../Assets/Images/ecuador.png";
+import argentina from "../Assets/Images/argentina.png";
+import brasil from "../Assets/Images/square.png";
+import peru from "../Assets/Images/peru.png";
+import panama from "../Assets/Images/panama.png";
 import { NavBarUser } from "../Components/NavBarUser";
 import { FaCheckCircle } from "react-icons/fa"; // Icono de check para confirmación
 import { StepTracker } from "../Components/StepTracker"; // Importación del componente StepTracker
@@ -7,6 +14,9 @@ import { toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import { banksByCountry } from "../Utils/Variables";
+import { Link } from 'react-router-dom';
+
 
 function SendMoney() {
   const { infoTkn, url } = useDataContext();
@@ -16,7 +26,8 @@ function SendMoney() {
   const [step, setStep] = useState(1); // Controla los pasos del formulario
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false); // Controla el estado del modal
-  const [selectedOption, setSelectedOption] = useState(""); // Controla la opción seleccionada (Pago Móvil o Cuenta Bancaria)
+  const [error, setError] = useState("");
+
 
   // Datos Usuario
   const [user, setUser] = useState([]);
@@ -34,6 +45,16 @@ function SendMoney() {
 
   // Datos de Envio de remesas
   const [payment, setPayment] = useState("");
+  const [withdrawalMethod, setWithdrawalMethod] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+  const [receiverDni, setReceiverDni] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [delivery, setDelivery] = useState(0);
+  const [porcents, setPorcents] = useState([]);
+  const [porcent, setPorcent] = useState([]);
+  const [selectedPorcent, setSelectedPorcent] = useState([]);
+
   // const [selectedMethod, setSelectedMethod] = useState("");
   const [amount, setAmount] = useState("");
   const [amountToReceive, setAmountToReceive] = useState("");
@@ -43,12 +64,27 @@ function SendMoney() {
   // const [mov_img, setMov_img] = useState("");
   // const [showConfirmationr, setShowConfirmationr] = useState(false);
 
+  const getPercentage = () => {
+    if (payment === "GBP") return porcent.por_porcentGbp;
+    if (payment === "USD") return porcent.por_porcentUsd;
+    if (payment === "EUR") return porcent.por_porcentEur;
+    return 0;
+  };
+
   //DATOS PARA BENEFICIARIO
   const [accbsUser_bank, setAccbsUser_bank] = useState("");
   const [accbsUser_owner, setAccbsUser_owner] = useState("");
   const [accbsUser_number, setAccbsUser_number] = useState("");
   const [accbsUser_dni, setAccbsUser_dni] = useState("");
   const [accbsUser_phone, setAccbsUser_phone] = useState("");
+  const [accbsUser_type, setAccbsUser_type] = useState("");
+  const [accbsUser_country, setAccbsUser_country] = useState("");
+
+  // Prefijos para teléfono
+  const [telefonoPrefix, setTelefonoPrefix] = useState("");
+
+  // Estado para validaciones
+  const [errors, setErrors] = useState({});
 
   // Fetch de datos del usuario (Incluye movimientos y directorio)
   const fetchDataUser = useCallback(async () => {
@@ -84,8 +120,93 @@ function SendMoney() {
     }
   }, [setCurrencyPrice, url]);
 
+  // Fetch de datos de porcentaje ID
+  const fetchDataPorcentId = async (id) => {
+    try {
+      const response = await axios.get(`${url}/PorcentPrice/${id}`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setPorcent(response.data);
+      setSelectedPorcent(response.data); // Agregar esta línea para seleccionar el porcentaje
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Fetch de datos de porcentaje
+  const fetchDataPorcent = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/PorcentPrice`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setPorcents(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [url, infoTkn]);
+
+  // Validación de formulario
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!accbsUser_country) {
+      newErrors.accbsUser_country = "El país es requerido.";
+    }
+
+    if (!accbsUser_owner) {
+      newErrors.accbsUser_owner = "El nombre es requerido.";
+    }
+
+    if (!accbsUser_dni) {
+      newErrors.accbsUser_dni = "La cédula es requerida.";
+    }
+
+    if (accbsUser_type === "Pago Movil") {
+      if (!accbsUser_phone) {
+        newErrors.accbsUser_phone = "El número telefónico es requerido.";
+      } else if (!/^\d+$/.test(accbsUser_phone)) {
+        newErrors.accbsUser_phone =
+          "El número telefónico solo puede contener dígitos.";
+      } else if (accbsUser_phone.length !== 7) {
+        newErrors.accbsUser_phone =
+          "El número telefónico debe tener 7 dígitos.";
+      }
+    } else if (accbsUser_type === "Cuenta Bancaria") {
+      if (!accbsUser_number) {
+        newErrors.accbsUser_number = "El número de cuenta es requerido.";
+      } else if (!/^\d+$/.test(accbsUser_number)) {
+        newErrors.accbsUser_number =
+          "El número de cuenta solo puede contener dígitos.";
+      } else if (accbsUser_number.length !== 20) {
+        newErrors.accbsUser_number =
+          "El número de cuenta debe tener 20 dígitos.";
+      }
+    }
+
+    if (!accbsUser_bank) {
+      newErrors.accbsUser_bank = "El banco es requerido.";
+    }
+
+    if (!accbsUser_type) {
+      newErrors.accbsUser_type = "Seleccione un tipo de transacción.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Agregar Beneficiario
   const handleAddAccountSubmit = async (event) => {
     event.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       await axios.post(
         `${url}/AccBsUser/create`,
@@ -95,9 +216,10 @@ function SendMoney() {
           accbsUser_number,
           accbsUser_dni,
           accbsUser_phone,
-          accbsUser_type: selectedOption,
-          accbsUser_status: "activo",
+          accbsUser_type,
+          accbsUser_status: "Activo",
           accbsUser_userId: user.use_id,
+          accbsUser_country,
         },
         {
           headers: {
@@ -118,45 +240,144 @@ function SendMoney() {
     setPayment(e.target.value);
   };
 
+  const calculateValue = (amount, payment, porcent) => {
+    const amountFloat = parseFloat(amount);
+    const deliveryPrice = parseInt(porcent.por_deliveryPrice);
+
+    if (payment === "EUR") {
+      if (porcent.por_status === "Obligatorio") {
+        return (
+          amountFloat +
+          amountFloat * (porcent.por_porcentEur / 100) +
+          deliveryPrice
+        );
+      } else {
+        return amountFloat + amountFloat * (porcent.por_porcentEur / 100);
+      }
+    } else if (payment === "GBP") {
+      if (porcent.por_status === "Obligatorio") {
+        return (
+          amountFloat +
+          amountFloat * (porcent.por_porcentEur / 100) +
+          deliveryPrice
+        );
+      } else {
+        return amountFloat + amountFloat * (porcent.por_porcentGbp / 100);
+      }
+    } else if (payment === "USD") {
+      if (porcent.por_status === "Obligatorio") {
+        return (
+          amountFloat +
+          amountFloat * (porcent.por_porcentEur / 100) +
+          deliveryPrice
+        );
+      } else {
+        return amountFloat + amountFloat * (porcent.por_porcentUsd / 100);
+      }
+    }
+    return null;
+  };
+
   const handleamountChange = (e) => {
     const inputAmount = e.target.value;
     setAmount(inputAmount);
 
+    let errorMessage = "";
+
+    // Validación para el método de retiro efectivo
+    if (withdrawalMethod === "efectivo") {
+      if (inputAmount < 100) {
+        errorMessage = "El monto a enviar debe ser mayor o igual a 100.";
+      } else if (inputAmount % 20 !== 0) {
+        errorMessage = "El monto a enviar debe ser múltiplo de 20.";
+      }
+    } else {
+      // Transfrenecia
+      if (inputAmount < 20) {
+        errorMessage = "El monto a enviar debe ser mayor a 20.";
+      }
+    }
+
+    const availableBalance = payment === "EUR" ? user.use_amountEur : payment === "USD" ? user.use_amountUsd : user.use_amountGbp;
+
+    if (inputAmount > availableBalance) {
+      errorMessage = "El monto a enviar no puede ser mayor que el saldo disponible.";
+    }
+    // Actualizar errores en el estado
+
     currencyPrice.forEach((coin) => {
       if (payment === "EUR") {
-        setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToBs);
+        if (selectedCurrency === "BS") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToBs);
+        } else if (selectedCurrency === "USD") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToUsd);
+        } else if (selectedCurrency === "COP") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToCol_Pes);
+        } else if (selectedCurrency === "CLP") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToPes_Ch);
+        } else if (selectedCurrency === "PEN") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToSol_Pe);
+        } else if (selectedCurrency === "BRL") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToBra_Rea);
+        } else if (selectedCurrency === "USD-EC") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToUsd_Ecu);
+        } else if (selectedCurrency === "USD-PA") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToUsd_Pa);
+        } else if (selectedCurrency === "MXN") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToPes_Mex);
+        } else if (selectedCurrency === "ARS") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_EurToArg_Pes);
+        }
       } else if (payment === "GBP") {
-        setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToBs);
+        if (selectedCurrency === "BS") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToBs);
+        } else if (selectedCurrency === "USD") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToUsd);
+        } else if (selectedCurrency === "COP") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToCol_Pes);
+        } else if (selectedCurrency === "CLP") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToPes_Ch);
+        } else if (selectedCurrency === "PEN") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToSol_Pe);
+        } else if (selectedCurrency === "BRL") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToBra_Rea);
+        } else if (selectedCurrency === "USD-EC") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToUsd_Ecu);
+        } else if (selectedCurrency === "USD-PA") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToUsd_Pa);
+        } else if (selectedCurrency === "MXN") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToPes_Mex);
+        } else if (selectedCurrency === "ARS") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_GbpToArg_Pes);
+        }
       } else if (payment === "USD") {
-        setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToBs);
+        if (selectedCurrency === "BS") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToBs);
+        } else if (selectedCurrency === "USD") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToUsd);
+        } else if (selectedCurrency === "COP") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToCol_Pes);
+        } else if (selectedCurrency === "CLP") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToPes_Ch);
+        } else if (selectedCurrency === "PEN") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToSol_Pe);
+        } else if (selectedCurrency === "BRL") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToBra_Rea);
+        } else if (selectedCurrency === "USD-EC") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToUsd_Ecu);
+        } else if (selectedCurrency === "USD-PA") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToUsd_Pa);
+        } else if (selectedCurrency === "MXN") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToPes_Mex);
+        } else if (selectedCurrency === "ARS") {
+          setAmountToReceive(parseFloat(inputAmount) * coin.cur_UsdToArg_Pes);
+        }
       }
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        amount: errorMessage,
+      }));
     });
-  };
-
-  const handleOptionChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
-
-  const validateAmount = () => {
-    const minAmount = 20;
-
-    if (amount < minAmount) {
-      alert(`El monto mínimo a enviar es ${minAmount} ${payment}`);
-      return false;
-    }
-
-    // if (amount > maxAmount) {
-    //   alert(`No puedes enviar más de tu saldo disponible: ${maxAmount} ${payment}`);
-    //   return false;
-    // }
-
-    return true;
-  };
-
-  const handleContinue = () => {
-    if (validateAmount()) {
-      setStep(step + 1); // Pasar al siguiente paso
-    }
   };
 
   const handleBack = () => {
@@ -186,7 +407,17 @@ function SendMoney() {
     // );
     formData.append(
       "mov_comment",
-      "Hola"
+      `${withdrawalMethod === "efectivo"}` &&
+      `<strong>Retiro de divisa en efectivo \n  Ciudad: </strong>` +
+      porcent.por_stateLocation +
+      `\n <strong>Persona que recibe: </strong>` +
+      receiverName +
+      `\n <strong>DNI de quien recibe: </strong>` +
+      receiverDni +
+      `\n <strong>Dirección: </strong>` +
+      deliveryAddress +
+      `\n <strong>Monto: </strong>` +
+      amount
       // `${
       //   (sendOption === "Cuenta Bancaria" || sendOption === "Pago Movil") &&
       //   `Banco: ` +
@@ -225,14 +456,101 @@ function SendMoney() {
       // }` + note
     );
     formData.append("mov_img", "Retiro de Divisa");
-    formData.append("mov_typeOutflow", "sendOption");
+    formData.append("mov_typeOutflow", withdrawalMethod);
     formData.append("mov_accEurId", payment === "EUR" ? 99 : 0);
     formData.append("mov_accUsdId", payment === "USD" ? 99 : 0);
     formData.append("mov_accGbpId", payment === "GBP" ? 99 : 0);
     formData.append("mov_userId", user.use_id);
-    formData.append("mov_accBsUserId", selectedBeneficiary.accbsUser_id);
+    formData.append(
+      "mov_accBsUserId",
+      selectedBeneficiary ? selectedBeneficiary.accbsUser_id : 0
+    );
 
-    console.log(selectedBeneficiary);
+    const getCurrencyPrice = (payment, country, coin) => {
+      if (payment === "EUR") {
+        switch (country) {
+          case "venezuela":
+            return coin.cur_EurToBs;
+          case "argentina":
+            return coin.cur_EurToArg_Pes;
+          case "colombia":
+            return coin.cur_EurToCol_Pes;
+          case "chile":
+            return coin.cur_EurToPes_Ch;
+          case "mexico":
+            return coin.cur_EurToPes_Mex;
+          case "peru":
+            return coin.cur_EurToSol_Pe;
+          case "brasil":
+            return coin.cur_EurToBra_Rea;
+          case "ecuador":
+            return coin.cur_EurToUsd_Ecu;
+          case "panama":
+            return coin.cur_EurToUsd_Pa;
+          default:
+            return null;
+        }
+      } else if (payment === "USD") {
+        switch (country) {
+          case "venezuela":
+            return coin.cur_UsdToBs;
+          case "argentina":
+            return coin.cur_UsdToArg_Pes;
+          case "colombia":
+            return coin.cur_UsdToCol_Pes;
+          case "chile":
+            return coin.cur_UsdToPes_Ch;
+          case "mexico":
+            return coin.cur_UsdToPes_Mex;
+          case "peru":
+            return coin.cur_UsdToSol_Pe;
+          case "brasil":
+            return coin.cur_UsdToBra_Rea;
+          case "ecuador":
+            return coin.cur_UsdToUsd_Ecu;
+          case "panama":
+            return coin.cur_UsdToUsd_Pa;
+          default:
+            return null;
+        }
+      } else if (payment === "GBP") {
+        switch (country) {
+          case "venezuela":
+            return coin.cur_GbpToBs;
+          case "argentina":
+            return coin.cur_GbpToArg_Pes;
+          case "colombia":
+            return coin.cur_GbpToCol_Pes;
+          case "chile":
+            return coin.cur_GbpToPes_Ch;
+          case "mexico":
+            return coin.cur_GbpToPes_Mex;
+          case "peru":
+            return coin.cur_GbpToSol_Pe;
+          case "brasil":
+            return coin.cur_GbpToBra_Rea;
+          case "ecuador":
+            return coin.cur_GbpToUsd_Ecu;
+          case "panama":
+            return coin.cur_GbpToUsd_Pa;
+          default:
+            return null;
+        }
+      }
+      return null;
+    };
+
+    const currencyPriceValue = currencyPrice
+      .map((coin) =>
+        getCurrencyPrice(
+          payment,
+          selectedBeneficiary ? selectedBeneficiary.accbsUser_country : null,
+          coin
+        )
+      )
+      .filter((price) => price !== null)[0];
+
+    formData.append("mov_currencyPrice", currencyPriceValue);
 
     const formDataUser = new FormData();
     // if (sendOption === "Efectivo") {
@@ -301,7 +619,7 @@ function SendMoney() {
         }
       );
 
-      history.push("/changes");
+      // history.push("/changes");
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
@@ -324,7 +642,8 @@ function SendMoney() {
   useEffect(() => {
     fetchCurrencyData();
     fetchDataUser();
-  }, [fetchCurrencyData, fetchDataUser]);
+    fetchDataPorcent();
+  }, [fetchCurrencyData, fetchDataUser, fetchDataPorcent]);
 
   return (
     <div className="send-money">
@@ -370,6 +689,107 @@ function SendMoney() {
 
             {payment && (
               <div className="form-group">
+                <label htmlFor="withdrawal-method">Método de retiro</label>
+                <select
+                  id="withdrawal-method"
+                  value={withdrawalMethod}
+                  onChange={(e) => setWithdrawalMethod(e.target.value)}
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="transferencia">Transferencia</option>
+                  <option value="efectivo">Efectivo</option>
+                </select>
+              </div>
+            )}
+
+            {withdrawalMethod === "efectivo" && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="state-location">Ubicación</label>
+                  <select
+                    id="state-location"
+                    defaultValue={withdrawalMethod}
+                    onChange={(e) => fetchDataPorcentId(e.target.value)}
+                  >
+                    <option value="">Seleccione una ubicación</option>
+                    {porcents.map((por) => {
+                      if (por.por_status === "Desactivado") {
+                        return null;
+                      }
+                      return (
+                        <option value={por.por_id}>
+                          {por.por_stateLocation}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {porcent && (
+                  <>
+                    <div className="form-group">
+                      <label>Porcentaje</label>
+                      <input
+                        type="text"
+                        value={`${getPercentage()}%`}
+                        disabled
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="status">Estado</label>
+                      <input
+                        type="text"
+                        id="status"
+                        value={porcent.por_status}
+                        disabled
+                      />
+
+                      {porcent.por_status === "Oficina" && (
+                        <div className="form-group">
+                          <label htmlFor="comment">Comentario</label>
+                          <input
+                            type="text"
+                            id="comment"
+                            value={porcent.por_comment}
+                            disabled
+                          />
+                        </div>
+                      )}
+
+                      {porcent.por_status === "Obligatorio" && (
+                        <div className="form-group">
+                          <label htmlFor="delivery-price">
+                            Precio de entrega
+                          </label>
+                          <input
+                            type="text"
+                            id="delivery-price"
+                            value={`Precio de entrega: ${porcent.por_deliveryPrice}`}
+                            disabled
+                          />
+                        </div>
+                      )}
+
+                      {porcent.por_status === "Desactivado" && (
+                        <div className="form-group">
+                          <label htmlFor="no-cash">Mensaje</label>
+                          <input
+                            type="text"
+                            id="no-cash"
+                            value="No hay efectivo para esta ubicación por los momentos."
+                            disabled
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {withdrawalMethod !== "efectivo" && withdrawalMethod && (
+              <div className="form-group">
                 <label htmlFor="currency-receive">
                   ¿Qué moneda quieres recibir?
                 </label>
@@ -379,57 +799,98 @@ function SendMoney() {
                   onChange={(e) => setSelectedCurrency(e.target.value)}
                 >
                   <option value="">Seleccione una moneda</option>
-                  <option value="VES">Bolívares</option>
+                  <option value="BS">Bolívares</option>
                   <option value="USD">Dólares (USD)</option>
+                  <option value="ARS">Pesos Argentinos</option>
                   <option value="COP">Pesos Colombianos (COP)</option>
                   <option value="CLP">Pesos Chilenos (CLP)</option>
+                  <option value="MXN">Pesos Mexicanos (MXN)</option>
                   <option value="PEN">Soles (PEN)</option>
                   <option value="BRL">Reales Brasileños (BRL)</option>
                   <option value="USD-EC">Dólar Ecuatoriano</option>
                   <option value="USD-PA">Dólar Panameño</option>
-                  <option value="MXN">Pesos Mexicanos (MXN)</option>
                 </select>
               </div>
             )}
 
-            {selectedCurrency && (
-              <div className="form-group">
-                <label htmlFor="amount-send">Monto a enviar</label>
-                <input
-                  type="number"
-                  id="amount-send"
-                  value={amount}
-                  onChange={handleamountChange}
-                  placeholder="Ingrese monto"
-                />
-                <small>
-                  Saldo disponible:{" "}
-                  {payment === "EUR"
-                    ? `€${user.use_amountEur}`
-                    : payment === "USD"
-                    ? `$${user.use_amountUsd}`
-                    : `£${user.use_amountGbp}`}
-                </small>
-              </div>
+            {withdrawalMethod === "efectivo" && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="amount-send">Monto a enviar</label>
+                  <input
+                    type="number"
+                    id="amount-send"
+                    value={amount}
+                    onChange={handleamountChange}
+                    placeholder="Ingrese monto"
+                  />
+                  <small>
+                    Saldo disponible:{" "}
+                    {payment === "EUR"
+                      ? `€${user.use_amountEur}`
+                      : payment === "USD"
+                        ? `$${user.use_amountUsd}`
+                        : `£${user.use_amountGbp}`}
+                  </small>
+                  {error && <span className="error">{error}</span>} {/* Mostrar mensaje de error */}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="amount-receive">Monto a recibir</label>
+                  <input
+                    type="number"
+                    id="amount-receive"
+                    value={calculateValue(amount, payment, porcent)}
+                    readOnly
+                    placeholder="Calculando..."
+                  />
+                </div>
+              </>
             )}
 
-            {amount && (
-              <div className="form-group">
-                <label htmlFor="amount-receive">Monto a recibir</label>
-                <input
-                  type="number"
-                  id="amount-receive"
-                  value={amountToReceive}
-                  readOnly
-                  placeholder="Calculando..."
-                />
-              </div>
+            {selectedCurrency && (
+              <>
+
+                <div className="form-group">
+                  <label htmlFor="amount-send">Monto a enviar</label>
+                  {errors.amount && <span className="error">{errors.amount}</span>} {/* Mostrar el error aquí */}
+
+                  <input
+                    type="number"
+                    id="amount-send"
+                    value={amount}
+                    onChange={handleamountChange}
+                    placeholder="Ingrese monto"
+                  />
+                  <small>
+                    Saldo disponible:{" "}
+                    {payment === "EUR"
+                      ? `€${user.use_amountEur}`
+                      : payment === "USD"
+                        ? `$${user.use_amountUsd}`
+                        : `£${user.use_amountGbp}`}
+                  </small>
+                </div>
+
+
+                <div className="form-group">
+                  <label htmlFor="amount-receive">Monto a recibir</label>
+                  <input
+                    type="number"
+                    id="amount-receive"
+                    value={amountToReceive}
+                    readOnly
+                    placeholder="Calculando..."
+                  />
+
+                </div>
+              </>
             )}
 
             {amount && (
               <div className="exchange-rate-box">
                 <h4>Tasa de cambio</h4>
-                {currencyPrice.forEach((coin) => {
+                {currencyPrice.map((coin) => {
                   if (payment === "EUR") {
                     return (
                       <p
@@ -457,11 +918,17 @@ function SendMoney() {
             {/* Botón de continuar */}
             {amount && (
               <div className="form-actions">
-                <button className="continue-button" onClick={handleContinue}>
-                  Continúa
+                <button
+                  className="continue-button"
+                  onClick={() => setStep(step + 1)}
+                  disabled={!!errors.amount} // Deshabilitar si hay errores
+                >
+                  {errors.amount ? "Corrige el error para continuar" : "Continúa"}
                 </button>
               </div>
             )}
+
+
           </div>
         </>
       )}
@@ -470,72 +937,222 @@ function SendMoney() {
       {step === 2 && (
         <div className="beneficiary-step">
           <h2>Selecciona un beneficiario</h2>
-          <div className="beneficiaries-list">
-            {userDirectory.map((beneficiary) => (
-              <div
-                className="beneficiary-card"
-                key={beneficiary.accbsUser_id}
-                onClick={() => handleBeneficiarySelect(beneficiary)}
-              >
-                <img
-                  src={venezuelaFlag}
-                  alt="Venezuela flag"
-                  className="flag-icon"
-                />
-                <div className="beneficiary-info">
-                  <h3>{beneficiary.accbsUser_owner}</h3>
-                  <p>Cédula: {beneficiary.accbsUser_dni}</p>
-                  <p>Banco: {beneficiary.accbsUser_bank}</p>
-                  <p>
-                    {beneficiary.accbsUser_type === "Pago Movil"
-                      ? "Teléfono: " + beneficiary.accbsUser_phone
-                      : "Cuenta: " + beneficiary.accbsUser_number}
-                  </p>
+
+          {withdrawalMethod === "efectivo" ? (
+            <>
+              <div className="form-container">
+                <div className="form-group">
+                  <label htmlFor="receiver-name">Nombre de quien recibe</label>
+                  <input
+                    type="text"
+                    id="receiver-name"
+                    value={receiverName}
+                    onChange={(e) => setReceiverName(e.target.value)}
+                    placeholder="Ingrese el nombre del receptor"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="receiver-dni">Cédula de quien recibe</label>
+                  <input
+                    type="text"
+                    id="receiver-dni"
+                    value={receiverDni}
+                    onChange={(e) => setReceiverDni(e.target.value)}
+                    placeholder="Ingrese la cédula del receptor"
+                  />
+                </div>
+
+                {porcent.por_status === "Obligatorio" && (
+                  <div className="form-group">
+                    <label htmlFor="delivery-address">
+                      Dirección de entrega
+                    </label>
+                    <input
+                      type="text"
+                      id="delivery-address"
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder="Ingrese la dirección de entrega"
+                    />
+                  </div>
+                )}
+
+                {porcent.por_status === "Oficina" && (
+                  <div className="form-group">
+                    <label htmlFor="office-address">
+                      Dirección de la oficina
+                    </label>
+                    <input
+                      type="text"
+                      id="office-address"
+                      value={porcent.por_comment}
+                      disabled
+                    />
+                  </div>
+                )}
+
+                <div className="form-actions">
+                  <button className="back-button" onClick={handleBack}>
+                    Volver
+                  </button>
+                  <button
+                    className="continue-button"
+                    onClick={() => setStep(3)}
+                  >
+                    Continúa
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="form-actions">
-            <button className="back-button" onClick={handleBack}>
-              Volver
-            </button>
-            <button className="add-beneficiary-button" onClick={openModal}>
-              Nuevo Beneficiario
-            </button>
-          </div>
+            </>
+          ) : (
+            <>
+              <div className="beneficiaries-list">
+                <>
+                  {userDirectory.length === 0 ? (
+                    <div className="beneficiaries-list">
+                      <p style={{ color: '#003366' }}><strong>No tienes beneficiarios agregados. Agrega uno para continuar.</strong></p>
+                      <Link to='/Directory'>
+                        <div className="form-actions">
+                          <button className="continue-button">
+                            Agrega a tu beneficiario
+                          </button>
+                        </div>
+                      </Link>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="beneficiaries-list">
+                        {userDirectory
+                          .filter(
+                            (beneficiario) =>
+                              beneficiario.accbsUser_status === "Activo" &&
+                              (selectedCurrency === "BS"
+                                ? beneficiario.accbsUser_country === "venezuela"
+                                : selectedCurrency === "ARS"
+                                  ? beneficiario.accbsUser_country === "argentina"
+                                  : selectedCurrency === "COP"
+                                    ? beneficiario.accbsUser_country === "colombia"
+                                    : selectedCurrency === "CLP"
+                                      ? beneficiario.accbsUser_country === "chile"
+                                      : selectedCurrency === "MXN"
+                                        ? beneficiario.accbsUser_country === "mexico"
+                                        : selectedCurrency === "PEN"
+                                          ? beneficiario.accbsUser_country === "peru"
+                                          : selectedCurrency === "BRL"
+                                            ? beneficiario.accbsUser_country === "brasil"
+                                            : selectedCurrency === "USD-EC"
+                                              ? beneficiario.accbsUser_country === "ecuador"
+                                              : selectedCurrency === "USD-PA"
+                                                ? beneficiario.accbsUser_country === "panama"
+                                                : null)
+                          )
+                          .map((beneficiary) => (
+                            <div
+                              className="beneficiary-card"
+                              key={beneficiary.accbsUser_id}
+                              onClick={() => handleBeneficiarySelect(beneficiary)}
+                            >
+                              <img
+                                src={
+                                  beneficiary.accbsUser_country === "venezuela"
+                                    ? venezuelaFlag
+                                    : beneficiary.accbsUser_country === "argentina"
+                                      ? argentina
+                                      : beneficiary.accbsUser_country === "colombia"
+                                        ? colombia
+                                        : beneficiary.accbsUser_country === "chile"
+                                          ? chile
+                                          : beneficiary.accbsUser_country === "ecuador"
+                                            ? ecuador
+                                            : beneficiary.accbsUser_country === "brasil"
+                                              ? brasil
+                                              : beneficiary.accbsUser_country === "peru"
+                                                ? peru
+                                                : beneficiary.accbsUser_country === "panama"
+                                                  ? panama
+                                                  : // Falta agregar el de Mexico
+                                                  null
+                                }
+                                alt="Venezuela flag"
+                                className="flag-icon"
+                              />
+                              <div className="beneficiary-info">
+                                <h3>{beneficiary.accbsUser_owner}</h3>
+                                <p>Cédula: {beneficiary.accbsUser_dni}</p>
+                                <p>Banco: {beneficiary.accbsUser_bank}</p>
+                                <p>
+                                  {beneficiary.accbsUser_type === "Pago Movil"
+                                    ? "Teléfono: " + beneficiary.accbsUser_phone
+                                    : "Cuenta: " + beneficiary.accbsUser_number}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                      <div className="form-actions">
+                        <button className="back-button" onClick={handleBack}>
+                          Volver
+                        </button>
+                        <button className="add-beneficiary-button" onClick={openModal}>
+                          Nuevo Beneficiario
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </>
+              </div>
+            </>
+          )}
         </div>
       )}
-
       {/* Paso 3: Confirmación */}
-      {step === 3 && selectedBeneficiary && (
+      {step === 3 && (
         <div className="confirmation-step">
           <h2>Confirma los detalles</h2>
           <p>
             <strong>Moneda a enviar:</strong> {payment}
           </p>
           <p>
-            <strong>Monto a enviar:</strong> {amount} {payment}
+            <strong>Monto a enviar:</strong>{" "}
+            {withdrawalMethod === "efectivo"
+              ? calculateValue(amount, payment, porcent)
+              : amount}{" "}
+            {payment}
           </p>
           <p>
-            <strong>Monto a recibir:</strong> {amountToReceive}
+            <strong>Monto a recibir:</strong>{" "}
+            {amountToReceive ? amountToReceive.toFixed(2) : amount}
           </p>
           <h3>Beneficiario seleccionado</h3>
           <p>
-            <strong>Nombre:</strong> {selectedBeneficiary.accbsUser_owner}
+            <strong>Nombre:</strong>{" "}
+            {selectedBeneficiary
+              ? selectedBeneficiary.accbsUser_owner
+              : receiverName}
           </p>
           <p>
-            <strong>Cédula:</strong> {selectedBeneficiary.accbsUser_dni}
+            <strong>Cédula:</strong>{" "}
+            {selectedBeneficiary
+              ? selectedBeneficiary.accbsUser_dni
+              : receiverDni}
           </p>
           <p>
-            <strong>Banco:</strong> {selectedBeneficiary.accbsUser_bank}
+            {selectedBeneficiary ? (
+              <strong>Banco: {selectedBeneficiary.accbsUser_bank} </strong>
+            ) : (
+              <strong>Dirección de entrega: {deliveryAddress}</strong>
+            )}
           </p>
-          <p>
-            <strong>
-              {selectedBeneficiary.accbsUser_type === "Pago Movil"
-                ? "Teléfono: " + selectedBeneficiary.accbsUser_phone
-                : "Cuenta: " + selectedBeneficiary.accbsUser_number}
-            </strong>
-          </p>
+          {selectedBeneficiary ? (
+            <p>
+              <strong>
+                {selectedBeneficiary.accbsUser_type === "Pago Movil"
+                  ? "Teléfono: " + selectedBeneficiary.accbsUser_phone
+                  : "Cuenta: " + selectedBeneficiary.accbsUser_number}
+              </strong>
+            </p>
+          ) : null}
 
           <div className="form-actions">
             <button className="back-button" onClick={handleBack}>
@@ -557,89 +1174,170 @@ function SendMoney() {
             </button>
             <h2>Agregar Nuevo Beneficiario</h2>
 
-            {/* Nombre y apellido */}
-            <label>Nombre y Apellido</label>
-            <input
-              type="text"
-              name="nombre"
-              value={accbsUser_owner}
-              onChange={(e) => setAccbsUser_owner(e.target.value)}
-              placeholder="Ingresa el nombre y apellido"
-            />
-
-            {/* Cédula */}
-            <label>Cédula</label>
-            <input
-              type="text"
-              name="cedula"
-              value={accbsUser_dni}
-              onChange={(e) => setAccbsUser_dni(e.target.value)}
-              placeholder="Ingresa la cédula"
-            />
-
-            {/* Selección de tipo de transacción */}
-            <label>Seleccione el tipo de transacción</label>
-            <select value={selectedOption} onChange={handleOptionChange}>
-              <option value="">Seleccione...</option>
-              <option value="Pago Movil">Pago Móvil</option>
-              <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+            {/* Selección del país */}
+            <label>País</label>
+            <select
+              value={accbsUser_country}
+              onChange={(e) => setAccbsUser_country(e.target.value)}
+            >
+              <option value="">Seleccione un país</option>
+              <option value="venezuela">Venezuela</option>
+              <option value="argentina">Argentina</option>
+              <option value="colombia">Colombia</option>
+              <option value="chile">Chile</option>
+              <option value="ecuador">Ecuador</option>
+              <option value="panama">Panamá</option>
+              <option value="mexico">México</option>
+              <option value="brasil">Brasil</option>
             </select>
-
-            {/* Campos dinámicos */}
-            {selectedOption === "Pago Movil" && (
-              <>
-                <label>Número de Teléfono</label>
-                <input
-                  type="text"
-                  name="telefono"
-                  value={accbsUser_phone}
-                  onChange={(e) => setAccbsUser_phone(e.target.value)}
-                  placeholder="Ingresa el número de teléfono"
-                />
-                <label>Banco</label>
-                <select
-                  name="banco"
-                  value={accbsUser_bank}
-                  onChange={(e) => setAccbsUser_bank(e.target.value)}
-                >
-                  <option value="">Selecciona el banco</option>
-                  <option value="Banco de Venezuela">Banco de Venezuela</option>
-                  <option value="Banesco">Banesco</option>
-                  <option value="Mercantil">Mercantil</option>
-                  {/* Otros bancos de Venezuela */}
-                </select>
-              </>
+            {errors.accbsUser_country && (
+              <span className="error">{errors.accbsUser_country}</span>
             )}
 
-            {selectedOption === "Cuenta Bancaria" && (
+            {/* Mostrar el resto del formulario solo si se selecciona un país */}
+            {accbsUser_country && (
               <>
-                <label>Cuenta Bancaria</label>
+                {/* Nombre y apellido */}
+                <label>Nombre y Apellido</label>
                 <input
                   type="text"
-                  name="cuenta"
-                  value={accbsUser_number}
-                  onChange={(e) => setAccbsUser_number(e.target.value)}
-                  placeholder="Ingresa el número de cuenta"
+                  name="nombre"
+                  value={accbsUser_owner}
+                  onChange={(e) => setAccbsUser_owner(e.target.value)}
+                  placeholder="Ingresa el nombre y apellido"
                 />
-                <label>Banco</label>
+                {errors.accbsUser_owner && (
+                  <span className="error">{errors.accbsUser_owner}</span>
+                )}
+
+                {/* Cédula */}
+                <label>Cédula</label>
+                <div className="cedula-input">
+                  <input
+                    type="text"
+                    name="cedula"
+                    value={accbsUser_dni}
+                    onChange={(e) => setAccbsUser_dni(e.target.value)}
+                    placeholder="Ingresa la cédula"
+                  />
+                </div>
+                {errors.accbsUser_dni && (
+                  <span className="error">{errors.accbsUser_dni}</span>
+                )}
+
+                {/* Selección de tipo de transacción */}
+                <label>Seleccione el tipo de transacción</label>
                 <select
-                  name="banco"
-                  value={accbsUser_bank}
-                  onChange={(e) => setAccbsUser_bank(e.target.value)}
+                  value={accbsUser_type}
+                  onChange={(e) => setAccbsUser_type(e.target.value)}
                 >
-                  <option value="">Selecciona el banco</option>
-                  <option value="Banco de Venezuela">Banco de Venezuela</option>
-                  <option value="Banesco">Banesco</option>
-                  <option value="Mercantil">Mercantil</option>
-                  {/* Otros bancos de Venezuela */}
+                  <option value="">Seleccione...</option>
+                  {accbsUser_country === "venezuela" && (
+                    <option value="Pago Movil">Pago Móvil</option>
+                  )}
+                  <option value="Cuenta Bancaria">Cuenta Bancaria</option>
                 </select>
+                {errors.accbsUser_type && (
+                  <span className="error">{errors.accbsUser_type}</span>
+                )}
+
+                {/* Campos dinámicos */}
+                {accbsUser_type === "Pago Movil" && (
+                  <>
+                    {/* Número de Teléfono */}
+                    <label>Número de Teléfono</label>
+                    <div className="telefono-input">
+                      <select
+                        name="prefijoTelefono"
+                        className="telefono-prefix"
+                        value={telefonoPrefix}
+                        onChange={(e) => setTelefonoPrefix(e.target.value)}
+                      >
+                        <option value="0414">0414</option>
+                        <option value="0424">0424</option>
+                        <option value="0412">0412</option>
+                        <option value="0416">0416</option>
+                        <option value="0426">0426</option>
+                      </select>
+                      <input
+                        type="text"
+                        name="telefono"
+                        value={accbsUser_phone}
+                        onChange={(e) => setAccbsUser_phone(e.target.value)}
+                        placeholder="Ingresa el número telefónico"
+                      />
+                    </div>
+                    {errors.accbsUser_phone && (
+                      <span className="error">{errors.accbsUser_phone}</span>
+                    )}
+
+                    <label>Banco</label>
+                    <select
+                      name="banco"
+                      value={accbsUser_bank}
+                      onChange={(e) => setAccbsUser_bank(e.target.value)}
+                    >
+                      <option value="">Selecciona el banco</option>
+                      {banksByCountry[accbsUser_country]?.map((bank) => (
+                        <option key={bank} value={bank}>
+                          {bank}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.accbsUser_bank && (
+                      <span className="error">{errors.accbsUser_bank}</span>
+                    )}
+
+                    <button
+                      onClick={handleAddAccountSubmit}
+                      className="submit-button"
+                    >
+                      Guardar Beneficiario
+                    </button>
+                  </>
+                )}
+
+                {accbsUser_type === "Cuenta Bancaria" && (
+                  <>
+                    <label>Cuenta Bancaria</label>
+                    <input
+                      type="text"
+                      name="cuenta"
+                      value={accbsUser_number}
+                      onChange={(e) => setAccbsUser_number(e.target.value)}
+                      placeholder="Ingresa el número de cuenta"
+                    />
+                    {errors.accbsUser_number && (
+                      <span className="error">{errors.accbsUser_number}</span>
+                    )}
+
+                    <label>Banco</label>
+                    <select
+                      name="banco"
+                      value={accbsUser_bank}
+                      onChange={(e) => setAccbsUser_bank(e.target.value)}
+                    >
+                      <option value="">Selecciona el banco</option>
+                      {banksByCountry[accbsUser_country]?.map((bank) => (
+                        <option key={bank} value={bank}>
+                          {bank}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.accbsUser_bank && (
+                      <span className="error">{errors.accbsUser_bank}</span>
+                    )}
+
+                    <button
+                      onClick={handleAddAccountSubmit}
+                      className="submit-button"
+                    >
+                      Guardar Beneficiario
+                    </button>
+                  </>
+                )}
               </>
             )}
-
-            {/* Botón para guardar */}
-            <button className="submit-button" onClick={handleAddAccountSubmit}>
-              Guardar Beneficiario
-            </button>
           </div>
         </div>
       )}

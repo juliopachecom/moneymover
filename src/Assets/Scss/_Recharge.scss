@@ -6,7 +6,7 @@
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.5s ease;
-  font-family: 'Poppins', sans-serif; 
+  font-family: "Poppins", sans-serif;
 
   h1 {
     font-size: 24px;
@@ -32,7 +32,7 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 30px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 
     .step {
       display: flex;
@@ -114,7 +114,6 @@
       }
     }
   }
-  
 
   /* Estilos de animación entre pasos */
   .fade-enter {
@@ -152,7 +151,6 @@
       text-align: center;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.3s ease;
-      
 
       &:hover {
         background-color: #cde978;
@@ -175,8 +173,6 @@
       }
     }
   }
-
-  
 
   /* Estilos para selects, inputs, y otros campos editables */
   select,
@@ -214,6 +210,20 @@
       flex-direction: column;
       margin-bottom: 15px;
 
+      input {
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s ease;
+        width: 100%;
+
+        &:focus {
+          border-color: #003366;
+        }
+      }
+
       label {
         font-size: 16px;
         color: #333;
@@ -239,7 +249,6 @@
   .finish-button {
     background-color: #6c757d;
   }
-
 
   .iban-info {
     background-color: #e0f7fa;

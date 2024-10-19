@@ -121,14 +121,21 @@
       }
     }
 
+    .table-responsive {
+      overflow-x: auto; // Permitir desplazamiento horizontal
+      -webkit-overflow-scrolling: touch; // Mejora el desplazamiento en dispositivos táctiles
+      width: 100%; // Ocupar todo el ancho disponible
+    }
+    
     table {
-      width: 100%;
+      
+      width: 100%; // Asegurarte de que la tabla ocupe el 100% del ancho del contenedor
+      min-width: 600px; // Establece un ancho mínimo para la tabla
       background-color: white;
       border-collapse: separate;
       border-spacing: 0 10px; // Espaciado entre filas
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       border-radius: 10px;
-      overflow: hidden;
       font-family: 'Open Sans', sans-serif;
 
       thead {

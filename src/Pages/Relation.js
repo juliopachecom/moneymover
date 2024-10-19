@@ -7,7 +7,7 @@ function Relation() {
   const transacciones = ([
     { nombre: "Ruben Quintana", recarga: 100, retirada: 30, venezuela: 1200, tasa: 40, moneda: "USD", fecha: "2024-09-16" },
     { nombre: "Wilfredo Vargas", recarga: 80, retirada: 20, venezuela: 1000, tasa: 50, moneda: "EUR", fecha: "2024-09-17" },
-    { nombre: "Andrea Quintero", recarga: 80, retirada: 0, venezuela: 3200, tasa: 40, moneda: "GBP", fecha: "2024-09-17" },
+    { nombre: "Andrea Quintero", recarga: 150, retirada: 0, venezuela: 3200, tasa: 40, moneda: "GBP", fecha: "2024-09-17" },
     // ... agregar más datos
   ]);
 
@@ -22,17 +22,15 @@ function Relation() {
   ]);
 
   const [showSaldoModal, setShowSaldoModal] = useState(false);
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
 
   // Establecer fecha del sistema como valor predeterminado
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setFechaFiltro(today);
   }, []);
-
-  // Totales calculados
-  const calcularTotales = (campo) => {
-    return transacciones.reduce((total, transaccion) => total + (transaccion[campo] || 0), 0);
-  };
 
   // Filtrar transacciones por moneda y fecha
   const filtrarTransacciones = () => {
@@ -57,10 +55,41 @@ function Relation() {
 
   const transaccionesFiltradas = filtrarTransacciones();
 
+  // Totales calculados
+  const calcularTotales = (campo) => {
+    return transacciones.reduce((total, transaccion) => total + (transaccion[campo] || 0), 0);
+  };
+
+  // Función para calcular las recargas por usuario
+  const calcularRecargasPorUsuario = () => {
+    const recargasPorUsuario = transacciones.reduce((acc, transaccion) => {
+      if (!acc[transaccion.nombre]) {
+        acc[transaccion.nombre] = { recargaTotal: 0 };
+      }
+      acc[transaccion.nombre].recargaTotal += transaccion.recarga;
+      return acc;
+    }, {});
+
+    return Object.entries(recargasPorUsuario)
+      .map(([nombre, { recargaTotal }]) => ({ nombre, recargaTotal }))
+      .sort((a, b) => b.recargaTotal - a.recargaTotal);
+  };
+
+  const recargasFiltradas = () => {
+    const recargas = calcularRecargasPorUsuario();
+    return recargas.filter((usuario) => {
+      const fechaUsuario = transacciones.find(trans => trans.nombre === usuario.nombre)?.fecha;
+      return (
+        (!fechaDesde || fechaUsuario >= fechaDesde) &&
+        (!fechaHasta || fechaUsuario <= fechaHasta)
+      );
+    });
+  };
+
   return (
     <div className="relation-dashboard">
       <div className="dashboard-content">
-      <NavBarAdmin /> {/* Ahora colocado debajo de dashboard-content */}
+        <NavBarAdmin />
         <h2 className="section-title">Relación de Recargas y Retiros</h2>
 
         {/* Filtro de Fecha */}
@@ -156,6 +185,13 @@ function Relation() {
           </button>
         </div>
 
+        {/* Botón para mostrar relación de usuarios */}
+        <div className="positive-balance-button">
+          <button className="btn btn-primary" onClick={() => setShowUsersModal(true)}>
+            Relación de Usuarios
+          </button>
+        </div>
+
         {/* Modal de Usuarios con Saldos Positivos */}
         {showSaldoModal && (
           <div className="modal show">
@@ -189,9 +225,53 @@ function Relation() {
             </div>
           </div>
         )}
-      </div>
 
-     
+        {/* Modal de Relación de Usuarios */}
+        {showUsersModal && (
+          <div className="modal show">
+            <div className="modal-content">
+              <h3>Relación de Usuarios</h3>
+              <div className="date-filters">
+                <label htmlFor="fechaDesde">Desde:</label>
+                <input
+                  type="date"
+                  id="fechaDesde"
+                  value={fechaDesde}
+                  onChange={(e) => setFechaDesde(e.target.value)}
+                />
+                <label htmlFor="fechaHasta">Hasta:</label>
+                <input
+                  type="date"
+                  id="fechaHasta"
+                  value={fechaHasta}
+                  onChange={(e) => setFechaHasta(e.target.value)}
+                />
+              </div>
+              <table className="users-relation-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Total Recarga</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recargasFiltradas().map((usuario, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{usuario.nombre}</td>
+                      <td>${usuario.recargaTotal}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button className="btn btn-secondary" onClick={() => setShowUsersModal(false)}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

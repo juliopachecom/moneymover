@@ -18,11 +18,7 @@ function Recharge() {
 
   // Datos Usuario
   const [user, setUser] = useState([]);
-  // const [userMovemments, setUserMovemments] = useState([]);
-  // const [userDirectory, setUserDirectory] = useState([]);
-  // const [currencyPrice, setCurrencyPrice] = useState([]);
-  // const [cash, setCash] = useState("");
-  // const [cashPhone, setCashPhone] = useState("");
+
 
   // Datos de los bancos
   const [banksEUR, setBanksEUR] = useState([]);

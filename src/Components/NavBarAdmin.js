@@ -12,7 +12,7 @@ function NavBarAdmin() {
   return (
     <nav className="navbar-admin">
       <div className="navbar-admin-logo">
-        <img src={logo} alt="Admin Logo" />
+      <Link to='/admindashboard'>  <img src={logo} alt="Admin Logo" /></Link>
       </div>
 
       {/* Main Navigation */}

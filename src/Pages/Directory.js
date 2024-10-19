@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
+import chile from "../Assets/Images/chile.png";
+import colombia from "../Assets/Images/colombia.png";
+import ecuador from "../Assets/Images/ecuador.png";
+import argentina from "../Assets/Images/argentina.png";
+import brasil from "../Assets/Images/square.png";
+import peru from "../Assets/Images/peru.png";
+import panama from "../Assets/Images/panama.png";
 import { NavBarUser } from "../Components/NavBarUser";
 import axios from "axios";
 import { useDataContext } from "../Context/dataContext";
@@ -19,6 +26,13 @@ function Directory() {
   const [accbsUser_type, setAccbsUser_type] = useState("");
   const [accbsUser_country, setAccbsUser_country] = useState("");
 
+  //Alternar entre activos e inactivos
+  const [showInactive, setShowInactive] = useState(false);
+
+  const toggleShowInactive = () => {
+    setShowInactive(!showInactive);
+  };
+
   // Estado para validaciones
   const [errors, setErrors] = useState({});
 
@@ -26,9 +40,8 @@ function Directory() {
   const [user, setUser] = useState([]);
   const [userDirectory, setUserDirectory] = useState([]);
 
-  // Prefijos para cédula y teléfono
-  const [cedulaPrefix, setCedulaPrefix] = useState("V");
-  const [telefonoPrefix, setTelefonoPrefix] = useState("0414");
+  // Prefijos para teléfono
+  const [telefonoPrefix, setTelefonoPrefix] = useState("");
 
   // Fetch de datos del usuario
   const fetchDataUser = useCallback(async () => {
@@ -75,7 +88,7 @@ function Directory() {
       newErrors.accbsUser_dni = "La cédula es requerida.";
     }
 
-    if (accbsUser_type === "pagoMovil") {
+    if (accbsUser_type === "Pago Movil") {
       if (!accbsUser_phone) {
         newErrors.accbsUser_phone = "El número telefónico es requerido.";
       } else if (!/^\d+$/.test(accbsUser_phone)) {
@@ -85,7 +98,7 @@ function Directory() {
         newErrors.accbsUser_phone =
           "El número telefónico debe tener 7 dígitos.";
       }
-    } else if (accbsUser_type === "cuentaBancaria") {
+    } else if (accbsUser_type === "Cuenta Bancaria") {
       if (!accbsUser_number) {
         newErrors.accbsUser_number = "El número de cuenta es requerido.";
       } else if (!/^\d+$/.test(accbsUser_number)) {
@@ -123,11 +136,12 @@ function Directory() {
           accbsUser_bank,
           accbsUser_owner,
           accbsUser_number,
-          accbsUser_dni: cedulaPrefix + accbsUser_dni,
+          accbsUser_dni,
           accbsUser_phone: telefonoPrefix + accbsUser_phone,
           accbsUser_type,
           accbsUser_status: "activo",
           accbsUser_userId: user.use_id,
+          accbsUser_country,
         },
         {
           headers: {
@@ -161,6 +175,59 @@ function Directory() {
     }
   };
 
+  const handleStatus = async (beneficiario) => {
+    try {
+      if (beneficiario.accbsUser_status === "Inactivo") {
+        await axios.put(
+          `${url}/AccBsUser/${beneficiario.accbsUser_id}`,
+          {
+            accbsUser_status: "Activo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else {
+        await axios.put(
+          `${url}/AccBsUser/${beneficiario.accbsUser_id}`,
+          {
+            accbsUser_status: "Inactivo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+
+      window.location.reload();
+
+      toast.success("Cuenta desactivada con éxito!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al desactivar la cuenta", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
+
   useEffect(() => {
     fetchDataUser();
   }, [fetchDataUser]);
@@ -171,33 +238,69 @@ function Directory() {
       <div className="directorio__header">
         <h1>Tus Beneficiarios</h1>
         <div className="directorio__actions">
-          <button className="action-button">Ver inactivos</button>
+          <button className="action-button" onClick={toggleShowInactive}>
+            {showInactive ? 'Ver activos' : 'Ver inactivos'}
+          </button>
           <button className="action-button" onClick={toggleModal}>
             Nuevo beneficiario
           </button>
         </div>
       </div>
       <div className="directorio__list">
-        {userDirectory.map((beneficiario) => (
-          <div className="beneficiario-card" key={beneficiario.accbsUser_id}>
-            <img
-              src={venezuelaFlag}
-              alt="Venezuela flag"
-              className="flag-icon"
-            />
-            <div className="beneficiario-info">
-              <h3>{beneficiario.accbsUser_owner}</h3>
-              <p>Transferencia bancaria</p>
-              <p>Cédula: {beneficiario.accbsUser_dni}</p>
-              <p>Banco: {beneficiario.accbsUser_bank}</p>
-              <p>Cuenta: {beneficiario.accbsUser_number}</p>
-              <p>Número teléfonico: {beneficiario.accbsUser_phone}</p>
-              <p>{beneficiario.accbsUser_type}</p>
+        {userDirectory
+          .filter((beneficiario) => 
+            showInactive ? beneficiario.accbsUser_status === 'Inactivo' : beneficiario.accbsUser_status === 'Activo'
+          )
+          .map((beneficiario) => (
+            <div className="beneficiario-card" key={beneficiario.accbsUser_id}>
+              <img
+                src={
+                  beneficiario.accbsUser_country === "venezuela"
+                    ? venezuelaFlag
+                    : beneficiario.accbsUser_country === "argentina"
+                    ? argentina
+                    : beneficiario.accbsUser_country === "colombia"
+                    ? colombia
+                    : beneficiario.accbsUser_country === "chile"
+                    ? chile
+                    : beneficiario.accbsUser_country === "ecuador"
+                    ? ecuador
+                    : beneficiario.accbsUser_country === "brasil"
+                    ? brasil
+                    : beneficiario.accbsUser_country === "peru"
+                    ? peru
+                    : beneficiario.accbsUser_country === "panama"
+                    ? panama
+                    : //Falta agregar el de Mexico
+                      null
+                }
+                alt="flag"
+                className="flag-icon"
+              />
+              <div className="beneficiario-info">
+                <h3>{beneficiario.accbsUser_owner}</h3>
+                <p>Transferencia bancaria</p>
+                <p>Cédula: {beneficiario.accbsUser_dni}</p>
+                <p>Banco: {beneficiario.accbsUser_bank}</p>
+                <p>Cuenta: {beneficiario.accbsUser_number}</p>
+                <p>Número teléfonico: {beneficiario.accbsUser_phone}</p>
+                <p>{beneficiario.accbsUser_type}</p>
+              </div>
+              <button className="remesa-button" onClick={
+                () => {
+                  window.location.href = `/sendmoney`;
+                }
+              }>Envía tu Remesa</button>
+              <span
+                className="estado"
+                onClick={() => {
+                  handleStatus(beneficiario);
+                }}
+              >
+                {beneficiario.accbsUser_status}
+              </span>
             </div>
-            <button className="remesa-button">Envía tu Remesa</button>
-            <span className="estado">Activo</span>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Modal para agregar nuevo beneficiario */}
@@ -249,17 +352,6 @@ function Directory() {
                 {/* Cédula */}
                 <label>Cédula</label>
                 <div className="cedula-input">
-                  <select
-                    name="prefijoCedula"
-                    className="cedula-prefix"
-                    value={cedulaPrefix}
-                    onChange={(e) => setCedulaPrefix(e.target.value)}
-                  >
-                    <option value="V">V</option>
-                    <option value="E">E</option>
-                    <option value="J">J</option>
-                    <option value="P">P</option>
-                  </select>
                   <input
                     type="text"
                     name="cedula"
@@ -280,16 +372,16 @@ function Directory() {
                 >
                   <option value="">Seleccione...</option>
                   {accbsUser_country === "venezuela" && (
-                    <option value="pagoMovil">Pago Móvil</option>
+                    <option value="Pago Movil">Pago Móvil</option>
                   )}
-                  <option value="cuentaBancaria">Cuenta Bancaria</option>
+                  <option value="Cuenta Bancaria">Cuenta Bancaria</option>
                 </select>
                 {errors.accbsUser_type && (
                   <span className="error">{errors.accbsUser_type}</span>
                 )}
 
                 {/* Campos dinámicos */}
-                {accbsUser_type === "pagoMovil" && (
+                {accbsUser_type === "Pago Movil" && (
                   <>
                     {/* Número de Teléfono */}
                     <label>Número de Teléfono</label>
@@ -334,10 +426,17 @@ function Directory() {
                     {errors.accbsUser_bank && (
                       <span className="error">{errors.accbsUser_bank}</span>
                     )}
+
+                    <button
+                      onClick={handleAddAccountSubmit}
+                      className="submit-button"
+                    >
+                      Guardar Beneficiario
+                    </button>
                   </>
                 )}
 
-                {accbsUser_type === "cuentaBancaria" && (
+                {accbsUser_type === "Cuenta Bancaria" && (
                   <>
                     <label>Cuenta Bancaria</label>
                     <input
@@ -368,8 +467,12 @@ function Directory() {
                       <span className="error">{errors.accbsUser_bank}</span>
                     )}
 
-<button onClick={handleAddAccountSubmit} className="submit-button">Guardar Beneficiario</button>
-
+                    <button
+                      onClick={handleAddAccountSubmit}
+                      className="submit-button"
+                    >
+                      Guardar Beneficiario
+                    </button>
                   </>
                 )}
               </>

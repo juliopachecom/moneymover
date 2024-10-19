@@ -6,6 +6,30 @@
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
+  .error {
+    color: #d9534f; // Color rojo para el mensaje de error
+    font-size: 14px; // Tamaño de fuente
+    margin-top: 4px; // Espacio arriba del mensaje
+    display: block; // Asegúrate de que el mensaje ocupe su propia línea
+  }
+  
+
+  .continue-button {
+    background-color: #003366;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: none;
+
+    &:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+  }
+
   h1 {
     font-size: 24px;
     font-weight: bold;

@@ -288,7 +288,7 @@ function Users() {
             <FaPlus /> Añadir Usuario
           </button>
 
-          <table className="users-table">
+          <table className="table-responsive">
             <thead>
               <tr>
                 <th>ID</th>

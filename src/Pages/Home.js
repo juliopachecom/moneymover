@@ -67,6 +67,7 @@ function Home() {
     console.log("Calculated receive amount:", result);
     setReceiveAmount(result);
   }, [sendCountry, receiveCountry, sendAmount, exchangeRate]);
+
   const fetchExchangeRate = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/CurrencyPrice`, {
