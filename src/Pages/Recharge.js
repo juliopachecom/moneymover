@@ -15,6 +15,9 @@ function Recharge() {
   const [errorMessage, setErrorMessage] = useState(""); // Para manejar el error en el paso 4
   const [transactionError, setTransactionError] = useState(false); // Controla si hubo un problema
   const [transactionDone, setTransactionDone] = useState(false); // Controla si la transacción ya fue intentada
+  const [isValid, setIsValid] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+
 
   // Datos Usuario
   const [user, setUser] = useState([]);
@@ -215,6 +218,14 @@ function Recharge() {
   const handleAmountChangeBs = (e) => {
     const inputAmount = e.target.value;
     setSendAmount(inputAmount);
+
+    if (inputAmount < 20) {
+      setFeedbackMessage('Solo aceptamos transferencias a partir de 20 euros.');
+      setIsValid(false);
+    } else if (inputAmount >= 20) {
+      setFeedbackMessage('Monto válido para transferencia.');
+      setIsValid(true);
+    }
 
     // currencyPrice.forEach((coin) => {
     //   if (payment === "EUR") {
@@ -503,16 +514,28 @@ function Recharge() {
                       ) : null;
                     })
                   : null)}
-              <div className="form-group">
-                <label>Monto a transferir</label>
-                <input
-                  type="number"
-                  className="custom-form-input"
-                  placeholder="Introduce el monto"
-                  value={sendAmount}
-                  onChange={(e) => handleAmountChangeBs(e)}
-                />
-              </div>
+             <div className="form-group">
+      <label>Monto a transferir       <span style={{ color: 'red', marginTop: '5px', marginLeft: '10px' }}>🔴 Solo aceptamos transferencias a partir de 20 euros.</span>
+</label>
+
+      <input
+        type="number"
+        className={`custom-form-input ${isValid ? 'valid' : 'invalid'}`} // Agregar clase de validación
+        placeholder="Introduce el monto"
+        value={sendAmount}
+        onChange={handleAmountChangeBs}
+      />
+      <div className="warning-message" style={{ color: 'red', marginTop: '5px' }}>
+        {/* Mensaje de advertencia */}
+        {sendAmount && sendAmount < 20 && <span>🔴 Solo aceptamos transferencias a partir de 20 euros.</span>}
+      </div>
+      {isValid && (
+        <div className="form-feedback" style={{ color: 'green', marginTop: '5px' }}>
+          {/* Mensaje de feedback */}
+          <span>✅ Monto válido para transferencia.</span>
+        </div>
+      )}
+    </div>
             </div>
           )}
 
