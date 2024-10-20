@@ -4,11 +4,10 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
-import { Redirect } from "react-router-dom";
 
 function Login() {
   const history = useHistory();
-  const { logged, setLogged, setInfoTkn, url } = useDataContext();
+  const { logged,  setLogged, setInfoTkn, url } = useDataContext();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +33,7 @@ function Login() {
         state: {
           user: tkn,
         },
+        
       });
     } catch (error) {
       toast.error(
@@ -44,7 +44,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(logged)
     try {
       const success = await fetchData(user, password);
       if (!success) {

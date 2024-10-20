@@ -262,6 +262,8 @@ function Directory() {
                     ? venezuelaFlag
                     : beneficiario.accbsUser_country === "argentina"
                     ? argentina
+                    : beneficiario.accbsUser_country === "Venezuela"
+                    ? venezuelaFlag
                     : beneficiario.accbsUser_country === "colombia"
                     ? colombia
                     : beneficiario.accbsUser_country === "chile"
@@ -326,14 +328,15 @@ function Directory() {
               onChange={(e) => setAccbsUser_country(e.target.value)}
             >
               <option value="">Seleccione un país</option>
-              <option value="venezuela">Venezuela</option>
-              <option value="argentina">Argentina</option>
-              <option value="colombia">Colombia</option>
-              <option value="chile">Chile</option>
-              <option value="ecuador">Ecuador</option>
-              <option value="panama">Panamá</option>
-              <option value="mexico">México</option>
-              <option value="brasil">Brasil</option>
+              <option value="Venezuela">Venezuela</option>
+              <option value="Argentina">Argentina</option>
+              <option value="Colombia">Colombia</option>
+              <option value="Chile">Chile</option>
+              <option value="Ecuador">Ecuador</option>
+              <option value="Panama">Panamá</option>
+              <option value="Mexico">México</option>
+              <option value="Brasil">Brasil</option>
+              <option value="Estados Unidos">Estados Unidos</option>
             </select>
             {errors.accbsUser_country && (
               <span className="error">{errors.accbsUser_country}</span>
@@ -377,7 +380,7 @@ function Directory() {
                   onChange={(e) => setAccbsUser_type(e.target.value)}
                 >
                   <option value="">Seleccione...</option>
-                  {accbsUser_country === "venezuela" && (
+                  {accbsUser_country === "Venezuela" && (
                     <option value="Pago Movil">Pago Móvil</option>
                   )}
                   <option value="Cuenta Bancaria">Cuenta Bancaria</option>

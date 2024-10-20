@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
+import { NotFound } from "../Components/NotFound";
 
 function Recharge() {
   const { logged, infoTkn, url } = useDataContext();
@@ -17,12 +18,10 @@ function Recharge() {
   const [transactionError, setTransactionError] = useState(false); // Controla si hubo un problema
   const [transactionDone, setTransactionDone] = useState(false); // Controla si la transacción ya fue intentada
   const [isValid, setIsValid] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState('');
-
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   // Datos Usuario
   const [user, setUser] = useState([]);
-
 
   // Datos de los bancos
   const [banksEUR, setBanksEUR] = useState([]);
@@ -43,6 +42,8 @@ function Recharge() {
   const [bankOptionPay, setBankOptionPay] = useState("");
   const [mov_img, setMov_img] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [cash, setCash] = useState("");
+  const [cashPhone, setCashPhone] = useState("");
   // const [showConfirmationr, setShowConfirmationr] = useState(false);
 
   // Fetch de datos del usuario (Incluye movimientos y directorio)
@@ -137,11 +138,12 @@ function Recharge() {
     const formData = new FormData();
     formData.append("mov_currency", payment);
     formData.append("mov_amount", sendAmount);
+    formData.append("mov_oldAmount", 0);
     formData.append("mov_type", "Deposito");
     formData.append("mov_status", "E");
     formData.append("mov_comment", findBankName());
-    formData.append("mov_code", "cash");
-    formData.append("mov_phone", "cashPhone");
+    formData.append("mov_code", cash);
+    formData.append("mov_phone", cashPhone);
     formData.append("mov_img", mov_img);
     formData.append(
       "mov_accEurId",
@@ -177,11 +179,14 @@ function Recharge() {
         }
       );
 
-      // setShowConfirmationr(false);
-
+      // await sendPaymentNotification();
+      setTransactionDone(true);
+      setTransactionError(false); // asegurarse de que el error esté en false
       console.log("Request sent successfully");
     } catch (error) {
-      console.error("Error:", error);
+      setTransactionDone(false);
+      console.log(transactionDone);
+    setTransactionError(true);;
     }
   };
 
@@ -221,10 +226,11 @@ function Recharge() {
     setSendAmount(inputAmount);
 
     if (inputAmount < 20) {
-      setFeedbackMessage('Solo aceptamos transferencias a partir de 20 euros.');
+      setFeedbackMessage("Solo aceptamos transferencias a partir de 20 euros.");
       setIsValid(false);
     } else if (inputAmount >= 20) {
-      setFeedbackMessage('Monto válido para transferencia.');
+      console.log(feedbackMessage);
+      setFeedbackMessage("Monto válido para transferencia.");
       setIsValid(true);
     }
 
@@ -257,9 +263,8 @@ function Recharge() {
       if (
         (selectedMethod === "efectivoBBVA" ||
           selectedMethod === "efectivoSantander") &&
-        (!document.querySelector('input[placeholder="Nombre"]').value ||
-          !document.querySelector('input[placeholder="Teléfono"]').value ||
-          !document.querySelector('input[placeholder="Código"]').value)
+          cashPhone === "" &&
+          cash === ""
       ) {
         setErrorMessage(
           "Por favor, completa todos los campos de Efectivo Móvil."
@@ -298,13 +303,7 @@ function Recharge() {
   };
 
   // Simulación de transacción aleatoria
-  useEffect(() => {
-    if (step === 4 && !transactionDone) {
-      const isSuccess = Math.random() > 0.5; // Generar aleatoriamente si la transacción es exitosa o fallida
-      setTransactionError(!isSuccess); // true si falla, false si es exitosa
-      setTransactionDone(true); // Marcar como que la transacción ya fue intentada
-    }
-  }, [step, transactionDone]);
+ 
 
   const resetRecharge = () => {
     setStep(1);
@@ -323,7 +322,8 @@ function Recharge() {
     setImageUrl(URL.createObjectURL(file));
   };
 
-  return logged? (
+  return logged ? (
+    user.use_verif !== "E" && user.use_verif !== "R" ? ( // Verificar si el usuario está verificado
     <div className="recharge">
       <NavBarUser />
       <h1>Recargar Saldo</h1>
@@ -515,28 +515,50 @@ function Recharge() {
                       ) : null;
                     })
                   : null)}
-             <div className="form-group">
-      <label>Monto a transferir       <span style={{ color: 'red', marginTop: '5px', marginLeft: '10px' }}>🔴 Solo aceptamos transferencias a partir de 20 euros.</span>
-</label>
+              <div className="form-group">
+                <label>
+                  Monto a transferir{" "}
+                  <span
+                    style={{
+                      color: "red",
+                      marginTop: "5px",
+                      marginLeft: "10px",
+                    }}
+                  >
+                    🔴 Solo aceptamos transferencias a partir de 20 euros.
+                  </span>
+                </label>
 
-      <input
-        type="number"
-        className={`custom-form-input ${isValid ? 'valid' : 'invalid'}`} // Agregar clase de validación
-        placeholder="Introduce el monto"
-        value={sendAmount}
-        onChange={handleAmountChangeBs}
-      />
-      <div className="warning-message" style={{ color: 'red', marginTop: '5px' }}>
-        {/* Mensaje de advertencia */}
-        {sendAmount && sendAmount < 20 && <span>🔴 Solo aceptamos transferencias a partir de 20 euros.</span>}
-      </div>
-      {isValid && (
-        <div className="form-feedback" style={{ color: 'green', marginTop: '5px' }}>
-          {/* Mensaje de feedback */}
-          <span>✅ Monto válido para transferencia.</span>
-        </div>
-      )}
-    </div>
+                <input
+                  type="number"
+                  className={`custom-form-input ${
+                    isValid ? "valid" : "invalid"
+                  }`} // Agregar clase de validación
+                  placeholder="Introduce el monto"
+                  value={sendAmount}
+                  onChange={handleAmountChangeBs}
+                />
+                <div
+                  className="warning-message"
+                  style={{ color: "red", marginTop: "5px" }}
+                >
+                  {/* Mensaje de advertencia */}
+                  {sendAmount && sendAmount < 20 && (
+                    <span>
+                      🔴 Solo aceptamos transferencias a partir de 20 euros.
+                    </span>
+                  )}
+                </div>
+                {isValid && (
+                  <div
+                    className="form-feedback"
+                    style={{ color: "green", marginTop: "5px" }}
+                  >
+                    {/* Mensaje de feedback */}
+                    <span>✅ Monto válido para transferencia.</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -554,6 +576,8 @@ function Recharge() {
                   type="text"
                   className="custom-form-input"
                   placeholder="Teléfono"
+                  value={cashPhone}
+                  onChange={(e) => setCashPhone(e.target.value)}
                 />
               </div>
               <div className="form-group">
@@ -562,6 +586,8 @@ function Recharge() {
                   type="text"
                   className="custom-form-input"
                   placeholder="Código"
+                  value={cash}
+                  onChange={(e) => setCash(e.target.value)}
                 />
               </div>
             </div>
@@ -655,41 +681,45 @@ function Recharge() {
 
       {/* Paso 4: Confirmación final */}
       <CSSTransition
-        in={step === 4}
-        timeout={300}
-        classNames="fade"
-        unmountOnExit
-      >
-        <div className="form-container-edit step-4">
-          <h2>
-            {transactionError ? "¡Ocurrió un problema!" : "¡Recarga Exitosa!"}
-          </h2>
-          <p>
-            {transactionError
-              ? "Hubo un error en la transacción. Por favor, intenta nuevamente más tarde."
-              : "En breve se verá reflejado el estatus de tu transferencia."}
-          </p>
-          {transactionError ? (
-            <FaTimesCircle size={50} color="#dc3545" />
-          ) : (
-            <FaCheckCircle size={50} color="#28a745" />
-          )}
+  in={step === 4}
+  timeout={300}
+  classNames="fade"
+  unmountOnExit
+>
+  <div className="form-container-edit step-4">
+    <h2>
+      {transactionError ? "¡Ocurrió un problema!" : "¡Recarga Exitosa!"}
+    </h2>
+    <p>
+      {transactionError
+        ? "Hubo un error en la transacción. Por favor, intenta nuevamente más tarde."
+        : "En breve se verá reflejado el estatus de tu transferencia."}
+    </p>
+    {transactionError ? (
+      <FaTimesCircle size={50} color="#dc3545" />
+    ) : (
+      <FaCheckCircle size={50} color="#28a745" />
+    )}
 
-          <div className="form-actions">
-            <button className="another-recharge-button" onClick={resetRecharge}>
-              Realizar otra recarga
-            </button>
-            <button
-              className="finish-button"
-              onClick={() => (window.location.href = "/changes")}
-            >
-              Finalizar
-            </button>
-          </div>
-        </div>
-      </CSSTransition>
-    </div>)
-    : (
+    <div className="form-actions">
+      <button className="another-recharge-button" onClick={resetRecharge}>
+        Realizar otra recarga
+      </button>
+      <button
+        className="finish-button"
+        onClick={() => (window.location.href = "/changes")}
+      >
+        Finalizar
+      </button>
+    </div>
+  </div>
+</CSSTransition>
+    </div>
+    
+    ) : (
+      <NotFound />  // Usar el componente NotFound aquí
+    )
+    ) : (
       <Redirect to="/login" />
   );
 }

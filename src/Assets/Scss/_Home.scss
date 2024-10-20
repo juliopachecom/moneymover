@@ -29,7 +29,7 @@
         align-items: center;
         width: 100%;
         padding: 60px 0;
-        background-color: #000000;
+        background-color: white;
         
         
         
@@ -57,7 +57,7 @@
         h1 {
           font-size: 36px;
           font-weight: 700;
-          color: white;
+          color: #003366;
           margin-bottom: 20px;
           
           @media (max-width: 768px) {
@@ -68,7 +68,7 @@
         p {
           font-size: 20px;
           margin-bottom: 30px;
-          color: white;
+          color: #333333;
           
           @media (max-width: 768px) {
             font-size: 18px;

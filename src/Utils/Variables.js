@@ -53,7 +53,7 @@ export const loginRoutes = [
 ];
 
 export const banksByCountry = {
-  venezuela: [
+  Venezuela: [
     "0102 - Banco de Venezuela, S.A. Banco Universal",
     "0104 - Banco Venezolano de Crédito, S.A. Banco Universal",
     "0105 - Banco Mercantil C.A., Banco Universal",
@@ -82,7 +82,7 @@ export const banksByCountry = {
     "0191 - Banco Nacional de Crédito C.A., Banco Universal",
     "0601 - Instituto Municipal de Crédito Popular"
   ],
-  argentina: [
+  Argentina: [
     "Banco de la Nación Argentina",
     "Banco de la Provincia de Buenos Aires",
     "Banco de la Ciudad de Buenos Aires",
@@ -99,7 +99,7 @@ export const banksByCountry = {
     "Banco Industrial"
   ],
   // Agrega más países y sus bancos aquí
-  colombia: [
+  Colombia: [
     "Banco de Bogotá",
     "Banco de Occidente",
     "Banco Popular",
@@ -112,7 +112,7 @@ export const banksByCountry = {
     "Bancoomeva",
     "Banco Falabella"
   ],
-  chile: [
+  Chile: [
     "Banco de Chile",
     "Banco Internacional",
     "Banco Itaú",
@@ -124,7 +124,7 @@ export const banksByCountry = {
     "Corpbanca",
     "Scotiabank"
   ],
-  ecuador: [
+  Ecuador: [
     "Banco del Pacífico",
     "Banco Pichincha",
     "Banco de Guayaquil",
@@ -134,7 +134,7 @@ export const banksByCountry = {
     "Banco del Austro",
     "Banco Solidario"
   ],
-  panama: [
+  Panama: [
     "Banco Nacional de Panamá",
     "Caja de Ahorros",
     "Banco General",
@@ -144,7 +144,7 @@ export const banksByCountry = {
     "Multibank",
     "Scotiabank"
   ],
-  mexico: [
+  Mexico: [
     "BBVA Bancomer",
     "Banamex",
     "Santander",
@@ -154,7 +154,7 @@ export const banksByCountry = {
     "Inbursa",
     "Banco Azteca"
   ],
-  brasil: [
+  Brasil: [
     "Banco do Brasil",
     "Caixa Econômica Federal",
     "Banco Bradesco",

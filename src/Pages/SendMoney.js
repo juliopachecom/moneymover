@@ -16,6 +16,7 @@ import axios from "axios";
 import { useHistory, Redirect } from "react-router-dom";
 import { banksByCountry } from "../Utils/Variables";
 import { Link } from "react-router-dom";
+import { NotFound } from "../Components/NotFound"; 
 
 function SendMoney() {
   const { logged, infoTkn, url } = useDataContext();
@@ -475,69 +476,69 @@ function SendMoney() {
     const getCurrencyPrice = (payment, country, coin) => {
       if (payment === "EUR") {
         switch (country) {
-          case "venezuela":
+          case "Venezuela":
             return coin.cur_EurToBs;
-          case "argentina":
+          case "Argentina":
             return coin.cur_EurToArg_Pes;
-          case "colombia":
+          case "Colombia":
             return coin.cur_EurToCol_Pes;
-          case "chile":
+          case "Chile":
             return coin.cur_EurToPes_Ch;
-          case "mexico":
+          case "Mexico":
             return coin.cur_EurToPes_Mex;
-          case "peru":
+          case "Peru":
             return coin.cur_EurToSol_Pe;
-          case "brasil":
+          case "Brasil":
             return coin.cur_EurToBra_Rea;
-          case "ecuador":
+          case "Ecuador":
             return coin.cur_EurToUsd_Ecu;
-          case "panama":
+          case "Panama":
             return coin.cur_EurToUsd_Pa;
           default:
             return null;
         }
       } else if (payment === "USD") {
         switch (country) {
-          case "venezuela":
+          case "Venezuela":
             return coin.cur_UsdToBs;
-          case "argentina":
+          case "Argentina":
             return coin.cur_UsdToArg_Pes;
-          case "colombia":
+          case "Colombia":
             return coin.cur_UsdToCol_Pes;
-          case "chile":
+          case "Chile":
             return coin.cur_UsdToPes_Ch;
-          case "mexico":
+          case "Mexico":
             return coin.cur_UsdToPes_Mex;
-          case "peru":
+          case "Peru":
             return coin.cur_UsdToSol_Pe;
-          case "brasil":
+          case "Brasil":
             return coin.cur_UsdToBra_Rea;
-          case "ecuador":
+          case "Ecuador":
             return coin.cur_UsdToUsd_Ecu;
-          case "panama":
+          case "Panama":
             return coin.cur_UsdToUsd_Pa;
           default:
             return null;
         }
       } else if (payment === "GBP") {
         switch (country) {
-          case "venezuela":
+          case "Venezuela":
             return coin.cur_GbpToBs;
-          case "argentina":
+          case "Argentina":
             return coin.cur_GbpToArg_Pes;
-          case "colombia":
+          case "Colombia":
             return coin.cur_GbpToCol_Pes;
-          case "chile":
+          case "Chile":
             return coin.cur_GbpToPes_Ch;
-          case "mexico":
+          case "Mexico":
             return coin.cur_GbpToPes_Mex;
-          case "peru":
+          case "Peru":
             return coin.cur_GbpToSol_Pe;
-          case "brasil":
+          case "Brasil":
             return coin.cur_GbpToBra_Rea;
-          case "ecuador":
+          case "Ecuador":
             return coin.cur_GbpToUsd_Ecu;
-          case "panama":
+          case "Panama":
             return coin.cur_GbpToUsd_Pa;
           default:
             return null;
@@ -626,8 +627,9 @@ function SendMoney() {
         }
       );
 
-      history.push("/changes");
-      console.log("Request sent successfully");
+      setTimeout(() => {
+        history.push("/changes"); // Redirigir de nuevo después de 3 segundos
+      }, 3000);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -653,6 +655,8 @@ function SendMoney() {
   }, [fetchCurrencyData, fetchDataUser, fetchDataPorcent]);
 
   return logged? (
+    user.use_verif !== "E" && user.use_verif !== "R" ? (  // Verificamos el valor de use_verif
+
     <div className="send-money">
       <NavBarUser />
 
@@ -1051,79 +1055,104 @@ function SendMoney() {
                     </div>
                   ) : (
                     <>
-                      <div className="beneficiaries-list">
-                        {userDirectory
-                          .filter(
-                            (beneficiario) =>
-                              beneficiario.accbsUser_status === "Activo" &&
-                              (selectedCurrency === "BS"
-                                ? beneficiario.accbsUser_country === "venezuela"
-                                : selectedCurrency === "ARS"
-                                ? beneficiario.accbsUser_country === "argentina"
-                                : selectedCurrency === "COP"
-                                ? beneficiario.accbsUser_country === "colombia"
-                                : selectedCurrency === "CLP"
-                                ? beneficiario.accbsUser_country === "chile"
-                                : selectedCurrency === "MXN"
-                                ? beneficiario.accbsUser_country === "mexico"
-                                : selectedCurrency === "PEN"
-                                ? beneficiario.accbsUser_country === "peru"
-                                : selectedCurrency === "BRL"
-                                ? beneficiario.accbsUser_country === "brasil"
-                                : selectedCurrency === "USD-EC"
-                                ? beneficiario.accbsUser_country === "ecuador"
-                                : selectedCurrency === "USD-PA"
-                                ? beneficiario.accbsUser_country === "panama"
-                                : null)
-                          )
-                          .map((beneficiary) => (
-                            <div
-                              className="beneficiary-card"
-                              key={beneficiary.accbsUser_id}
-                              onClick={() =>
-                                handleBeneficiarySelect(beneficiary)
-                              }
-                            >
-                              <img
-                                src={
-                                  beneficiary.accbsUser_country === "venezuela"
-                                    ? venezuelaFlag
-                                    : beneficiary.accbsUser_country ===
-                                      "argentina"
-                                    ? argentina
-                                    : beneficiary.accbsUser_country ===
-                                      "colombia"
-                                    ? colombia
-                                    : beneficiary.accbsUser_country === "chile"
-                                    ? chile
-                                    : beneficiary.accbsUser_country ===
-                                      "ecuador"
-                                    ? ecuador
-                                    : beneficiary.accbsUser_country === "brasil"
-                                    ? brasil
-                                    : beneficiary.accbsUser_country === "peru"
-                                    ? peru
-                                    : beneficiary.accbsUser_country === "panama"
-                                    ? panama
-                                    : // Falta agregar el de Mexico
-                                      null
-                                }
-                                alt="Venezuela flag"
-                                className="flag-icon"
-                              />
-                              <div className="beneficiary-info">
-                                <h3>{beneficiary.accbsUser_owner}</h3>
-                                <p>Cédula: {beneficiary.accbsUser_dni}</p>
-                                <p>Banco: {beneficiary.accbsUser_bank}</p>
-                                <p>
-                                  {beneficiary.accbsUser_type === "Pago Movil"
-                                    ? "Teléfono: " + beneficiary.accbsUser_phone
-                                    : "Cuenta: " + beneficiary.accbsUser_number}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
+                     <div className="beneficiaries-list">
+  {userDirectory.filter(
+    (beneficiario) =>
+      beneficiario.accbsUser_status === "Activo" &&
+      (selectedCurrency === "BS"
+        ? beneficiario.accbsUser_country === "Venezuela"
+        : selectedCurrency === "ARS"
+        ? beneficiario.accbsUser_country === "Argentina"
+        : selectedCurrency === "COP"
+        ? beneficiario.accbsUser_country === "Colombia"
+        : selectedCurrency === "CLP"
+        ? beneficiario.accbsUser_country === "Chile"
+        : selectedCurrency === "MXN"
+        ? beneficiario.accbsUser_country === "Mexico"
+        : selectedCurrency === "PEN"
+        ? beneficiario.accbsUser_country === "Peru"
+        : selectedCurrency === "BRL"
+        ? beneficiario.accbsUser_country === "Brasil"
+        : selectedCurrency === "USD-EC"
+        ? beneficiario.accbsUser_country === "Ecuador"
+        : selectedCurrency === "USD-PA"
+        ? beneficiario.accbsUser_country === "Panama"
+        : null)
+  ).length > 0 ? (
+    userDirectory
+      .filter(
+        (beneficiario) =>
+          beneficiario.accbsUser_status === "Activo" &&
+          (selectedCurrency === "BS"
+            ? beneficiario.accbsUser_country === "Venezuela"
+            : selectedCurrency === "ARS"
+            ? beneficiario.accbsUser_country === "Argentina"
+            : selectedCurrency === "COP"
+            ? beneficiario.accbsUser_country === "Colombia"
+            : selectedCurrency === "CLP"
+            ? beneficiario.accbsUser_country === "Chile"
+            : selectedCurrency === "MXN"
+            ? beneficiario.accbsUser_country === "Mexico"
+            : selectedCurrency === "PEN"
+            ? beneficiario.accbsUser_country === "Peru"
+            : selectedCurrency === "BRL"
+            ? beneficiario.accbsUser_country === "Brasil"
+            : selectedCurrency === "USD-EC"
+            ? beneficiario.accbsUser_country === "Ecuador"
+            : selectedCurrency === "USD-PA"
+            ? beneficiario.accbsUser_country === "Panama"
+            : null)
+      )
+      .map((beneficiary) => (
+        <div
+          className="beneficiary-card"
+          key={beneficiary.accbsUser_id}
+          onClick={() => handleBeneficiarySelect(beneficiary)}
+        >
+          <img
+            src={
+              beneficiary.accbsUser_country === "Venezuela"
+                ? venezuelaFlag
+                : beneficiary.accbsUser_country === "Argentina"
+                ? argentina
+                : beneficiary.accbsUser_country === "Colombia"
+                ? colombia
+                : beneficiary.accbsUser_country === "Chile"
+                ? chile
+                : beneficiary.accbsUser_country === "Ecuador"
+                ? ecuador
+                : beneficiary.accbsUser_country === "Brasil"
+                ? brasil
+                : beneficiary.accbsUser_country === "Peru"
+                ? peru
+                : beneficiary.accbsUser_country === "Panama"
+                ? panama
+                : null
+            }
+            alt="Venezuela flag"
+            className="flag-icon"
+          />
+          <div className="beneficiary-info">
+            <h3>{beneficiary.accbsUser_owner}</h3>
+            <p>Cédula: {beneficiary.accbsUser_dni}</p>
+            <p>Banco: {beneficiary.accbsUser_bank}</p>
+            <p>
+              {beneficiary.accbsUser_type === "Pago Movil"
+                ? "Teléfono: " + beneficiary.accbsUser_phone
+                : "Cuenta: " + beneficiary.accbsUser_number}
+            </p>
+          </div>
+        </div>
+      ))
+  ) : (
+    <div className="form-actions">
+   
+      <p style={{color: 'red'}}><strong>No tienes beneficiarios activos. Agrega uno nuevo.</strong></p>
+     
+    </div>
+  )}
+</div>
+
                       <div className="form-actions">
                         <button className="back-button" onClick={handleBack}>
                           Volver
@@ -1218,14 +1247,14 @@ function SendMoney() {
               onChange={(e) => setAccbsUser_country(e.target.value)}
             >
               <option value="">Seleccione un país</option>
-              <option value="venezuela">Venezuela</option>
-              <option value="argentina">Argentina</option>
-              <option value="colombia">Colombia</option>
-              <option value="chile">Chile</option>
-              <option value="ecuador">Ecuador</option>
-              <option value="panama">Panamá</option>
-              <option value="mexico">México</option>
-              <option value="brasil">Brasil</option>
+              <option value="Venezuela">Venezuela</option>
+              <option value="Argentina">Argentina</option>
+              <option value="Colombia">Colombia</option>
+              <option value="Chile">Chile</option>
+              <option value="Ecuador">Ecuador</option>
+              <option value="Panama">Panamá</option>
+              <option value="Mexico">México</option>
+              <option value="Brasil">Brasil</option>
             </select>
             {errors.accbsUser_country && (
               <span className="error">{errors.accbsUser_country}</span>
@@ -1407,9 +1436,13 @@ function SendMoney() {
           </div>
         </div>
       )}
-    </div>) : (
-      <Redirect to="/login" />
-    );
+    </div>
+   ) : (
+    <NotFound />  // Usar el componente NotFound aquí
+  )
+  ) : (
+    <Redirect to="/login" />
+);
 }
 
 export { SendMoney };
