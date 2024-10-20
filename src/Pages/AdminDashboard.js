@@ -6,10 +6,11 @@ import NavBarAdmin from "../Components/NavBarAdmin";
 import { FaEye } from "react-icons/fa";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { NotFound } from "../Components/NotFound";
 import { ToastContainer, toast } from "react-toastify";
 
 function AdminDashboard() {
-  const { infoTkn, url } = useDataContext();
+  const { loggedAdm, infoTkn, url } = useDataContext();
   const [activeTab, setActiveTab] = useState("recargas");
   const currentDate = format(new Date(), "dd/MM/yyyy");
 
@@ -333,12 +334,13 @@ function AdminDashboard() {
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().slice(0, 10);
 
-    if (selectedMovement.mov_typeOutflow === "Efectivo") {
+    if (selectedMovement.mov_typeOutflow === "efectivo") {
       formData.append("mov_currency", "USD");
       formData.append("mov_accEurId", 0);
       formData.append("mov_accGbpId", 0);
       formData.append("mov_amount", selectedMovement.mov_amount);
       formData.append("mov_date", formattedDate);
+      formData.append("mov_currencyPrice", 1);
     } else {
       formData.append(
         "mov_currency",
@@ -602,7 +604,7 @@ function AdminDashboard() {
     fetchDataCurrencyPrice,
   ]);
 
-  return (
+  return loggedAdm ? (
     <div className="admin-dashboard">
       <NavBarAdmin />
       {/* Bienvenida Administrador */}
@@ -649,179 +651,201 @@ function AdminDashboard() {
 
       {/* Sección de Movimientos */}
       <div className="transactions-section">
-  {/* Tabs */}
-  <div className="tabs">
-    <button
-      className={activeTab === "recargas" ? "active" : "inactive"}
-      onClick={() => handleTabChange("recargas")}
-    >
-      Movimientos de Recarga ({userMovemments.filter(movement => movement.mov_type === "Deposito" && movement.mov_status === "E").length})
-    </button>
-    <button
-      className={activeTab === "remesas" ? "active" : "inactive"}
-      onClick={() => handleTabChange("remesas")}
-    >
-      Movimientos de Remesas ({userMovemments.filter(movement => movement.mov_type === "Retiro" && movement.mov_status === "E").length})
-    </button>
-  </div>
-
+        {/* Tabs */}
+        <div className="tabs">
+          <button
+            className={activeTab === "recargas" ? "active" : "inactive"}
+            onClick={() => handleTabChange("recargas")}
+          >
+            Movimientos de Recarga (
+            {
+              userMovemments.filter(
+                (movement) =>
+                  movement.mov_type === "Deposito" &&
+                  movement.mov_status === "E"
+              ).length
+            }
+            )
+          </button>
+          <button
+            className={activeTab === "remesas" ? "active" : "inactive"}
+            onClick={() => handleTabChange("remesas")}
+          >
+            Movimientos de Remesas (
+            {
+              userMovemments.filter(
+                (movement) =>
+                  movement.mov_type === "Retiro" && movement.mov_status === "E"
+              ).length
+            }
+            )
+          </button>
+        </div>
 
         {/* Tabla de Recargas */}
         {activeTab === "recargas" && (
           <div className="table-responsive">
-          <table className="movements__table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Usuario</th>
-                <th>Recarga</th>
-                <th>Enviado</th>
-                <th>Estado</th>
-                <th>Detalles</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userMovemments.length > 0 ? (
-                userMovemments
-                  .filter(
-                    (movement) =>
-                      movement.mov_type === "Deposito" &&
-                      movement.mov_status === "E"
-                  )
-                  .map((movement) => (
-                    <tr key={movement.mov_id}>
-                      <td>{movement.mov_date}</td>
-                      <td>
-                        {movement.User.use_name} {movement.User.use_lastName}
-                      </td>
-                      <td>{movement.mov_ref}</td>
-                      <td>
-                        {movement.mov_currency === "EUR"
-                          ? "€"
-                          : movement.mov_currency === "USD"
-                          ? "$"
-                          : "£"}{" "}
-                        {movement.mov_amount}{" "}
-                        {movement.mov_currency === "USD" && (
-                          <img src={usaFlag} alt="USD" />
-                        )}
-                        {movement.mov_currency === "EUR" && (
-                          <img src={spainFlag} alt="EUR" />
-                        )}
-                      </td>
-                      <td
-                        className={
-                          movement.mov_status === "V"
-                            ? "completed"
-                            : movement.mov_status === "E"
-                            ? "en espera"
-                            : "cancelled"
-                        }
-                      >
-                        En espera
-                      </td>
-                      <td>
-                        <FaEye
-                          className="view-details-icon"
-                          style={{ cursor: "pointer", textAlign: "center", width: "20px" }}
-                          onClick={() => openDetailModal(movement)}
-                        />
-                      </td>
-                    </tr>
-                  ))
-              ) : (
+            <table className="movements__table">
+              <thead>
                 <tr>
-                  <td colSpan="5" style={{ textAlign: "center" }}>
-                    No hay movimientos para mostrar
-                  </td>
+                  <th>Fecha</th>
+                  <th>Usuario</th>
+                  <th>Recarga</th>
+                  <th>Enviado</th>
+                  <th>Estado</th>
+                  <th>Detalles</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {userMovemments.length > 0 ? (
+                  userMovemments
+                    .filter(
+                      (movement) =>
+                        movement.mov_type === "Deposito" &&
+                        movement.mov_status === "E"
+                    )
+                    .map((movement) => (
+                      <tr key={movement.mov_id}>
+                        <td>{movement.mov_date}</td>
+                        <td>
+                          {movement.User.use_name} {movement.User.use_lastName}
+                        </td>
+                        <td>{movement.mov_ref}</td>
+                        <td>
+                          {movement.mov_currency === "EUR"
+                            ? "€"
+                            : movement.mov_currency === "USD"
+                            ? "$"
+                            : "£"}{" "}
+                          {movement.mov_amount}{" "}
+                          {movement.mov_currency === "USD" && (
+                            <img src={usaFlag} alt="USD" />
+                          )}
+                          {movement.mov_currency === "EUR" && (
+                            <img src={spainFlag} alt="EUR" />
+                          )}
+                        </td>
+                        <td
+                          className={
+                            movement.mov_status === "V"
+                              ? "completed"
+                              : movement.mov_status === "E"
+                              ? "en espera"
+                              : "cancelled"
+                          }
+                        >
+                          En espera
+                        </td>
+                        <td>
+                          <FaEye
+                            className="view-details-icon"
+                            style={{
+                              cursor: "pointer",
+                              textAlign: "center",
+                              width: "20px",
+                            }}
+                            onClick={() => openDetailModal(movement)}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: "center" }}>
+                      No hay movimientos para mostrar
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         )}
 
         {/* Tabla de Remesas */}
         {activeTab === "remesas" && (
           <div className="table-responsive">
-          <table className="movements__table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Usuario</th>
-                <th>Remesa</th>
-                <th>Beneficiario</th>
-                <th>Enviado</th>
-                <th>Recibido</th>
-                <th>Estado</th>
-                <th>Detalles</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userMovemments && userMovemments.length > 0 ? (
-                userMovemments
-                  .filter(
-                    (movement) =>
-                      movement.mov_type === "Retiro" &&
-                      movement.mov_status === "E"
-                  )
-                  .map((movement) => (
-                    <tr key={movement.mov_id}>
-                      <td>{movement.mov_date}</td>
-                      <td>
-                        {movement.User && movement.User.use_name}{" "}
-                        {movement.User && movement.User.use_lastName}
-                      </td>
-                      <td>{movement.mov_ref}</td>
-                      <td>
-                        {movement.AccountsBsUser
-                          ? movement.AccountsBsUser.accbsUser_owner
-                          : movement.mov_typeOutflow === "efectivo" ? "Retiro en Efectivo" : "Sin beneficiario"} 
-                      </td>
-                      <td>
-                        {movement.mov_amount}{" "}
-                        {movement.mov_currency === "USD" && (
-                          <img src={usaFlag} alt="USD" />
-                        )}
-                        {movement.mov_currency === "EUR" && (
-                          <img src={spainFlag} alt="EUR" />
-                        )}
-                      </td>
-                      <td>
-                        {movement.mov_typeOutflow === 'efectivo'? movement.mov_amount : movement.mov_amount * movement.mov_currencyPrice}
-                      </td>
-                      <td
-                        className={
-                          movement.mov_status === "S"
-                            ? "completed"
-                            : movement.mov_status === "E"
-                            ? "en espera"
-                            : "cancelled"
-                        }
-                      >
-                        En espera
-                      </td>
-                      <td>
-                        <FaEye
-                          style={{ cursor: "pointer", height: "20px" }}
-                          className="view-details-icon"
-                          onClick={() => {
-                            setSelectedMovement(movement); // Establece el movimiento seleccionado
-                            setIsModalOpen(true); // Abre el modal
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  ))
-              ) : (
+            <table className="movements__table">
+              <thead>
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }}>
-                    No hay movimientos para mostrar
-                  </td>
+                  <th>Fecha</th>
+                  <th>Usuario</th>
+                  <th>Remesa</th>
+                  <th>Beneficiario</th>
+                  <th>Enviado</th>
+                  <th>Recibido</th>
+                  <th>Estado</th>
+                  <th>Detalles</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {userMovemments && userMovemments.length > 0 ? (
+                  userMovemments
+                    .filter(
+                      (movement) =>
+                        movement.mov_type === "Retiro" &&
+                        movement.mov_status === "E"
+                    )
+                    .map((movement) => (
+                      <tr key={movement.mov_id}>
+                        <td>{movement.mov_date}</td>
+                        <td>
+                          {movement.User && movement.User.use_name}{" "}
+                          {movement.User && movement.User.use_lastName}
+                        </td>
+                        <td>{movement.mov_ref}</td>
+                        <td>
+                          {movement.AccountsBsUser
+                            ? movement.AccountsBsUser.accbsUser_owner
+                            : movement.mov_typeOutflow === "efectivo"
+                            ? "Retiro en Efectivo"
+                            : "Sin beneficiario"}
+                        </td>
+                        <td>
+                          {movement.mov_amount}{" "}
+                          {movement.mov_currency === "USD" && (
+                            <img src={usaFlag} alt="USD" />
+                          )}
+                          {movement.mov_currency === "EUR" && (
+                            <img src={spainFlag} alt="EUR" />
+                          )}
+                        </td>
+                        <td>
+                          {movement.mov_typeOutflow === "efectivo"
+                            ? movement.mov_amount
+                            : movement.mov_amount * movement.mov_currencyPrice}
+                        </td>
+                        <td
+                          className={
+                            movement.mov_status === "S"
+                              ? "completed"
+                              : movement.mov_status === "E"
+                              ? "en espera"
+                              : "cancelled"
+                          }
+                        >
+                          En espera
+                        </td>
+                        <td>
+                          <FaEye
+                            style={{ cursor: "pointer", height: "20px" }}
+                            className="view-details-icon"
+                            onClick={() => {
+                              setSelectedMovement(movement); // Establece el movimiento seleccionado
+                              setIsModalOpen(true); // Abre el modal
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: "center" }}>
+                      No hay movimientos para mostrar
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         )}
 
@@ -1049,6 +1073,8 @@ function AdminDashboard() {
       </div>
       <ToastContainer />
     </div>
+  ) : (
+    <NotFound />
   );
 }
 

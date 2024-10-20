@@ -20,9 +20,14 @@ import { Banks } from "../Pages/Banks";
 import { Relation } from "../Pages/Relation";
 import { TermsAndConditions } from "../Pages/TermsandConditions"; 
 import { Privacy } from "../Pages/Privacy";
-
+import { HomeUsa } from "../Pages/homeusa"; 
 
 const routes = [
+{
+  title: "HomeUsa",
+  path: "/homeusa",
+  component: HomeUsa,
+},
 
 {
   title: "Privacy",

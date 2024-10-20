@@ -13,21 +13,18 @@ import { StepTracker } from "../Components/StepTracker"; // Importación del com
 import { toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
-import { useHistory } from "react-router-dom";
+import { useHistory, Redirect } from "react-router-dom";
 import { banksByCountry } from "../Utils/Variables";
-import { Link } from 'react-router-dom';
-
+import { Link } from "react-router-dom";
 
 function SendMoney() {
-  const { infoTkn, url } = useDataContext();
+  const { logged, infoTkn, url } = useDataContext();
   const history = useHistory();
   // const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1); // Controla los pasos del formulario
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false); // Controla el estado del modal
-  const [error, setError] = useState("");
-
 
   // Datos Usuario
   const [user, setUser] = useState([]);
@@ -45,15 +42,13 @@ function SendMoney() {
 
   // Datos de Envio de remesas
   const [payment, setPayment] = useState("");
-  const [withdrawalMethod, setWithdrawalMethod] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [withdrawalMethod, setWithdrawalMethod] = useState("");;
   const [receiverName, setReceiverName] = useState("");
   const [receiverDni, setReceiverDni] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [delivery, setDelivery] = useState(0);
+  const [phone, setPhone] = useState(0);
   const [porcents, setPorcents] = useState([]);
   const [porcent, setPorcent] = useState([]);
-  const [selectedPorcent, setSelectedPorcent] = useState([]);
 
   // const [selectedMethod, setSelectedMethod] = useState("");
   const [amount, setAmount] = useState("");
@@ -129,7 +124,6 @@ function SendMoney() {
         },
       });
       setPorcent(response.data);
-      setSelectedPorcent(response.data); // Agregar esta línea para seleccionar el porcentaje
     } catch (error) {
       console.log(error);
     }
@@ -171,9 +165,9 @@ function SendMoney() {
       } else if (!/^\d+$/.test(accbsUser_phone)) {
         newErrors.accbsUser_phone =
           "El número telefónico solo puede contener dígitos.";
-      } else if (accbsUser_phone.length !== 7) {
+      } else if (accbsUser_phone.length === 0) {
         newErrors.accbsUser_phone =
-          "El número telefónico debe tener 7 dígitos.";
+          "El número telefónico no puede estar vacío.";
       }
     } else if (accbsUser_type === "Cuenta Bancaria") {
       if (!accbsUser_number) {
@@ -181,9 +175,9 @@ function SendMoney() {
       } else if (!/^\d+$/.test(accbsUser_number)) {
         newErrors.accbsUser_number =
           "El número de cuenta solo puede contener dígitos.";
-      } else if (accbsUser_number.length !== 20) {
+      } else if (accbsUser_number.length === 0) {
         newErrors.accbsUser_number =
-          "El número de cuenta debe tener 20 dígitos.";
+          "El número de cuenta no puede estar vacío.";
       }
     }
 
@@ -298,10 +292,16 @@ function SendMoney() {
       }
     }
 
-    const availableBalance = payment === "EUR" ? user.use_amountEur : payment === "USD" ? user.use_amountUsd : user.use_amountGbp;
+    const availableBalance =
+      payment === "EUR"
+        ? user.use_amountEur
+        : payment === "USD"
+        ? user.use_amountUsd
+        : user.use_amountGbp;
 
     if (inputAmount > availableBalance) {
-      errorMessage = "El monto a enviar no puede ser mayor que el saldo disponible.";
+      errorMessage =
+        "El monto a enviar no puede ser mayor que el saldo disponible.";
     }
     // Actualizar errores en el estado
 
@@ -393,6 +393,8 @@ function SendMoney() {
   const handleSubmitSend = async (event) => {
     event.preventDefault();
 
+    const OldAmount = amount;
+    
     const formData = new FormData();
     formData.append("mov_currency", payment);
     formData.append("mov_amount", amount);
@@ -400,6 +402,8 @@ function SendMoney() {
     formData.append("mov_status", "E");
     formData.append("mov_code", "");
     formData.append("mov_phone", "");
+    formData.append("mov_oldAmount", OldAmount);
+
 
     // const selectedAccount = userDirectory.find(
     //   (account) =>
@@ -408,16 +412,18 @@ function SendMoney() {
     formData.append(
       "mov_comment",
       `${withdrawalMethod === "efectivo"}` &&
-      `<strong>Retiro de divisa en efectivo \n  Ciudad: </strong>` +
-      porcent.por_stateLocation +
-      `\n <strong>Persona que recibe: </strong>` +
-      receiverName +
-      `\n <strong>DNI de quien recibe: </strong>` +
-      receiverDni +
-      `\n <strong>Dirección: </strong>` +
-      deliveryAddress +
-      `\n <strong>Monto: </strong>` +
-      amount
+        `<strong>Retiro de divisa en efectivo \n  Ciudad: </strong>` +
+          porcent.por_stateLocation +
+          `\n <strong>Persona que recibe: </strong>` +
+          receiverName +
+          `\n <strong>DNI de quien recibe: </strong>` +
+          receiverDni +
+          `\n <strong>Teléfono: </strong>` +
+          phone +
+          `\n <strong>Dirección: </strong>` +
+          deliveryAddress +
+          `\n <strong>Monto: </strong>` +
+          amount
       // `${
       //   (sendOption === "Cuenta Bancaria" || sendOption === "Pago Movil") &&
       //   `Banco: ` +
@@ -551,6 +557,7 @@ function SendMoney() {
       .filter((price) => price !== null)[0];
 
     formData.append("mov_currencyPrice", currencyPriceValue);
+    formData.append("mov_oldCurrency", payment);
 
     const formDataUser = new FormData();
     // if (sendOption === "Efectivo") {
@@ -619,7 +626,7 @@ function SendMoney() {
         }
       );
 
-      // history.push("/changes");
+      history.push("/changes");
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
@@ -645,7 +652,7 @@ function SendMoney() {
     fetchDataPorcent();
   }, [fetchCurrencyData, fetchDataUser, fetchDataPorcent]);
 
-  return (
+  return logged? (
     <div className="send-money">
       <NavBarUser />
 
@@ -829,10 +836,13 @@ function SendMoney() {
                     {payment === "EUR"
                       ? `€${user.use_amountEur}`
                       : payment === "USD"
-                        ? `$${user.use_amountUsd}`
-                        : `£${user.use_amountGbp}`}
+                      ? `$${user.use_amountUsd}`
+                      : `£${user.use_amountGbp}`}
                   </small>
-                  {error && <span className="error">{error}</span>} {/* Mostrar mensaje de error */}
+                  {errors.amount && (
+                    <span className="error">{errors.amount}</span>
+                  )}{" "}
+                  {/* Mostrar mensaje de error */}
                 </div>
 
                 <div className="form-group">
@@ -850,11 +860,12 @@ function SendMoney() {
 
             {selectedCurrency && (
               <>
-
                 <div className="form-group">
                   <label htmlFor="amount-send">Monto a enviar</label>
-                  {errors.amount && <span className="error">{errors.amount}</span>} {/* Mostrar el error aquí */}
-
+                  {errors.amount && (
+                    <span className="error">{errors.amount}</span>
+                  )}{" "}
+                  {/* Mostrar el error aquí */}
                   <input
                     type="number"
                     id="amount-send"
@@ -867,11 +878,10 @@ function SendMoney() {
                     {payment === "EUR"
                       ? `€${user.use_amountEur}`
                       : payment === "USD"
-                        ? `$${user.use_amountUsd}`
-                        : `£${user.use_amountGbp}`}
+                      ? `$${user.use_amountUsd}`
+                      : `£${user.use_amountGbp}`}
                   </small>
                 </div>
-
 
                 <div className="form-group">
                   <label htmlFor="amount-receive">Monto a recibir</label>
@@ -882,7 +892,6 @@ function SendMoney() {
                     readOnly
                     placeholder="Calculando..."
                   />
-
                 </div>
               </>
             )}
@@ -923,12 +932,12 @@ function SendMoney() {
                   onClick={() => setStep(step + 1)}
                   disabled={!!errors.amount} // Deshabilitar si hay errores
                 >
-                  {errors.amount ? "Corrige el error para continuar" : "Continúa"}
+                  {errors.amount
+                    ? "Corrige el error para continuar"
+                    : "Continúa"}
                 </button>
               </div>
             )}
-
-
           </div>
         </>
       )}
@@ -962,6 +971,21 @@ function SendMoney() {
                     placeholder="Ingrese la cédula del receptor"
                   />
                 </div>
+
+                {porcent.por_status === "Obligatorio" && (
+                  <div className="form-group">
+                    <label htmlFor="phone">
+                      Número de contacto de quien recibe
+                    </label>
+                    <input
+                      type="text"
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Ingrese número de contacto"
+                    />
+                  </div>
+                )}
 
                 {porcent.por_status === "Obligatorio" && (
                   <div className="form-group">
@@ -1011,8 +1035,13 @@ function SendMoney() {
                 <>
                   {userDirectory.length === 0 ? (
                     <div className="beneficiaries-list">
-                      <p style={{ color: '#003366' }}><strong>No tienes beneficiarios agregados. Agrega uno para continuar.</strong></p>
-                      <Link to='/Directory'>
+                      <p style={{ color: "#003366" }}>
+                        <strong>
+                          No tienes beneficiarios agregados. Agrega uno para
+                          continuar.
+                        </strong>
+                      </p>
+                      <Link to="/Directory">
                         <div className="form-actions">
                           <button className="continue-button">
                             Agrega a tu beneficiario
@@ -1030,49 +1059,54 @@ function SendMoney() {
                               (selectedCurrency === "BS"
                                 ? beneficiario.accbsUser_country === "venezuela"
                                 : selectedCurrency === "ARS"
-                                  ? beneficiario.accbsUser_country === "argentina"
-                                  : selectedCurrency === "COP"
-                                    ? beneficiario.accbsUser_country === "colombia"
-                                    : selectedCurrency === "CLP"
-                                      ? beneficiario.accbsUser_country === "chile"
-                                      : selectedCurrency === "MXN"
-                                        ? beneficiario.accbsUser_country === "mexico"
-                                        : selectedCurrency === "PEN"
-                                          ? beneficiario.accbsUser_country === "peru"
-                                          : selectedCurrency === "BRL"
-                                            ? beneficiario.accbsUser_country === "brasil"
-                                            : selectedCurrency === "USD-EC"
-                                              ? beneficiario.accbsUser_country === "ecuador"
-                                              : selectedCurrency === "USD-PA"
-                                                ? beneficiario.accbsUser_country === "panama"
-                                                : null)
+                                ? beneficiario.accbsUser_country === "argentina"
+                                : selectedCurrency === "COP"
+                                ? beneficiario.accbsUser_country === "colombia"
+                                : selectedCurrency === "CLP"
+                                ? beneficiario.accbsUser_country === "chile"
+                                : selectedCurrency === "MXN"
+                                ? beneficiario.accbsUser_country === "mexico"
+                                : selectedCurrency === "PEN"
+                                ? beneficiario.accbsUser_country === "peru"
+                                : selectedCurrency === "BRL"
+                                ? beneficiario.accbsUser_country === "brasil"
+                                : selectedCurrency === "USD-EC"
+                                ? beneficiario.accbsUser_country === "ecuador"
+                                : selectedCurrency === "USD-PA"
+                                ? beneficiario.accbsUser_country === "panama"
+                                : null)
                           )
                           .map((beneficiary) => (
                             <div
                               className="beneficiary-card"
                               key={beneficiary.accbsUser_id}
-                              onClick={() => handleBeneficiarySelect(beneficiary)}
+                              onClick={() =>
+                                handleBeneficiarySelect(beneficiary)
+                              }
                             >
                               <img
                                 src={
                                   beneficiary.accbsUser_country === "venezuela"
                                     ? venezuelaFlag
-                                    : beneficiary.accbsUser_country === "argentina"
-                                      ? argentina
-                                      : beneficiary.accbsUser_country === "colombia"
-                                        ? colombia
-                                        : beneficiary.accbsUser_country === "chile"
-                                          ? chile
-                                          : beneficiary.accbsUser_country === "ecuador"
-                                            ? ecuador
-                                            : beneficiary.accbsUser_country === "brasil"
-                                              ? brasil
-                                              : beneficiary.accbsUser_country === "peru"
-                                                ? peru
-                                                : beneficiary.accbsUser_country === "panama"
-                                                  ? panama
-                                                  : // Falta agregar el de Mexico
-                                                  null
+                                    : beneficiary.accbsUser_country ===
+                                      "argentina"
+                                    ? argentina
+                                    : beneficiary.accbsUser_country ===
+                                      "colombia"
+                                    ? colombia
+                                    : beneficiary.accbsUser_country === "chile"
+                                    ? chile
+                                    : beneficiary.accbsUser_country ===
+                                      "ecuador"
+                                    ? ecuador
+                                    : beneficiary.accbsUser_country === "brasil"
+                                    ? brasil
+                                    : beneficiary.accbsUser_country === "peru"
+                                    ? peru
+                                    : beneficiary.accbsUser_country === "panama"
+                                    ? panama
+                                    : // Falta agregar el de Mexico
+                                      null
                                 }
                                 alt="Venezuela flag"
                                 className="flag-icon"
@@ -1094,7 +1128,10 @@ function SendMoney() {
                         <button className="back-button" onClick={handleBack}>
                           Volver
                         </button>
-                        <button className="add-beneficiary-button" onClick={openModal}>
+                        <button
+                          className="add-beneficiary-button"
+                          onClick={openModal}
+                        >
                           Nuevo Beneficiario
                         </button>
                       </div>
@@ -1370,8 +1407,9 @@ function SendMoney() {
           </div>
         </div>
       )}
-    </div>
-  );
+    </div>) : (
+      <Redirect to="/login" />
+    );
 }
 
 export { SendMoney };

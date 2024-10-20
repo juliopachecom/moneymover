@@ -5,9 +5,10 @@ import { CSSTransition } from "react-transition-group";
 import { toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 function Recharge() {
-  const { infoTkn, url } = useDataContext();
+  const { logged, infoTkn, url } = useDataContext();
   // const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1);
@@ -322,7 +323,7 @@ function Recharge() {
     setImageUrl(URL.createObjectURL(file));
   };
 
-  return (
+  return logged? (
     <div className="recharge">
       <NavBarUser />
       <h1>Recargar Saldo</h1>
@@ -687,7 +688,9 @@ function Recharge() {
           </div>
         </div>
       </CSSTransition>
-    </div>
+    </div>)
+    : (
+      <Redirect to="/login" />
   );
 }
 

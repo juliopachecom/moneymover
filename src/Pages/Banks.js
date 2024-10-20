@@ -4,9 +4,10 @@ import NavBarAdmin from "../Components/NavBarAdmin";
 import { FaPlus } from "react-icons/fa";
 // import { ToastContainer, toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
+import { NotFound } from "../Components/NotFound";
 
 function Banks() {
-  const { infoTkn, url } = useDataContext();
+  const { loggedAdm, infoTkn, url } = useDataContext();
 
   const [banksEur, setBanksEUR] = useState([]);
   const [banksUsd, setBanksUSD] = useState([]);
@@ -94,38 +95,7 @@ function Banks() {
     }
   }, [infoTkn, setBanksGBP, url]);
 
-  // Estado para los bancos
-  const [banks, setBanks] = useState([
-    {
-      bankName: "Banco Santander",
-      iban: "ES9121000418450200051332",
-      swift: "BSCHESMMXXX",
-      accountHolder: "Juan Pérez",
-      active: true,
-    },
-    {
-      bankName: "CaixaBank",
-      iban: "ES7921000813610123456789",
-      swift: "CAIXESBBXXX",
-      accountHolder: "Maria García",
-      active: false,
-    },
-    {
-      bankName: "BBVA",
-      iban: "ES9121000418450200067890",
-      swift: "BBVAESMMXXX",
-      accountHolder: "Pedro Fernández",
-      active: true,
-    },
-  ]);
-
   const [showModal, setShowModal] = useState(false);
-  const [newBank, setNewBank] = useState({
-    bankName: "",
-    iban: "",
-    swift: "",
-    accountHolder: "",
-  });
 
   const handleStatus = async (bank) => {
     try {
@@ -346,7 +316,7 @@ function Banks() {
     }
   };
 
-  return (
+  return loggedAdm ? (
     <div className="add-banks-dashboard">
       <NavBarAdmin />
       <div className="dashboard-content">
@@ -359,7 +329,7 @@ function Banks() {
           </button>
 
           {/* Listado de Bancos */}
-          {banks.length > 0 ? (
+          {filteredBanks.length > 0 ? (
             <table className="banks-table">
               <thead>
                 <tr>
@@ -690,6 +660,8 @@ function Banks() {
         )}
       </div>
     </div>
+  ) : (
+    <NotFound />
   );
 }
 

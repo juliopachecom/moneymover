@@ -7,9 +7,10 @@ import usaFlag from "../Assets/Images/usa.png";
 import ukFlag from "../Assets/Images/uk.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import { toast, ToastContainer } from "react-toastify";
+import { NotFound } from "../Components/NotFound";
 
 function CurrencyPrice() {
-  const { infoTkn, url } = useDataContext();
+  const { loggedAdm, infoTkn, url } = useDataContext();
 
   const [currencyPrice, setCurrencyPrice] = useState([]);
   const [porcentPrice, setPorcentPrice] = useState([]);
@@ -213,16 +214,7 @@ function CurrencyPrice() {
     });
   };
 
-  // const handleLocationChange = (newLocation) => {
-  //   setLocation(newLocation);
-  //   setAdditionalInfo('');
-  // };
-
-  // const handleAdditionalInfoChange = (e) => {
-  //   setAdditionalInfo(e.target.value);
-  // };
-
-  return (
+  return loggedAdm ? (
     <div className="currency-price-dashboard">
       <NavBarAdmin />
       <div className="dashboard-content">
@@ -736,6 +728,8 @@ function CurrencyPrice() {
       </div>
       <ToastContainer />
     </div>
+  ) : (
+    <NotFound />
   );
 }
 

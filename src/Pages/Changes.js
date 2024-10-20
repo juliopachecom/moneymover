@@ -5,6 +5,7 @@ import poundIcon from "../Assets/Images/pound.png";
 import dollarIcon from "../Assets/Images/dollar.png";
 import spainFlag from "../Assets/Images/spain.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
+import uk from "../Assets/Images/uk.png";
 import verification from "../Assets/Images/giphy.gif";
 import usaFlag from "../Assets/Images/usa.png";
 import { NotFound } from "../Components/NotFound";
@@ -268,7 +269,7 @@ function Changes() {
       // Manejo de la imagen de perfil
       const profilePhotoUrl =
         response.data.use_profileImg &&
-          response.data.use_profileImg.trim() !== ""
+        response.data.use_profileImg.trim() !== ""
           ? `${url}/Users/profileImg/${response.data.use_profileImg}`
           : profileIcon;
       setProfilePhotoUrl(profilePhotoUrl);
@@ -452,38 +453,36 @@ function Changes() {
 
       {/* Alternal entre recargar y enviar remesas */}
       <div className="changes__actions">
-  {/* Botón para Recargar Saldo */}
-  <button
-    className="action-button green"
-    onClick={() => {
-      if (user.use_verif === "N" || user.use_verif === "E") {
-        toggleModal(); // Abre el modal si el estado de verificación es "N" o "E"
-      } else {
-        // Redirigir a la página de recarga si el usuario está verificado
-        window.location.href = "/recharge";
-      }
-    }}
-  >
-    Recargar Saldo
-  </button>
+        {/* Botón para Recargar Saldo */}
+        <button
+          className="action-button green"
+          onClick={() => {
+            if (user.use_verif === "N" || user.use_verif === "E") {
+              toggleModal(); // Abre el modal si el estado de verificación es "N" o "E"
+            } else {
+              // Redirigir a la página de recarga si el usuario está verificado
+              window.location.href = "/recharge";
+            }
+          }}
+        >
+          Recargar Saldo
+        </button>
 
-  {/* Botón para Enviar Remesas */}
-  <button
-    className="action-button green"
-    onClick={() => {
-      if (user.use_verif === "N" || user.use_verif === "E") {
-        toggleModal(); // Abre el modal si el estado de verificación es "N" o "E"
-      } else {
-        // Redirigir a la página de envío de dinero si el usuario está verificado
-        window.location.href = "/sendmoney";
-      }
-    }}
-  >
-    Enviar Remesas
-  </button>
-</div>
-
-
+        {/* Botón para Enviar Remesas */}
+        <button
+          className="action-button green"
+          onClick={() => {
+            if (user.use_verif === "N" || user.use_verif === "E") {
+              toggleModal(); // Abre el modal si el estado de verificación es "N" o "E"
+            } else {
+              // Redirigir a la página de envío de dinero si el usuario está verificado
+              window.location.href = "/sendmoney";
+            }
+          }}
+        >
+          Enviar Remesas
+        </button>
+      </div>
 
       {/* Alterna entre moivimientos de recargas y envios de remesas */}
       <div className="changes__tabs">
@@ -529,14 +528,17 @@ function Changes() {
                             {movement.mov_currency === "EUR"
                               ? "€"
                               : movement.mov_currency === "USD"
-                                ? "$"
-                                : "£"}{" "}
+                              ? "$"
+                              : "£"}{" "}
                             {movement.mov_amount}{" "}
-                            {movement.mov_currency === "USD" && (
+                            {movement.mov_oldCurrency === "USD" && (
                               <img src={usaFlag} alt="USD" />
                             )}
-                            {movement.mov_currency === "EUR" && (
+                            {movement.mov_oldCurrency === "EUR" && (
                               <img src={spainFlag} alt="EUR" />
+                            )}
+                            {movement.mov_oldCurrency === "GBP" && (
+                              <img src={uk} alt="GBP" />
                             )}
                           </td>
                           <td
@@ -544,15 +546,15 @@ function Changes() {
                               movement.mov_status === "V"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                  ? "en espera"
-                                  : "cancelled"
+                                ? "en espera"
+                                : "cancelled"
                             }
                           >
                             {movement.mov_status === "V"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                                ? "En espera"
-                                : "Rechazado"}
+                              ? "En espera"
+                              : "Rechazado"}
                           </td>
                           <td>
                             <FaEye
@@ -602,31 +604,41 @@ function Changes() {
                           <td>
                             {movement.AccountsBsUser
                               ? movement.AccountsBsUser.accbsUser_owner
-                              : "Sin información"}
+                              : movement.mov_typeOutflow === "efectivo"
+                              ? "Retiro en Efectivo"
+                              : "Sin beneficiario"}
                           </td>
                           <td>
+                            {movement.mov_oldCurrency === "EUR"
+                              ? "€"
+                              : movement.mov_oldCurrency === "USD"
+                              ? "$"
+                              : "£"}{" "}
                             {movement.mov_status === "V"
                               ? movement.mov_amount / movement.mov_currencyPrice
                               : movement.mov_amount}{" "}
-                            {movement.mov_currency === "USD" && (
+                            {movement.mov_oldCurrency === "USD" && (
                               <img src={usaFlag} alt="USD" />
                             )}
-                            {movement.mov_currency === "EUR" && (
+                            {movement.mov_oldCurrency === "EUR" && (
                               <img src={spainFlag} alt="EUR" />
+                            )}
+                            {movement.mov_oldCurrency === "GBP" && (
+                              <img src={uk} alt="GBP" />
                             )}
                           </td>
                           <td>
                             {movement.mov_status !== "R" &&
-                              movement.mov_status !== "E" &&
-                              movement.mov_currency === "BS"
+                            movement.mov_status !== "E" &&
+                            movement.mov_currency === "BS"
                               ? "Bs " + movement.mov_amount
                               : movement.mov_status !== "R" &&
                                 movement.mov_status !== "E" &&
                                 movement.mov_currency === "USD"
-                                ? "$ " + movement.mov_amount
-                                : movement.mov_status === "R"
-                                  ? "Rechazado"
-                                  : "En espera"}
+                              ? "$ " + movement.mov_amount
+                              : movement.mov_status === "R"
+                              ? "Rechazado"
+                              : "En espera"}
                             {movement.mov_currency === "USD" && (
                               <img src={usaFlag} alt="USD" />
                             )}
@@ -639,15 +651,15 @@ function Changes() {
                               movement.mov_status === "V"
                                 ? "completed"
                                 : movement.mov_status === "E"
-                                  ? "en espera"
-                                  : "cancelled"
+                                ? "en espera"
+                                : "cancelled"
                             }
                           >
                             {movement.mov_status === "V"
                               ? "Aprobado"
                               : movement.mov_status === "E"
-                                ? "En espera"
-                                : "Rechazado"}
+                              ? "En espera"
+                              : "Rechazado"}
                           </td>
                           <td>
                             <FaEye
@@ -694,8 +706,8 @@ function Changes() {
               {selectedMovement.mov_status === "V"
                 ? "Aprobado"
                 : selectedMovement.mov_status === "E"
-                  ? "En espera"
-                  : "Rechazado"}
+                ? "En espera"
+                : "Rechazado"}
             </p>
             {selectedMovement.mov_status === "R" && (
               <p>
@@ -729,62 +741,64 @@ function Changes() {
             <p>
               <strong>Monto:</strong>{" "}
               {selectedMovement.mov_status !== "R" &&
-                selectedMovement.mov_status !== "E" &&
-                selectedMovement.mov_currency === "BS"
+              selectedMovement.mov_status !== "E" &&
+              selectedMovement.mov_currency === "BS"
                 ? "Bs " + selectedMovement.mov_amount
                 : selectedMovement.mov_status !== "R" &&
                   selectedMovement.mov_status !== "E" &&
                   selectedMovement.mov_currency === "USD"
-                  ? "$ " + selectedMovement.mov_amount
-                  : selectedMovement.mov_status !== "R" &&
-                    selectedMovement.mov_status !== "E" &&
-                    selectedMovement.mov_currency === "ARS"
-                    ? "ARS " + selectedMovement.mov_amount
-                    : selectedMovement.mov_status !== "R" &&
-                      selectedMovement.mov_status !== "E" &&
-                      selectedMovement.mov_currency === "CLP"
-                      ? "CLP " + selectedMovement.mov_amount
-                      : selectedMovement.mov_status !== "R" &&
-                        selectedMovement.mov_status !== "E" &&
-                        selectedMovement.mov_currency === "MXN"
-                        ? "MXN " + selectedMovement.mov_amount
-                        : selectedMovement.mov_status !== "R" &&
-                          selectedMovement.mov_status !== "E" &&
-                          selectedMovement.mov_currency === "BRL"
-                          ? "BRL " + selectedMovement.mov_amount
-                          : selectedMovement.mov_status !== "R" &&
-                            selectedMovement.mov_status !== "E" &&
-                            selectedMovement.mov_currency === "PEN"
-                            ? "PEN " + selectedMovement.mov_amount
-                            : selectedMovement.mov_status !== "R" &&
-                              selectedMovement.mov_status !== "E" &&
-                              selectedMovement.mov_currency === "COP"
-                              ? "COP " + selectedMovement.mov_amount
-                              : selectedMovement.mov_status !== "R" &&
-                                selectedMovement.mov_status !== "E" &&
-                                selectedMovement.mov_currency === "USD-EC"
-                                ? "USD-EC " + selectedMovement.mov_amount
-                                : selectedMovement.mov_status !== "R" &&
-                                  selectedMovement.mov_status !== "E" &&
-                                  selectedMovement.mov_currency === "USD-PA"
-                                  ? "USD-PA " + selectedMovement.mov_amount
-                                  : selectedMovement.mov_status === "E"
-                                    ? "Por establecer"
-                                    : "Rechazado"}
+                ? "$ " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "ARS"
+                ? "ARS " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "CLP"
+                ? "CLP " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "MXN"
+                ? "MXN " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "BRL"
+                ? "BRL " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "PEN"
+                ? "PEN " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "COP"
+                ? "COP " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "USD-EC"
+                ? "USD-EC " + selectedMovement.mov_amount
+                : selectedMovement.mov_status !== "R" &&
+                  selectedMovement.mov_status !== "E" &&
+                  selectedMovement.mov_currency === "USD-PA"
+                ? "USD-PA " + selectedMovement.mov_amount
+                : selectedMovement.mov_status === "E"
+                ? "Por establecer"
+                : "Rechazado"}
             </p>
             <p>
               <strong>Beneficiario:</strong>{" "}
               {selectedMovement.AccountsBsUser
                 ? selectedMovement.AccountsBsUser.accbsUser_owner
-                : "Sin información"}
+                : selectedMovement.mov_typeOutflow === "efectivo"
+                ? "Retiro en Efectivo"
+                : "Sin beneficiario"}
             </p>
             <p>
               <strong>Estado:</strong>{" "}
               {selectedMovement.mov_status === "V"
                 ? "Aprobado"
                 : selectedMovement.mov_status === "E"
-                  ? "En espera"
-                  : "Rechazado"}
+                ? "En espera"
+                : "Rechazado"}
             </p>
             <p>
               <strong>Imagen:</strong>{" "}

@@ -4,10 +4,11 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
+import { Redirect } from "react-router-dom";
 
 function Login() {
   const history = useHistory();
-  const { setLogged, setInfoTkn, url } = useDataContext();
+  const { logged, setLogged, setInfoTkn, url } = useDataContext();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -69,7 +70,7 @@ function Login() {
     setShowPassword(!showPassword);
   };
 
-  return (
+  return  (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <img src={logo} alt="Logo" className="login-logo" />

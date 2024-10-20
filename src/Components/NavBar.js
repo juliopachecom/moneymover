@@ -5,8 +5,11 @@ import logo from '../Assets/Images/logo.png'; // Asegúrate de que la ruta sea c
 
 function NavBar() {
   const [showMenu, setShowMenu] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const toggleMenu = () => setShowMenu(!showMenu);
   const closeMenu = () => setShowMenu(false);
+  const toggleDropdown = () => setShowDropdown(!showDropdown);
 
   return (
     <header className="navbar">
@@ -22,14 +25,30 @@ function NavBar() {
             <li className="navbar__item">
               <Link to="/" className="navbar__link" onClick={closeMenu}>Inicio</Link>
             </li>
-            <li className="navbar__item">
-              <Link to="/about" className="navbar__link" onClick={closeMenu}><strong>Envio Desde Europa</strong></Link>
+            <li className="navbar__item navbar__dropdown">
+              <span className="navbar__link" onClick={toggleDropdown}>
+                <strong style={{cursor: 'pointer'}}>Envío Desde Europa</strong>
+              </span>
+              {showDropdown && (
+                <ul className="navbar__dropdown-menu" >
+                  <li >
+                    <Link to="/home"  className="navbar__dropdown-link"  onClick={closeMenu}>
+                      Envío Desde Europa
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/homeusa" className="navbar__dropdown-link" onClick={closeMenu}>
+                      Envío Desde América
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
             <li className="navbar__item">
               <Link to="/skills" className="navbar__link" onClick={closeMenu}>Blog</Link>
             </li>
             <li className="navbar__item">
-              <Link to="/login" className="navbar__link" onClick={closeMenu}>Log In</Link>
+              <Link to="/login" className="navbar__link" onClick={closeMenu}>Iniciar</Link>
             </li>
             <li className="navbar__item">
               <Link to="/register" className="navbar__link navbar__link--highlight" onClick={closeMenu}>Registrate</Link>

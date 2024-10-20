@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 function AccAdm() {
   const history = useHistory();
-  const { setLogged, setInfoTkn, url } = useDataContext();
+  const { setLoggedAdm, setInfoTkn, url } = useDataContext();
   const [admin_email, setAdmin_email] = useState("");
   const [admin_password, setAdmin_password] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +23,7 @@ function AccAdm() {
       const response = await axios.get(`${url}/Auth/loginAdmin/${email}/${password}`);
       setInfoTkn(response.data.data.access_token);
       const response2 = await axios.get(`${url}/Auth/findByTokenAdmin/${response.data.data.access_token}`);
-      setLogged(true);
+      setLoggedAdm(true);
       history.push({
         pathname: "/AdminDashboard",
         state: {

@@ -3,6 +3,7 @@ import { FaEye } from "react-icons/fa"; // Ícono de vista de detalles
 import { NavBarUser } from "../Components/NavBarUser"; // Asumiendo que ya tienes NavBarUser
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 // Importar las banderas
 import spainFlag from "../Assets/Images/spain.png";
@@ -27,7 +28,7 @@ const flagMap = {
 };
 
 function Movements() {
-  const { infoTkn, url } = useDataContext();
+  const { logged, infoTkn, url } = useDataContext();
   const [activeTab, setActiveTab] = useState("all");
   const [userMovemments, setUserMovemments] = useState([]);
   const [selectedMovement, setSelectedMovement] = useState(null); // Estado para el movimiento seleccionado
@@ -79,7 +80,7 @@ function Movements() {
     setSelectedMovement(null);
   };
 
-  return (
+  return logged ? (
     <div className="movements">
       <NavBarUser />
 
@@ -157,7 +158,10 @@ function Movements() {
 
       {/* Modal para detalles del movimiento */}
       {selectedMovement && (
-        <div className="modal-overlay fadeIn" style={{justifyContent: 'center'}}>
+        <div
+          className="modal-overlay fadeIn"
+          style={{ justifyContent: "center" }}
+        >
           <div className="modal-content fadeIn">
             <button className="modal-close" onClick={closeDetails}>
               &times;
@@ -175,7 +179,12 @@ function Movements() {
                 {selectedMovement.mov_currency}
               </p>
               <p>
-                <strong>Estado:</strong> {selectedMovement.mov_status === "E" ? "En espera" : selectedMovement.mov_status === "V" ? "Aprobada" : "Rechazada"}
+                <strong>Estado:</strong>{" "}
+                {selectedMovement.mov_status === "E"
+                  ? "En espera"
+                  : selectedMovement.mov_status === "V"
+                  ? "Aprobada"
+                  : "Rechazada"}
               </p>
               <p>
                 <strong>Fecha:</strong> {selectedMovement.mov_date}
@@ -186,33 +195,34 @@ function Movements() {
               <p>
                 <strong>Referencia:</strong> {selectedMovement.mov_ref}
               </p>
-              {selectedMovement.mov_img && selectedMovement.mov_img.toLowerCase().includes('.pdf') && (
-                    <a
-                        href={`${url}/Movements/image/${selectedMovement.mov_img}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        download
-                        style={{ color: "blue", textDecoration: "underline" }}
-                    >
-                        Descargar PDF
-                    </a>
+              {selectedMovement.mov_img &&
+                selectedMovement.mov_img.toLowerCase().includes(".pdf") && (
+                  <a
+                    href={`${url}/Movements/image/${selectedMovement.mov_img}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                    style={{ color: "blue", textDecoration: "underline" }}
+                  >
+                    Descargar PDF
+                  </a>
                 )}
-                {selectedMovement.mov_img && !selectedMovement.mov_img.toLowerCase().includes('.pdf') && (
-                    <img
-                        style={{ width: '50%'}} // Asegura que la imagen no se salga del modal
-                        alt="ImageMovement"
-                        src={`${url}/Movements/image/${selectedMovement.mov_img}`}
-                    />
+              {selectedMovement.mov_img &&
+                !selectedMovement.mov_img.toLowerCase().includes(".pdf") && (
+                  <img
+                    style={{ width: "50%" }} // Asegura que la imagen no se salga del modal
+                    alt="ImageMovement"
+                    src={`${url}/Movements/image/${selectedMovement.mov_img}`}
+                  />
                 )}
-                {!selectedMovement.mov_img && (
-                    <p>No hay documento adjunto.</p>
-                )}
-
+              {!selectedMovement.mov_img && <p>No hay documento adjunto.</p>}
             </div>
           </div>
         </div>
       )}
     </div>
+  ) : (
+    <Redirect to="/Login" />
   );
 }
 

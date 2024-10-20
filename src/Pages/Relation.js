@@ -1,92 +1,94 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import NavBarAdmin from "../Components/NavBarAdmin";
 import { FaDollarSign, FaEuroSign, FaPoundSign } from "react-icons/fa";
+import { useDataContext } from "../Context/dataContext";
+import axios from "axios";
+import { NotFound } from "../Components/NotFound";
+
+// Importar las banderas
+import usaFlag from "../Assets/Images/usa.png";
+import colombiaFlag from "../Assets/Images/colombia.png";
+import argentinaFlag from "../Assets/Images/argentina.png";
+import panamaFlag from "../Assets/Images/panama.png";
+import venezuelaFlag from "../Assets/Images/venezuela.png";
+import brasilFlag from "../Assets/Images/square.png";
+import peruFlag from "../Assets/Images/peru.png";
+import chileFlag from "../Assets/Images/chile.png";
+import ecuadorFlag from "../Assets/Images/ecuador.png";
 
 function Relation() {
-  // Datos de prueba para recargas y retiros
-  const transacciones = ([
-    { nombre: "Ruben Quintana", recarga: 100, retirada: 30, venezuela: 1200, tasa: 40, moneda: "USD", fecha: "2024-09-16" },
-    { nombre: "Wilfredo Vargas", recarga: 80, retirada: 20, venezuela: 1000, tasa: 50, moneda: "EUR", fecha: "2024-09-17" },
-    { nombre: "Andrea Quintero", recarga: 150, retirada: 0, venezuela: 3200, tasa: 40, moneda: "GBP", fecha: "2024-09-17" },
-    // ... agregar más datos
-  ]);
+  const { loggedAdm, infoTkn, url } = useDataContext();
 
+  let totalDeposito = 0;
+  let totalRetiro = 0;
+
+  // Datos de Movimientos
+  const [movements, setMovements] = useState([]);
+  const [efectivoData, setEfectivoData] = useState([]);
+
+  // Datos de Totales
+  const [totalEur, setTotalEur] = useState(0);
+  const [totalUsd, setTotalUsd] = useState(0);
+  const [totalGbp, setTotalGbp] = useState(0);
+
+  // Datos de Usuarios
+  const [users, setUsers] = useState([]);
+
+  // Mapa de banderas
+  const flagMap = {
+    "Argentina": argentinaFlag,
+    "Colombia": colombiaFlag,
+    "Panamá": panamaFlag,
+    "Venezuela": venezuelaFlag,
+    "Brasil": brasilFlag,
+    "Perú": peruFlag,
+    "Chile": chileFlag,
+    "Ecuador": ecuadorFlag,
+    "Estados Unidos": usaFlag,
+  };
+
+  // Estado de filtro
   const [filtro, setFiltro] = useState("TODOS");
+  const [tipoMovimiento, setTipoMovimiento] = useState("TODOS");
   const [fechaFiltro, setFechaFiltro] = useState("");
-  
-  // Datos de prueba para usuarios con saldos positivos (EUR, USD, GBP)
-  const usuariosSaldoPositivo = ([
-    { nombre: "Ruben Quintana", saldoEur: 70, saldoUsd: 50, saldoGbp: 30 },
-    { nombre: "Wilfredo Vargas", saldoEur: 880, saldoUsd: 300, saldoGbp: 0 },
-    // ... agregar más datos
-  ]);
 
-  const [showSaldoModal, setShowSaldoModal] = useState(false);
-  const [showUsersModal, setShowUsersModal] = useState(false);
-  const [fechaDesde, setFechaDesde] = useState("");
-  const [fechaHasta, setFechaHasta] = useState("");
+  // Fetch de datos Movements
+  const fetchDataMovemments = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/Movements`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setMovements(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setMovements, infoTkn, url]);
 
-  // Establecer fecha del sistema como valor predeterminado
+  // Fetch de datos de Usuarios
+  const fetchDataUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/users`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,
+        },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [infoTkn, setUsers, url]);
+
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setFechaFiltro(today);
-  }, []);
 
-  // Filtrar transacciones por moneda y fecha
-  const filtrarTransacciones = () => {
-    let transaccionesFiltradas = transacciones;
-    if (filtro !== "TODOS") {
-      transaccionesFiltradas = transaccionesFiltradas.filter((transaccion) => {
-        if (filtro === "LIBRAS") return transaccion.moneda === "GBP";
-        if (filtro === "DOLARES") return transaccion.moneda === "USD";
-        if (filtro === "EUROS") return transaccion.moneda === "EUR";
-        return true;
-      });
-    }
+    fetchDataMovemments();
+    fetchDataUsers();
+  }, [fetchDataMovemments, fetchDataUsers]);
 
-    if (fechaFiltro) {
-      transaccionesFiltradas = transaccionesFiltradas.filter(
-        (transaccion) => transaccion.fecha === fechaFiltro
-      );
-    }
-
-    return transaccionesFiltradas;
-  };
-
-  const transaccionesFiltradas = filtrarTransacciones();
-
-  // Totales calculados
-  const calcularTotales = (campo) => {
-    return transacciones.reduce((total, transaccion) => total + (transaccion[campo] || 0), 0);
-  };
-
-  // Función para calcular las recargas por usuario
-  const calcularRecargasPorUsuario = () => {
-    const recargasPorUsuario = transacciones.reduce((acc, transaccion) => {
-      if (!acc[transaccion.nombre]) {
-        acc[transaccion.nombre] = { recargaTotal: 0 };
-      }
-      acc[transaccion.nombre].recargaTotal += transaccion.recarga;
-      return acc;
-    }, {});
-
-    return Object.entries(recargasPorUsuario)
-      .map(([nombre, { recargaTotal }]) => ({ nombre, recargaTotal }))
-      .sort((a, b) => b.recargaTotal - a.recargaTotal);
-  };
-
-  const recargasFiltradas = () => {
-    const recargas = calcularRecargasPorUsuario();
-    return recargas.filter((usuario) => {
-      const fechaUsuario = transacciones.find(trans => trans.nombre === usuario.nombre)?.fecha;
-      return (
-        (!fechaDesde || fechaUsuario >= fechaDesde) &&
-        (!fechaHasta || fechaUsuario <= fechaHasta)
-      );
-    });
-  };
-
-  return (
+  return loggedAdm ? (
     <div className="relation-dashboard">
       <div className="dashboard-content">
         <NavBarAdmin />
@@ -106,26 +108,56 @@ function Relation() {
         {/* Botones de Filtro */}
         <div className="filter-buttons">
           <button
-            className={filtro === "LIBRAS" ? "active" : ""}
-            onClick={() => setFiltro("LIBRAS")}
+            className={tipoMovimiento === "Deposito" ? "active" : ""}
+            onClick={() => {
+              setTipoMovimiento("Deposito");
+              setFiltro("TODOS"); // Resetea el filtro de divisa
+            }}
           >
-            <FaPoundSign /> Recarga Libras
+            Deposito
           </button>
           <button
-            className={filtro === "DOLARES" ? "active" : ""}
-            onClick={() => setFiltro("DOLARES")}
+            className={tipoMovimiento === "Retiro" ? "active" : ""}
+            onClick={() => {
+              setTipoMovimiento("Retiro");
+              setFiltro("TODOS"); // Resetea el filtro de divisa
+            }}
           >
-            <FaDollarSign /> Recarga Dólares
+            Retiro
           </button>
           <button
-            className={filtro === "EUROS" ? "active" : ""}
-            onClick={() => setFiltro("EUROS")}
+            className={filtro === "EUR" ? "active" : ""}
+            onClick={() => {
+              setFiltro("EUR");
+              setTipoMovimiento("Retiro"); // Asegúrate de filtrar solo retiros para EUR
+            }}
           >
-            <FaEuroSign /> Recarga Euros
+            Retiro de Euros
+          </button>
+          <button
+            className={filtro === "USD" ? "active" : ""}
+            onClick={() => {
+              setFiltro("USD");
+              setTipoMovimiento("Retiro"); // Asegúrate de filtrar solo retiros para USD
+            }}
+          >
+            Retiro de Dólares
+          </button>
+          <button
+            className={filtro === "GBP" ? "active" : ""}
+            onClick={() => {
+              setFiltro("GBP");
+              setTipoMovimiento("Retiro"); // Asegúrate de filtrar solo retiros para GBP
+            }}
+          >
+            Retiro de Libras
           </button>
           <button
             className={filtro === "TODOS" ? "active" : ""}
-            onClick={() => setFiltro("TODOS")}
+            onClick={() => {
+              setFiltro("TODOS");
+              setTipoMovimiento("TODOS"); // Muestra todo si se selecciona "TODOS"
+            }}
           >
             Ver Todo
           </button>
@@ -139,141 +171,108 @@ function Relation() {
                 <th>Nombre</th>
                 <th>Recarga del Día</th>
                 <th>Retirada del Día</th>
-                <th>Venezuela</th>
-                <th>Valor de la Tasa</th>
+                {tipoMovimiento === "Retiro" && <th>Valor de la Tasa</th>}
+                <th>Pais</th>
                 <th>Moneda</th>
                 <th>Fecha</th>
               </tr>
             </thead>
             <tbody>
-              {transaccionesFiltradas.length > 0 ? (
-                transaccionesFiltradas.map((transaccion, index) => (
-                  <tr key={index}>
-                    <td>{transaccion.nombre}</td>
-                    <td>{transaccion.recarga}</td>
-                    <td>{transaccion.retirada}</td>
-                    <td>{transaccion.venezuela}</td>
-                    <td>{transaccion.tasa}</td>
-                    <td>{transaccion.moneda}</td>
-                    <td>{transaccion.fecha}</td>
-                  </tr>
-                ))
+              {movements.length > 0 ? (
+                movements
+                  .filter((mov) => {
+                    const isMatchingType = tipoMovimiento === "TODOS" || mov.mov_type === tipoMovimiento;
+                    const isMatchingCurrency = filtro === "TODOS" || mov.mov_oldCurrency === filtro;
+                    return isMatchingType && isMatchingCurrency && mov.mov_date.slice(0, 10) === fechaFiltro && mov.mov_status === "V";
+                  })
+                  .map((movement, index) => {
+                    let deposito = 0;
+                    let retiro = 0;
+
+                    if (movement.mov_type === "Deposito") {
+                      deposito = movement.mov_amount;
+                      totalDeposito += deposito;
+                    } else if (movement.mov_type === "Retiro") {
+                      retiro = movement.mov_amount;
+                      totalRetiro += retiro;
+                    }
+
+                    return (
+                      <tr key={index}>
+                        <td>
+                          {movement.User.use_name} {movement.User.use_lastName}
+                        </td>
+                        <td
+                          {...(movement.mov_type === "Deposito" ? { style: { color: "green" } } : null)}
+                        >
+                          {movement.mov_type === "Deposito"
+                            ? `${
+                                movement.mov_currency === "EUR"
+                                  ? "€"
+                                  : movement.mov_currency === "USD"
+                                  ? "$"
+                                  : movement.mov_currency === "GBP"
+                                  ? "£"
+                                  : ""
+                              } ${totalDeposito} (${deposito})`
+                            : `${totalDeposito} (0)`}
+                        </td>
+                        <td
+                          {...(movement.mov_type === "Retiro" ? { style: { color: "red" } } : null)}
+                        >
+                          {movement.mov_currency === "EUR"
+                            ? "€"
+                            : movement.mov_currency === "USD"
+                            ? "$"
+                            : movement.mov_currency === "GBP"
+                            ? "£"
+                            : ""}{" "}
+                          {movement.mov_type === "Retiro"
+                            ? `${totalRetiro} (${retiro})`
+                            : `${totalRetiro} (0)`}
+                        </td>
+                        {tipoMovimiento === "Retiro" && <td>{movement.mov_currencyPrice}</td>}
+                        <td>
+                          {movement.AccountsBsUser ? (
+                            <>
+                              {movement.AccountsBsUser.accbsUser_country}{" "}
+                              <img
+                                src={
+                                  flagMap[movement.AccountsBsUser.accbsUser_country]
+                                }
+                                alt={movement.AccountsBsUser.accbsUser_country}
+                                style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
+                              />
+                            </>
+                          ) : movement.mov_typeOutflow === "efectivo" ? (
+                            <>
+                              Efectivo{" "}
+                              <img
+                                src={venezuelaFlag}
+                                alt="Venezuela Flag"
+                                style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
+                              />
+                            </>
+                          ) : null}
+                        </td>
+                        <td>{movement.mov_oldCurrency}</td>
+                        <td>{movement.mov_date}</td>
+                      </tr>
+                    );
+                  })
               ) : (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }}>
-                    No se encontraron transacciones para la fecha seleccionada
-                  </td>
+                  <td colSpan="7">No hay movimientos disponibles</td>
                 </tr>
               )}
-              <tr className="totales-row">
-                <td><strong>Totales</strong></td>
-                <td>{calcularTotales("recarga")}</td>
-                <td>{calcularTotales("retirada")}</td>
-                <td>{calcularTotales("venezuela")}</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
             </tbody>
           </table>
         </div>
-
-        {/* Botón para mostrar usuarios con saldo positivo */}
-        <div className="positive-balance-button">
-          <button className="btn btn-primary" onClick={() => setShowSaldoModal(true)}>
-            Ver Usuarios con Saldos Positivos
-          </button>
-        </div>
-
-        {/* Botón para mostrar relación de usuarios */}
-        <div className="positive-balance-button">
-          <button className="btn btn-primary" onClick={() => setShowUsersModal(true)}>
-            Relación de Usuarios
-          </button>
-        </div>
-
-        {/* Modal de Usuarios con Saldos Positivos */}
-        {showSaldoModal && (
-          <div className="modal show">
-            <div className="modal-content">
-              <h3>Usuarios con Saldos Positivos</h3>
-              <table className="positive-balance-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Nombre</th>
-                    <th>Saldo EUR</th>
-                    <th>Saldo USD</th>
-                    <th>Saldo GBP</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuariosSaldoPositivo.map((usuario, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{usuario.nombre}</td>
-                      <td>€{usuario.saldoEur}</td>
-                      <td>${usuario.saldoUsd}</td>
-                      <td>£{usuario.saldoGbp}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button className="btn btn-secondary" onClick={() => setShowSaldoModal(false)}>
-                Cerrar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de Relación de Usuarios */}
-        {showUsersModal && (
-          <div className="modal show">
-            <div className="modal-content">
-              <h3>Relación de Usuarios</h3>
-              <div className="date-filters">
-                <label htmlFor="fechaDesde">Desde:</label>
-                <input
-                  type="date"
-                  id="fechaDesde"
-                  value={fechaDesde}
-                  onChange={(e) => setFechaDesde(e.target.value)}
-                />
-                <label htmlFor="fechaHasta">Hasta:</label>
-                <input
-                  type="date"
-                  id="fechaHasta"
-                  value={fechaHasta}
-                  onChange={(e) => setFechaHasta(e.target.value)}
-                />
-              </div>
-              <table className="users-relation-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Nombre</th>
-                    <th>Total Recarga</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recargasFiltradas().map((usuario, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{usuario.nombre}</td>
-                      <td>${usuario.recargaTotal}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button className="btn btn-secondary" onClick={() => setShowUsersModal(false)}>
-                Cerrar
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
+  ) : (
+    <NotFound />
   );
 }
 
-export { Relation };
+export  {Relation};

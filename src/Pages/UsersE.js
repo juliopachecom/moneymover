@@ -4,9 +4,10 @@ import NavBarAdmin from "../Components/NavBarAdmin"; // Importando NavBarAdmin
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { NotFound } from "../Components/NotFound";
 
 function UsersE() {
-  const { infoTkn, url } = useDataContext();
+  const { loggedAdm, infoTkn, url } = useDataContext();
 
   //Listado
   const [users, setUsers] = useState([]);
@@ -14,7 +15,7 @@ function UsersE() {
   const filteredUsuarios = users.filter((user) => {
     const fullName =
       `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
-    return fullName
+    return fullName;
   });
 
   const fetchDataUsers = useCallback(async () => {
@@ -119,7 +120,9 @@ function UsersE() {
   const handleStatusChange = (newStatus) => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
-        user.id === selectedUser.use_id ? { ...user, use_verif: newStatus } : user
+        user.id === selectedUser.use_id
+          ? { ...user, use_verif: newStatus }
+          : user
       )
     );
     closeModal();
@@ -136,7 +139,7 @@ function UsersE() {
     fetchDataUsers();
   }, [fetchDataUsers]);
 
-  return (
+  return loggedAdm ? (
     <div className="users-e-dashboard">
       <NavBarAdmin />
       <div className="dashboard-content">
@@ -160,7 +163,7 @@ function UsersE() {
                 .filter((user) => user.use_verif === "E")
                 .map((user, index) => (
                   <tr key={user.use_id}>
-                    <td>{index+1}</td>
+                    <td>{index + 1}</td>
                     <td>
                       {user.use_name} {user.use_lastName}
                     </td>
@@ -247,6 +250,8 @@ function UsersE() {
         )}
       </div>
     </div>
+  ) : (
+    <NotFound />
   );
 }
 

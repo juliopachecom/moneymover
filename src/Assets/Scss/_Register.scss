@@ -7,6 +7,15 @@
   background-color: #f9f9f9;
   padding: 20px;
 
+  a {
+    color: #0066cc;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .register-form {
     background-color: #ffffff;
     padding: 30px;

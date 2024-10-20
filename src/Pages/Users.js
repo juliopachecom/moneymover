@@ -13,9 +13,10 @@ import NavBarAdmin from "../Components/NavBarAdmin"; // Importando NavBarAdmin
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { NotFound } from "../Components/NotFound";
 
 function Users() {
-  const { infoTkn, url } = useDataContext();
+  const { loggedAdm, infoTkn, url } = useDataContext();
 
   //Buscador
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,19 +83,7 @@ function Users() {
     }
   }, [infoTkn, setMovements, url]);
 
-  // Paginación
-  // const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentUsers = users
-  //   .filter(
-  //     (user) =>
-  //       user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  //   )
-  //   .slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -114,12 +103,6 @@ function Users() {
     setShowDetailsModal(false);
     setShowImageModal(true);
   };
-
- // const openMovementImageModal = (mov) => {
- //   setSelectedMovement(mov);
-  //  setShowMovementsModal(false);
-  //  setShowMovementImageModal(true);
-  //};
 
   const openEditModal = (user) => {
     setSelectedUser(user);
@@ -156,31 +139,6 @@ function Users() {
     setVerif("");
   };
 
-  // Función para añadir un nuevo usuario
-  // const [newUser, setNewUser] = useState({
-  //   nombre: "",
-  //   apellido: "",
-  //   dni: "",
-  //   telefono: "",
-  //   email: "",
-  //   saldoEUR: 0,
-  //   saldoUSD: 0,
-  //   saldoGBP: 0,
-  //   use_verif: "E", // Default estado
-  // });
-
-  // const handleNewUserChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setNewUser((prev) => ({ ...prev, [name]: value }));
-  // };
-
-  // const handleAddUser = (e) => {
-  //   e.preventDefault();
-  //   const userId = users.length + 1;
-  //   setUsers((prev) => [...prev, { id: userId, ...newUser }]);
-  //   closeModal();
-  // };
-
   // Función para manejar cambios en el estado de verificación
   const handleUserVerificationChange = (e) => {
     const { value } = e.target;
@@ -194,9 +152,7 @@ function Users() {
     if (status === "E") return <FaClock style={{ color: "orange" }} />;
   };
 
-  // Movimientos ficticios
-
-
+  // Función para enviar los datos del formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -210,8 +166,6 @@ function Users() {
             use_dni,
             use_phone,
             use_email,
-            use_password,
-            use_img,
             use_verif,
             use_amountUsd,
             use_amountEur,
@@ -264,7 +218,7 @@ function Users() {
     fetchDataMovements();
   }, [fetchDataUsers, fetchDataMovements]);
 
-  return (
+  return loggedAdm ? (
     <div className="admin-dashboard">
       <NavBarAdmin />
       <div className="dashboard-content">
@@ -534,8 +488,7 @@ function Users() {
                         <td>{mov.mov_date}</td>
                         <td>{mov.mov_type}</td>
                         <td>
-                          {mov.mov_amount}{' '}
-                          {mov.mov_currency}
+                          {mov.mov_amount} {mov.mov_currency}
                           {mov.mov_currency === "EUR" && (
                             <img src={spainFlag} alt="EUR" />
                           )}
@@ -618,32 +571,53 @@ function Users() {
           <div className="modal">
             <div className="modal-content">
               <h3>Editar {selectedUser.use_name}</h3>
-              <form>
+              <form onSubmit={handleSubmit}>
                 <label>
                   Nombre:
-                  <input type="text" defaultValue={selectedUser.use_name} />
+                  <input
+                    type="text"
+                    defaultValue={selectedUser.use_name}
+                    onChange={(e) => setNombre(e.target.value)}
+                  />
                 </label>
                 <label>
                   Apellido:
-                  <input type="text" defaultValue={selectedUser.use_lastName} />
+                  <input
+                    type="text"
+                    defaultValue={selectedUser.use_lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
                 </label>
                 <label>
                   DNI:
-                  <input type="text" defaultValue={selectedUser.use_dni} />
+                  <input
+                    type="text"
+                    defaultValue={selectedUser.use_dni}
+                    onChange={(e) => setDNI(e.target.value)}
+                  />
                 </label>
                 <label>
                   Teléfono:
-                  <input type="text" defaultValue={selectedUser.use_phone} />
+                  <input
+                    type="text"
+                    defaultValue={selectedUser.use_phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
                 </label>
                 <label>
                   Correo:
-                  <input type="email" defaultValue={selectedUser.use_email} />
+                  <input
+                    type="email"
+                    defaultValue={selectedUser.use_email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </label>
                 <label>
                   Saldo EUR:
                   <input
                     type="number"
                     defaultValue={selectedUser.use_amountEur}
+                    onChange={(e) => setAmountEur(e.target.value)}
                   />
                 </label>
                 <label>
@@ -651,6 +625,7 @@ function Users() {
                   <input
                     type="number"
                     defaultValue={selectedUser.use_amountGbp}
+                    onChange={(e) => setAmountGbp(e.target.value)}
                   />
                 </label>
                 <label>
@@ -658,6 +633,7 @@ function Users() {
                   <input
                     type="number"
                     defaultValue={selectedUser.use_amountUsd}
+                    onChange={(e) => setAmountUsd(e.target.value)}
                   />
                 </label>
                 <label>
@@ -683,6 +659,8 @@ function Users() {
         )}
       </div>
     </div>
+  ) : (
+    <NotFound />
   );
 }
 

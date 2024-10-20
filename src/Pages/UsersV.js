@@ -4,9 +4,10 @@ import NavBarAdmin from "../Components/NavBarAdmin";
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { NotFound } from "../Components/NotFound";
 
 function UsersV() {
-  const { infoTkn, url } = useDataContext();
+  const { loggedAdm, infoTkn, url } = useDataContext();
 
   const [users, setUsers] = useState([]);
 
@@ -35,11 +36,9 @@ function UsersV() {
 
   useEffect(() => {
     fetchDataUsers();
-  }, [
-    fetchDataUsers
-  ]);
+  }, [fetchDataUsers]);
 
-  return (
+  return loggedAdm ? (
     <div className="users-e-dashboard">
       <NavBarAdmin />
       <div className="dashboard-content">
@@ -58,23 +57,27 @@ function UsersV() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsuarios.filter((user) => user.use_verif === "S").map((user, index) => (
-                <tr key={user.use_id}>
-                <td>{index+1}</td>
-                <td>
-                  {user.use_name} {user.use_lastName}
-                </td>
-                <td>{user.use_dni || "N/A"}</td>
-                <td>{user.use_phone}</td>
-                <td>{user.use_email}</td>
-                <td>{getVerificationIcon()}</td>
-              </tr>
-              ))}
+              {filteredUsuarios
+                .filter((user) => user.use_verif === "S")
+                .map((user, index) => (
+                  <tr key={user.use_id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      {user.use_name} {user.use_lastName}
+                    </td>
+                    <td>{user.use_dni || "N/A"}</td>
+                    <td>{user.use_phone}</td>
+                    <td>{user.use_email}</td>
+                    <td>{getVerificationIcon()}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
       </div>
     </div>
+  ) : (
+    <NotFound />
   );
 }
 

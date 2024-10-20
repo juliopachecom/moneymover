@@ -12,9 +12,10 @@ import axios from "axios";
 import { useDataContext } from "../Context/dataContext";
 import { toast } from "react-toastify";
 import { banksByCountry } from "../Utils/Variables";
+import { Redirect } from "react-router-dom";
 
 function Directory() {
-  const { url, infoTkn } = useDataContext();
+  const { logged, url, infoTkn } = useDataContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // DATOS PARA BENEFICIARIO
@@ -139,7 +140,7 @@ function Directory() {
           accbsUser_dni,
           accbsUser_phone: telefonoPrefix + accbsUser_phone,
           accbsUser_type,
-          accbsUser_status: "activo",
+          accbsUser_status: "Activo",
           accbsUser_userId: user.use_id,
           accbsUser_country,
         },
@@ -232,14 +233,14 @@ function Directory() {
     fetchDataUser();
   }, [fetchDataUser]);
 
-  return (
+  return logged ? (
     <div className="directorio">
       <NavBarUser />
       <div className="directorio__header">
         <h1>Tus Beneficiarios</h1>
         <div className="directorio__actions">
           <button className="action-button" onClick={toggleShowInactive}>
-            {showInactive ? 'Ver activos' : 'Ver inactivos'}
+            {showInactive ? "Ver activos" : "Ver inactivos"}
           </button>
           <button className="action-button" onClick={toggleModal}>
             Nuevo beneficiario
@@ -248,8 +249,10 @@ function Directory() {
       </div>
       <div className="directorio__list">
         {userDirectory
-          .filter((beneficiario) => 
-            showInactive ? beneficiario.accbsUser_status === 'Inactivo' : beneficiario.accbsUser_status === 'Activo'
+          .filter((beneficiario) =>
+            showInactive
+              ? beneficiario.accbsUser_status === "Inactivo"
+              : beneficiario.accbsUser_status === "Activo"
           )
           .map((beneficiario) => (
             <div className="beneficiario-card" key={beneficiario.accbsUser_id}>
@@ -286,11 +289,14 @@ function Directory() {
                 <p>Número teléfonico: {beneficiario.accbsUser_phone}</p>
                 <p>{beneficiario.accbsUser_type}</p>
               </div>
-              <button className="remesa-button" onClick={
-                () => {
+              <button
+                className="remesa-button"
+                onClick={() => {
                   window.location.href = `/sendmoney`;
-                }
-              }>Envía tu Remesa</button>
+                }}
+              >
+                Envía tu Remesa
+              </button>
               <span
                 className="estado"
                 onClick={() => {
@@ -481,6 +487,8 @@ function Directory() {
         </div>
       )}
     </div>
+  ) : (
+    <Redirect to="/login" />
   );
 }
 

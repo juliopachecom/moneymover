@@ -5,9 +5,10 @@ import { NavBarUser } from "../Components/NavBarUser";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import axios from "axios";
 import { useDataContext } from "../Context/dataContext"; // Para obtener el token y la URL
+import { Redirect } from "react-router-dom";
 
 function Profile() {
-  const { url, infoTkn } = useDataContext(); // Asegúrate de incluir setUserId
+  const { logged, url, infoTkn } = useDataContext(); // Asegúrate de incluir setUserId
 
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
@@ -204,9 +205,7 @@ function Profile() {
     setError("");
   };
 
-  
-
-  return (
+  return logged ? (
     <div className="profile-page">
       <div className="profile">
         <NavBarUser />
@@ -214,11 +213,7 @@ function Profile() {
         <div className="profile__container">
           {/* Foto de perfil */}
           <div className="profile__photo-wrapper">
-            <img
-              src={profilePhoto}
-              alt="Profile"
-              className="profile__photo"
-            />
+            <img src={profilePhoto} alt="Profile" className="profile__photo" />
             <div className="profile__photo-overlay">
               <label
                 htmlFor="profile-photo-upload"
@@ -416,6 +411,8 @@ function Profile() {
         )}
       </div>
     </div>
+  ) : (
+    <Redirect to="/Login" />
   );
 }
 

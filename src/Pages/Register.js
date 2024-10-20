@@ -4,13 +4,11 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
-import { Link } from 'react-router-dom';
-
-
+import { Redirect } from "react-router-dom";
 
 function Register() {
   const history = useHistory();
-  const { url } = useDataContext();
+  const { logged, url } = useDataContext();
 
   const [use_name, setUse_name] = useState("");
   const [use_lastName, setUse_lastName] = useState("");
@@ -71,7 +69,7 @@ function Register() {
     }
   };
 
-  return (
+  return logged ? (
     <div className="register-container">
       <form className="register-form" onSubmit={openModal}>
         <div className="text-center mb-4">
@@ -199,8 +197,8 @@ function Register() {
             required
           />
           <label htmlFor="termsAccepted" >
-            <Link className='Link' to='/TermsAndConditions'>
-            Acepto los términos y condiciones</Link>
+            <a className='Link' href='/TermsAndConditions'>
+            Acepto los términos y condiciones</a>
           </label>
         </div>
         <div className="button-group">
@@ -248,6 +246,8 @@ function Register() {
 
       <ToastContainer autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
+  ) : (
+    <Redirect to="/Changes" />
   );
 }
 
