@@ -6,6 +6,7 @@ function StepTracker({ currentStep }) {
     { label: 'Cantidad' },
     { label: 'Beneficiario' },
     { label: 'Confirmación' },
+    { label: 'Finalización' },
   ];
 
   return (

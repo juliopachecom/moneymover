@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 function Login() {
   const history = useHistory();
-  const { logged,  setLogged, setInfoTkn, url } = useDataContext();
+  const { setLogged, setInfoTkn, url } = useDataContext();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +21,6 @@ function Login() {
       const response = await axios.get(
         `${url}/Auth/login/${email}/${password}`
       );
-      // console.log(response)
       setInfoTkn(response.data.data.access_token);
       const response2 = await axios.get(
         `${url}/Auth/findByToken/${response.data.data.access_token}`
@@ -37,14 +36,17 @@ function Login() {
       });
     } catch (error) {
       toast.error(
-        "Ocurrió un error durante el inicio de sesión. Por favor, verifica los datos e intenta nuevamente."
+        error.response.data.message
+      );
+      await axios.get(
+        `${url}/Auth/logout/${email}`
       );
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(logged)
+    // console.log(logged)
     try {
       const success = await fetchData(user, password);
       if (!success) {

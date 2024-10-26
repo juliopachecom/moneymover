@@ -18,6 +18,7 @@ import {
 import { NavBarUser } from "../Components/NavBarUser";
 import { Link } from "react-router-dom";
 // import { toast, ToastContainer } from "react-toastify";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
@@ -25,6 +26,7 @@ const apiKey = "bd2f01e809e6a946c92997f6dafa16e448db";
 const formId = "8358707b19257049490b9df5216b1ae5e3f8";
 
 function Changes() {
+  useAxiosInterceptors();
   const { logged, infoTkn, url } = useDataContext();
 
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(profileIcon);
@@ -47,7 +49,10 @@ function Changes() {
 
   //Toggle de imagen
   const [imgTogle, setImgTogle] = useState(false);
-  const toggleImg = () => setImgTogle(!imgTogle);
+  const toggleImg = () => {
+    setIsDetailIsModalOpen(false);
+    setIsDetailsModalOpen(false);
+    setImgTogle(!imgTogle)};
 
   //kyc
   const fetchKycLink = async () => {
@@ -198,11 +203,6 @@ function Changes() {
     setIsRatesModalOpen(false);
   };
 
-  const toggleVerificationModal = () => {
-    setIsModalOpen(false); // Cierra el primer modal
-    setIsVerificationModalOpen(true); // Abre el modal de verificación
-  };
-
   // Alternar modal de verificación
   const toggleModal = useCallback(() => {
     setIsModalOpen(!isModalOpen);
@@ -331,9 +331,20 @@ function Changes() {
               normativas ISO 27001 y GDPR para proteger tus datos y garantizar
               su seguridad.
             </p>
-            <button className="verify-button" onClick={toggleVerificationModal}>
-              ¡Verifícate!
+            {/* Botón para obtener el enlace de verificación KYC y redirigir */}
+            <button className="button-kycaml" onClick={fetchKycLink}>
+              Obtener enlace de verificación KYC
             </button>
+
+            {/* Redirigir automáticamente si existe el enlace */}
+            {kycLink && kycLink.startsWith("http") && (
+              <>
+                <p className="kyc-modal-text" style={{ textAlign: "center" }}>
+                  <strong>Redirigiendo a la verificación KYC...</strong>
+                </p>
+                {handleRedirect()} {/* Llama a la función de redirección */}
+              </>
+            )}
             <button className="close-button" onClick={toggleModal}>
               Cerrar
             </button>
@@ -550,14 +561,23 @@ function Changes() {
                                 : "cancelled"
                             }
                           >
-                            {movement.mov_status === "V"
-                              ? "Aprobado"
-                              : movement.mov_status === "E"
-                              ? "En espera"
-                              : "Rechazado"}
+                            {movement.mov_status === "V" ? (
+                              "Aprobado"
+                            ) : movement.mov_status === "E" ? (
+                              <div class="tooltip">
+                                En espera
+                                <span class="tooltiptext">
+                                  Tu transferencia esta en proceso de
+                                  verificación
+                                </span>
+                              </div>
+                            ) : (
+                              "Rechazado"
+                            )}
                           </td>
                           <td>
                             <FaEye
+                              style={{ marginLeft: '15px', cursor: "pointer" }}
                               className="view-details-icon"
                               onClick={() => {
                                 openDetailsIModal(movement);
@@ -655,11 +675,19 @@ function Changes() {
                                 : "cancelled"
                             }
                           >
-                            {movement.mov_status === "V"
-                              ? "Aprobado"
-                              : movement.mov_status === "E"
-                              ? "En espera"
-                              : "Rechazado"}
+                            {movement.mov_status === "V" ? (
+                              "Aprobado"
+                            ) : movement.mov_status === "E" ? (
+                              <div class="tooltip">
+                                En espera
+                                <span class="tooltiptext">
+                                  Tu transferencia esta en proceso de
+                                  verificación
+                                </span>
+                              </div>
+                            ) : (
+                              "Rechazado"
+                            )}
                           </td>
                           <td>
                             <FaEye
@@ -696,6 +724,16 @@ function Changes() {
             <p>
               <strong># Remesa:</strong> {selectedMovement.mov_ref}
             </p>
+            {selectedMovement.mov_code ? (
+              <p>
+                <strong>Código:</strong> {selectedMovement.mov_code}
+              </p>
+            ) : null}
+            {selectedMovement.mov_phone ? (
+              <p>
+                <strong>Teléfono:</strong> {selectedMovement.mov_phone}
+              </p>
+            ) : null}
             <p>
               <strong>Monto:</strong>{" "}
               {selectedMovement.mov_currency === "EUR" ? "€" : "$"}

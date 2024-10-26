@@ -4,11 +4,12 @@ import profileIcon from "../Assets/Images/profileicon.png";
 import { NavBarUser } from "../Components/NavBarUser";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import axios from "axios";
-import { useDataContext } from "../Context/dataContext"; // Para obtener el token y la URL
-import { Redirect } from "react-router-dom";
+import { useDataContext } from "../Context/dataContext"; 
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function Profile() {
-  const { logged, url, infoTkn } = useDataContext(); // Asegúrate de incluir setUserId
+  useAxiosInterceptors();
+  const { url, infoTkn } = useDataContext(); // Asegúrate de incluir setUserId
 
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
@@ -205,7 +206,7 @@ function Profile() {
     setError("");
   };
 
-  return logged ? (
+  return (
     <div className="profile-page">
       <div className="profile">
         <NavBarUser />
@@ -411,8 +412,6 @@ function Profile() {
         )}
       </div>
     </div>
-  ) : (
-    <Redirect to="/Login" />
   );
 }
 

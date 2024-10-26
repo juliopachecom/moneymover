@@ -4,11 +4,12 @@ import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
-import { Redirect } from "react-router-dom";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function Register() {
+  useAxiosInterceptors();
   const history = useHistory();
-  const { logged, url } = useDataContext();
+  const { url } = useDataContext();
 
   const [use_name, setUse_name] = useState("");
   const [use_lastName, setUse_lastName] = useState("");
@@ -18,6 +19,7 @@ function Register() {
   const [use_phonePrefix, setUse_phonePrefix] = useState("+34"); // Default is Spain
   const [use_confirm, setUse_confirm] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,7 +71,7 @@ function Register() {
     }
   };
 
-  return logged ? (
+  return (
     <div className="register-container">
       <form className="register-form" onSubmit={openModal}>
         <div className="text-center mb-4">
@@ -121,17 +123,17 @@ function Register() {
               onChange={(e) => setUse_phonePrefix(e.target.value)}
               className="phone-prefix"
             >
-              <option value="+34">🇪🇸  (+34)</option>
+              <option value="+34">🇪🇸 (+34)</option>
               <option value="+58">🇻🇪 (+58)</option>
               <option value="+1">🇺🇸 (+1)</option>
-              <option value="+54">🇦🇷  (+54)</option>
-              <option value="+55">🇧🇷  (+55)</option>
-              <option value="+56">🇨🇱  (+56)</option>
-              <option value="+57">🇨🇴  (+57)</option>
-              <option value="+593">🇪🇨  (+593)</option>
-              <option value="+52">🇲🇽  (+52)</option>
-              <option value="+507">🇵🇦  (+507)</option>
-              <option value="+51">🇵🇪  (+51)</option>
+              <option value="+54">🇦🇷 (+54)</option>
+              <option value="+55">🇧🇷 (+55)</option>
+              <option value="+56">🇨🇱 (+56)</option>
+              <option value="+57">🇨🇴 (+57)</option>
+              <option value="+593">🇪🇨 (+593)</option>
+              <option value="+52">🇲🇽 (+52)</option>
+              <option value="+507">🇵🇦 (+507)</option>
+              <option value="+51">🇵🇪 (+51)</option>
             </select>
 
             <input
@@ -196,9 +198,35 @@ function Register() {
             onChange={(e) => setTermsAccepted(e.target.checked)}
             required
           />
-          <label htmlFor="termsAccepted" >
-            <a className='Link' href='/TermsAndConditions'>
-            Acepto los términos y condiciones</a>
+          <label htmlFor="termsAccepted">
+            <a
+              className="Link"
+              href="/TermsAndConditions"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Acepto los términos y condiciones
+            </a>
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            type="checkbox"
+            name="privacyAccepted"
+            id="privacyAccepted"
+            checked={privacyAccepted}
+            onChange={(e) => setPrivacyAccepted(e.target.checked)}
+            required
+          />
+          <label htmlFor="privacyAccepted">
+            <a
+              className="Link"
+              href="/Privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Acepto las políticas de privacidad
+            </a>
           </label>
         </div>
         <div className="button-group">
@@ -244,10 +272,17 @@ function Register() {
         </div>
       )}
 
-      <ToastContainer autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+      <ToastContainer
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
-  ) : (
-    <Redirect to="/Changes" />
   );
 }
 

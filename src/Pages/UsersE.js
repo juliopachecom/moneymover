@@ -5,8 +5,10 @@ import NavBarAdmin from "../Components/NavBarAdmin"; // Importando NavBarAdmin
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { NotFound } from "../Components/NotFound";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function UsersE() {
+  useAxiosInterceptors();
   const { loggedAdm, infoTkn, url } = useDataContext();
 
   //Listado

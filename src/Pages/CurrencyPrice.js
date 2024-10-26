@@ -8,8 +8,10 @@ import ukFlag from "../Assets/Images/uk.png";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import { toast, ToastContainer } from "react-toastify";
 import { NotFound } from "../Components/NotFound";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function CurrencyPrice() {
+  useAxiosInterceptors();
   const { loggedAdm, infoTkn, url } = useDataContext();
 
   const [currencyPrice, setCurrencyPrice] = useState([]);

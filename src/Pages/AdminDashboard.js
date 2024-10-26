@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import spainFlag from "../Assets/Images/spain.png";
 import usaFlag from "../Assets/Images/usa.png";
+import ukFlag from "../Assets/Images/uk.png";
 import { format } from "date-fns";
 import NavBarAdmin from "../Components/NavBarAdmin";
 import { FaEye } from "react-icons/fa";
@@ -8,8 +9,10 @@ import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { NotFound } from "../Components/NotFound";
 import { ToastContainer, toast } from "react-toastify";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function AdminDashboard() {
+  useAxiosInterceptors();
   const { loggedAdm, infoTkn, url } = useDataContext();
   const [activeTab, setActiveTab] = useState("recargas");
   const currentDate = format(new Date(), "dd/MM/yyyy");
@@ -31,6 +34,7 @@ function AdminDashboard() {
   // Datos de Remesas
   const [mov_img, setMovImg] = useState("");
   const [payment, setPayment] = useState("");
+  const [fileSelected, setFileSelected] = useState(false);
 
   //Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -361,11 +365,11 @@ function AdminDashboard() {
           ? parseFloat(selectedMovement.mov_amount)
           : selectedMovement.mov_currency === "USD" &&
             selectedMovement.mov_currency !== payment
-          ? parseFloat(selectedMovement.mov_amount) * currencyPrice.cur_UsdToBs
+          ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
           : selectedMovement.mov_currency === "EUR"
-          ? parseFloat(selectedMovement.mov_amount) * currencyPrice.cur_EurToBs
+          ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
           : selectedMovement.mov_currency === "GBP"
-          ? parseFloat(selectedMovement.mov_amount) * currencyPrice.cur_GbpToBs
+          ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
           : parseFloat(selectedMovement.mov_amount)
       );
       formData.append("mov_date", formattedDate);
@@ -724,6 +728,9 @@ function AdminDashboard() {
                           {movement.mov_currency === "EUR" && (
                             <img src={spainFlag} alt="EUR" />
                           )}
+                          {movement.mov_currency === "GBP" && (
+                            <img src={ukFlag} alt="GBP" />
+                          )}
                         </td>
                         <td
                           className={
@@ -801,7 +808,9 @@ function AdminDashboard() {
                             : "Sin beneficiario"}
                         </td>
                         <td>
-                          {movement.mov_amount}{" "}
+                        {movement.mov_typeOutflow === "efectivo"
+                            ? movement.mov_oldAmount
+                            : movement.mov_amount}
                           {movement.mov_currency === "USD" && (
                             <img src={usaFlag} alt="USD" />
                           )}
@@ -878,6 +887,16 @@ function AdminDashboard() {
                       : "Sin banco"}
                   </strong>
                 </p>
+                {selectedMovement.mov_code ? (
+                  <p>
+                    <strong>Código:</strong> {selectedMovement.mov_code}
+                  </p>
+                ) : null}
+                {selectedMovement.mov_phone ? (
+                  <p>
+                    <strong>Teléfono:</strong> {selectedMovement.mov_phone}
+                  </p>
+                ) : null}
 
                 {/* Muestra una imagen o un enlace de descarga si es PDF */}
                 {selectedMovement.mov_img ? (
@@ -1023,14 +1042,22 @@ function AdminDashboard() {
                   </div>
 
                   <div className="modal-actions">
-                    <label class="file-label" for="file-upload">
+                    <label className="file-label" htmlFor="file-upload">
                       Subir Imagen
                     </label>
                     <input
                       type="file"
                       id="file-upload"
-                      onChange={(e) => setMovImg(e.target.files[0])}
+                      onChange={(e) => {
+                        setMovImg(e.target.files[0]);
+                        setFileSelected(!!e.target.files[0]);
+                      }}
                     />
+                    {fileSelected && (
+                      <p className="file-selected-message">
+                        Archivo seleccionado: {mov_img.name}
+                      </p>
+                    )}
                   </div>
                 </>
               )}

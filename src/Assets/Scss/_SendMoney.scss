@@ -553,3 +553,39 @@
     }
   }
 }
+
+.step-4 {
+  text-align: center;
+  margin-top: 20px;
+
+  p {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .another-recharge-button,
+  .finish-button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: none;
+    margin-top: 20px;
+
+    &:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+  }
+
+  .finish-button {
+    background-color: #003366;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}

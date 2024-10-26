@@ -8,17 +8,25 @@
   font-family: 'Poppins', sans-serif;
 }
 
+.amount-flag-column {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .movements__tabs {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: space-around;
 
   .tab {
+    flex: 1 1 auto;
     padding: 12px 30px;
+    margin: 5px;
     background-color: #f1f1f1;
     border: none;
     border-radius: 10px;
+    text-align: center;
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s ease;
@@ -31,6 +39,13 @@
     &:hover {
       background-color: #e0e0e0;
       transform: scale(1.05);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .tab {
+      flex: 1 1 100%;
+      margin: 5px 0;
     }
   }
 }
@@ -64,8 +79,8 @@
 
       img {
         margin-left: 5px;
-        width: 20px; 
-        height: 20px; 
+        width: 20px;
+        height: 20px;
       }
 
       &.v {
@@ -94,100 +109,150 @@
       }
     }
   }
+
+  .tooltip {
+    color: #ff9800;
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #232323;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px 0;
+    width: 150px;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -80px;
+    margin-bottom: 10px;
+    position: absolute;
+    z-index: 1;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
 }
-/* Estilo del modal */
-/* Estilo del overlay del modal */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente más oscuro */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000; // Asegúrate de que esté por encima de otros elementos
 }
 
-/* Estilo del contenido del modal */
 .modal-content {
-  background-color: #f9f9f9; /* Fondo gris claro */
-  padding: 20px; /* Espaciado interior */
-  border-radius: 10px; /* Bordes redondeados */
-  width: 90%;
-  max-width: 600px; /* Ancho máximo */
-  position: relative; /* Posición relativa para el botón de cerrar */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Sombra más suave */
+  position: relative;  // Esto es importante para que el botón de cerrar se posicione respecto al modal
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  width: 600px;
+  max-height: 90%;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-in-out, scaleUp 0.3s ease-in-out;
 }
 
 /* Títulos dentro del modal */
 .modal-content h2 {
-  color: #333; /* Color de texto del título */
-  margin-bottom: 15px; /* Espaciado inferior */
+  color: #333;
+  margin-bottom: 15px;
 }
 
 /* Detalles dentro del modal */
 .modal-details {
   display: flex;
-  flex-direction: column; /* Alinear detalles en columna */
-  align-items: flex-start; /* Alinear detalles a la izquierda */
-  text-align: left; /* Alinear el texto a la izquierda */
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
 
-/* Colores para etiquetas <strong> */
 .modal-details strong {
-  color: #007bff; /* Color azul para las etiquetas strong */
+  color: #007bff;
 }
 
 /* Estilo para el botón de cerrar */
 .modal-close {
-  position: absolute; /* Posición absoluta dentro del modal */
-  top: 10px; /* Distancia desde la parte superior */
-  right: 10px; /* Distancia desde la derecha */
-  background: none; /* Sin fondo */
-  border: none; /* Sin borde */
-  font-size: 22px; /* Tamaño del icono de cerrar */
-  color: #dc3545; /* Color rojo para el botón de cerrar */
-  cursor: pointer; /* Cursor de puntero */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #dc3545;
+  cursor: pointer;
+  width: 30px;
+  z-index: 3000; // Asegura que esté por encima del contenido del modal
 }
 
-/* Estilo para el botón de cerrar al pasar el ratón */
 .modal-close:hover {
-  color: #c82333; /* Color más oscuro al pasar el ratón */
+  color: #c82333;
 }
-
 /* Estilo para imágenes dentro del modal */
 .modal-image {
-  max-width: 100%; /* Asegura que la imagen no sobrepase el ancho del modal */
-  margin-top: 15px; /* Espaciado superior */
-  border-radius: 5px; /* Bordes redondeados para la imagen */
+  max-width: 50%;
+  margin-top: 15px;
+  border-radius: 5px;
 }
 
 /* Responsividad */
 @media (max-width: 768px) {
   .modal-content {
-      width: 95%; /* Aumentar el ancho en pantallas más pequeñas */
+    width: 95%;
+  }
+
+  .movements {
+    padding: 15px;
+  }
+  
+  .movements__tabs {
+    flex-direction: column;
+
+    .tab {
+      margin: 5px 0;
+    }
+  }
+
+  .movements__table {
+    th, td {
+      font-size: 12px;
+      padding: 8px;
+    }
+
+    td img {
+      width: 15px;
+      height: 15px;
+    }
   }
 }
-  
 
 /* Animaciones */
 @keyframes fadeIn {
   from {
-      opacity: 0; /* Comienza invisible */
+    opacity: 0;
   }
+
   to {
-      opacity: 1; /* Termina visible */
+    opacity: 1;
   }
 }
 
 @keyframes scaleUp {
   from {
-      transform: scale(0.8); /* Comienza escalado */
+    transform: scale(0.8);
   }
+
   to {
-      transform: scale(1); /* Termina en tamaño normal */
+    transform: scale(1);
   }
 }
-

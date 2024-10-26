@@ -5,12 +5,21 @@ import {
   FaUserCircle,
   FaMoneyCheckAlt,
   FaBars,
+  FaSignOutAlt
 } from "react-icons/fa";
+import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import { Link } from "react-router-dom";
 import logo from "../Assets/Images/logo.jpeg"; // Asegúrate de que el logo esté correctamente ubicado en la carpeta
 
 function NavBarUser() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const clearLocal = () => {
+    clearLocalStorage();
+    setTimeout(() => {
+      window.location.href = "/Login";
+    }, 500);
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -49,6 +58,12 @@ function NavBarUser() {
             <span>Enviar Remesa</span>
           </li>
         </Link>
+        <a href="/Home" className="navbaruser__link">
+          <li className="navbaruser__item">
+            <FaSignOutAlt onClick={clearLocal} className="navbaruser__icon" />
+            <span>Cerrar sesión</span>
+          </li>
+        </a>
       </ul>
     </nav>
   );

@@ -21,6 +21,7 @@ import { Relation } from "../Pages/Relation";
 import { TermsAndConditions } from "../Pages/TermsandConditions"; 
 import { Privacy } from "../Pages/Privacy";
 import { HomeUsa } from "../Pages/homeusa"; 
+import { Verify } from "../Pages/Verify";
 
 const routes = [
 {
@@ -134,6 +135,11 @@ const routes = [
     title: "Recharge",
     path: "/Recharge",
     component: Recharge,
+  },
+  {
+    title: "Verify",
+    path: "/Verify",
+    component: Verify,
   },
   {
     title: "",

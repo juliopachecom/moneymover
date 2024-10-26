@@ -32,8 +32,12 @@ function AccAdm() {
       });
       return true; // Éxito en la autenticación
     } catch (error) {
-      toast.error("Ocurrió un error durante el inicio de sesión. Por favor, verifica los datos e intenta nuevamente.");
-      return false; // Fallo en la autenticación
+      toast.error(
+        error.response.data.message
+      );
+      await axios.get(
+        `${url}/Auth/logoutAdmin/${email}`
+      );
     }
   };
 

@@ -25,7 +25,141 @@ input[type="text"] {
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
-  
+  /* Estilos generales para el modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Asegura que esté por encima de otros elementos */
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  width: 600px;
+  max-height: 90%;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-in-out, scaleUp 0.3s ease-in-out;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #dc3545;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #c82333;
+}
+
+/* Formulario del modal */
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content label {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.modal-content input,
+.modal-content select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.submit-button {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+/* Estilo para el campo de prefijo y número de teléfono */
+.telefono-input {
+  display: flex;
+}
+
+.telefono-prefix {
+  width: 25%;
+  margin-right: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .telefono-input {
+    flex-direction: column;
+  }
+
+  .telefono-prefix {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Estilos para los errores */
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
   .directorio__header {
     display: flex;
     justify-content: space-between;
@@ -334,5 +468,34 @@ input[type="text"] {
     }
     
     
-    
+    .tooltip {
+      color: #ff9800;
+      position: relative;
+      display: inline-block;
+    }
+  
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      background-color: #232323;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 10px 0;
+  
+      width: 150px;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -80px;
+      margin-bottom: 10px;
+      /* Use half of the width (120/2 = 60), to center the tooltip */
+  
+  
+      /* Position the tooltip */
+      position: absolute;
+      z-index: 1;
+    }
+  
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+    }
 }

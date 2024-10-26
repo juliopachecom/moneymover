@@ -5,8 +5,10 @@ import { FaPlus } from "react-icons/fa";
 // import { ToastContainer, toast } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import { NotFound } from "../Components/NotFound";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function Banks() {
+  useAxiosInterceptors();
   const { loggedAdm, infoTkn, url } = useDataContext();
 
   const [banksEur, setBanksEUR] = useState([]);

@@ -23,8 +23,10 @@ import protest from "../Assets/Images/protest.png";
 import verified1 from "../Assets/Images/verified1.png";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import { clearLocalStorage } from "../Hooks/useLocalStorage";
 
 function Home() {
+  clearLocalStorage();
   const { infoTkn, url } = useDataContext();
 
   //Calculator
@@ -55,12 +57,62 @@ function Home() {
       exchangeRate,
     });
 
-    let selectedRate = 1;
+    let selectedRate;
 
-    if (sendCountry === "EUR" && receiveCountry === "VEF") {
-      selectedRate = exchangeRate[0].cur_EurToBs;
-    } else if (sendCountry === "USD" && receiveCountry === "VEF") {
-      selectedRate = exchangeRate[0].cur_UsdToBs;
+    if (sendCountry === "EUR") {
+      if (receiveCountry === "VEF") {
+        selectedRate = exchangeRate[0].cur_EurToBs;
+      } else if (receiveCountry === "ARS") {
+        selectedRate = exchangeRate[0].cur_EurToArg_Pes;
+      } else if (receiveCountry === "COP") {
+        selectedRate = exchangeRate[0].cur_EurToCol_Pes;
+      } else if (receiveCountry === "MEX") {
+        selectedRate = exchangeRate[0].cur_EurToPes_Mex;
+      } else if (receiveCountry === "PEN") {
+        selectedRate = exchangeRate[0].cur_EurToSol_Pe;
+      } else if (receiveCountry === "CLP") {
+        selectedRate = exchangeRate[0].cur_EurToPes_Ch;
+      } else if (receiveCountry === "BRL") {
+        selectedRate = exchangeRate[0].cur_EurToBra_Rea;
+      } else if (receiveCountry === "USD") {
+        selectedRate = exchangeRate[0].cur_EurToUsd;
+      }
+    } else if (sendCountry === "USD") {
+      if (receiveCountry === "VEF") {
+        selectedRate = exchangeRate[0].cur_UsdToBs;
+      } else if (receiveCountry === "ARS") {
+        selectedRate = exchangeRate[0].cur_UsdToArg_Pes;
+      } else if (receiveCountry === "COP") {
+        selectedRate = exchangeRate[0].cur_UsdToCol_Pes;
+      } else if (receiveCountry === "MEX") {
+        selectedRate = exchangeRate[0].cur_UsdToPes_Mex;
+      } else if (receiveCountry === "PEN") {
+        selectedRate = exchangeRate[0].cur_UsdToSol_Pe;
+      } else if (receiveCountry === "CLP") {
+        selectedRate = exchangeRate[0].cur_UsdToPes_Ch;
+      } else if (receiveCountry === "BRL") {
+        selectedRate = exchangeRate[0].cur_UsdToBra_Rea;
+      } else if (receiveCountry === "USD") {
+        selectedRate = exchangeRate[0].cur_UsdToUsd;
+      }
+    } else if (sendCountry === "GBP") {
+      if (receiveCountry === "VEF") {
+        selectedRate = exchangeRate[0].cur_GbpToBs;
+      } else if (receiveCountry === "ARS") {
+        selectedRate = exchangeRate[0].cur_GbpToArg_Pes;
+      } else if (receiveCountry === "COP") {
+        selectedRate = exchangeRate[0].cur_GbpToCol_Pes;
+      } else if (receiveCountry === "MEX") {
+        selectedRate = exchangeRate[0].cur_GbpToPes_Mex;
+      } else if (receiveCountry === "PEN") {
+        selectedRate = exchangeRate[0].cur_GbpToSol_Pe;
+      } else if (receiveCountry === "CLP") {
+        selectedRate = exchangeRate[0].cur_GbpToPes_Ch;
+      } else if (receiveCountry === "BRL") {
+        selectedRate = exchangeRate[0].cur_GbpToBra_Rea;
+      } else if (receiveCountry === "USD") {
+        selectedRate = exchangeRate[0].cur_GbpToUsd;
+      }
     }
 
     const result = sendAmount * selectedRate;
@@ -140,7 +192,7 @@ function Home() {
               }}
               className="flag-select"
             >
-              <option value="EUR">🇪🇸 EUR</option>
+              <option value="EUR">🇪🇺 EUR</option>
               <option value="USD">🇺🇸 USD</option>
               <option value="GBP">🇬🇧 GBP</option>
             </select>
@@ -167,7 +219,7 @@ function Home() {
             </select>
           </div>
 
-          <Link to="/changes">
+          <Link to="/Login">
             <button className="start-button"> Comenzar</button>
           </Link>
         </div>
@@ -210,9 +262,11 @@ function Home() {
               </p>
             </div>
             <div className="verification-section__button">
-              <button className="verification-section__custom-button">
-                Saber más
-              </button>
+              <a href="/verify">
+                <button className="verification-section__custom-button">
+                  Saber más
+                </button>
+              </a>
             </div>
           </div>
         </div>

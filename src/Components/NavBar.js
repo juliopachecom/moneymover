@@ -48,7 +48,7 @@ function NavBar() {
               <Link to="/skills" className="navbar__link" onClick={closeMenu}>Blog</Link>
             </li>
             <li className="navbar__item">
-              <Link to="/login" className="navbar__link" onClick={closeMenu}>Iniciar</Link>
+              <Link to="/login" className="navbar__link" onClick={closeMenu}>Log In</Link>
             </li>
             <li className="navbar__item">
               <Link to="/register" className="navbar__link navbar__link--highlight" onClick={closeMenu}>Registrate</Link>

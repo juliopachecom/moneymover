@@ -7,8 +7,10 @@ import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { NotFound } from "../Components/NotFound";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function Recharge() {
+  useAxiosInterceptors();
   const { logged, infoTkn, url } = useDataContext();
   // const [loading, setLoading] = useState(false);
 
@@ -147,11 +149,21 @@ function Recharge() {
     formData.append("mov_img", mov_img);
     formData.append(
       "mov_accEurId",
-      payment === "EUR" ? parseInt(bankOptionPay) : 0
+      payment === "EUR" && selectedMethod === "efectivoBBVA"
+        ? 1
+        : payment === "EUR" && selectedMethod === "efectivoSantander"
+        ? 2
+        : payment === "EUR"
+        ? parseInt(bankOptionPay)
+        : 0
     );
     formData.append(
       "mov_accUsdId",
       payment === "USD" ? parseInt(bankOptionPay) : 0
+    );
+    formData.append(
+      "mov_accGbpId",
+      payment === "GBP" ? parseInt(bankOptionPay) : 0
     );
     formData.append("mov_userId", user.use_id);
 
@@ -186,7 +198,7 @@ function Recharge() {
     } catch (error) {
       setTransactionDone(false);
       console.log(transactionDone);
-    setTransactionError(true);;
+      setTransactionError(true);
     }
   };
 
@@ -263,8 +275,8 @@ function Recharge() {
       if (
         (selectedMethod === "efectivoBBVA" ||
           selectedMethod === "efectivoSantander") &&
-          cashPhone === "" &&
-          cash === ""
+        cashPhone === "" &&
+        cash === ""
       ) {
         setErrorMessage(
           "Por favor, completa todos los campos de Efectivo Móvil."
@@ -303,7 +315,6 @@ function Recharge() {
   };
 
   // Simulación de transacción aleatoria
- 
 
   const resetRecharge = () => {
     setStep(1);
@@ -324,403 +335,466 @@ function Recharge() {
 
   return logged ? (
     user.use_verif !== "E" && user.use_verif !== "R" ? ( // Verificar si el usuario está verificado
-    <div className="recharge">
-      <NavBarUser />
-      <h1>Recargar Saldo</h1>
+      <div className="recharge">
+        <NavBarUser />
+        <h1>Recargar Saldo</h1>
 
-      {/* Mostrar los saldos disponibles con menor protagonismo */}
-      <div className="balances-info">
-        <div>
-          Saldo en Euros: €{user.use_amountEur ? user.use_amountEur : 0}
-        </div>
-        <div>
-          Saldo en Dólares: ${user.use_amountUsd ? user.use_amountUsd : 0}
-        </div>
-        <div>
-          Saldo en Libras: £{user.use_amountGbp ? user.use_amountGbp : 0}
-        </div>
-      </div>
-
-      {/* Step Tracker */}
-      <div className="step-tracker">
-        {[1, 2, 3, 4].map((stepNumber) => (
-          <div
-            key={stepNumber}
-            className={`step ${
-              step >= stepNumber
-                ? step > stepNumber
-                  ? "completed"
-                  : "active"
-                : ""
-            }`}
-            onClick={() => goToStep(stepNumber)}
-            style={{
-              cursor:
-                step < totalSteps && stepNumber < step ? "pointer" : "default",
-            }}
-          >
-            <div className="step-circle">
-              {step > stepNumber ? <FaCheck color="white" /> : stepNumber}
-            </div>
-            <p>
-              {
-                ["Moneda", "Método", "Comprobante", "Confirmación"][
-                  stepNumber - 1
-                ]
-              }
-            </p>
+        {/* Mostrar los saldos disponibles con menor protagonismo */}
+        <div className="balances-info">
+          <div>
+            Saldo en Euros: €{user.use_amountEur ? user.use_amountEur : 0}
           </div>
-        ))}
-      </div>
-
-      {/* Validación de error */}
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
-
-      {/* Paso 1: Selección de moneda */}
-      <CSSTransition
-        in={step === 1}
-        timeout={300}
-        classNames="fade"
-        unmountOnExit
-      >
-        <div>
-          <h2>¿Qué moneda quieres recargar?</h2>
-          <p className="hint">Selecciona una opción para continuar</p>
-
-          <div className="currency-selection">
-            <div
-              className={`currency-card ${payment === "EUR" ? "active" : ""}`}
-              onClick={() => handleCurrencyChange("EUR")}
-            >
-              <h3>Euros</h3>
-              <p>€</p>
-            </div>
-            <div
-              className={`currency-card ${payment === "USD" ? "active" : ""}`}
-              onClick={() => handleCurrencyChange("USD")}
-            >
-              <h3>Dólares</h3>
-              <p>$</p>
-            </div>
-            <div
-              className={`currency-card ${payment === "GBP" ? "active" : ""}`}
-              onClick={() => handleCurrencyChange("GBP")}
-            >
-              <h3>Libras</h3>
-              <p>£</p>
-            </div>
+          <div>
+            Saldo en Dólares: ${user.use_amountUsd ? user.use_amountUsd : 0}
+          </div>
+          <div>
+            Saldo en Libras: £{user.use_amountGbp ? user.use_amountGbp : 0}
           </div>
         </div>
-      </CSSTransition>
 
-      {/* Paso 2: Selección de método */}
-      <CSSTransition
-        in={step === 2}
-        timeout={300}
-        classNames="fade"
-        unmountOnExit
-      >
-        <div className="form-container-edit">
-          <h2>Selecciona el método de recarga</h2>
-          <select
-            className="custom-method-select"
-            onChange={handleMethodChange}
-            value={selectedMethod}
-          >
-            <option value="">Selecciona el método</option>
-            {payment === "EUR" && (
-              <>
-                <option value="transferencia">Transferencia Bancaria</option>
-                <option value="efectivoBBVA">Efectivo Móvil BBVA</option>
-                <option value="efectivoSantander">
-                  Efectivo Por Cajero Santander
-                </option>
-                <option value="efectivoMadrid">
-                  Entrega en efectivo en Madrid
-                </option>
-              </>
-            )}
-            {payment === "USD" && (
-              <option value="transferenciaUSA">
-                Transferencia Bancaria - Bank of America
-              </option>
-            )}
-            {payment === "GBP" && (
-              <option value="transferenciaUK">Transferencia Bancaria</option>
-            )}
-          </select>
+        {/* Step Tracker */}
+        <div className="step-tracker">
+          {[1, 2, 3, 4].map((stepNumber) => (
+            <div
+              key={stepNumber}
+              className={`step ${
+                step >= stepNumber
+                  ? step > stepNumber
+                    ? "completed"
+                    : "active"
+                  : ""
+              }`}
+              onClick={() => goToStep(stepNumber)}
+              style={{
+                cursor:
+                  step < totalSteps && stepNumber < step
+                    ? "pointer"
+                    : "default",
+              }}
+            >
+              <div className="step-circle">
+                {step > stepNumber ? <FaCheck color="white" /> : stepNumber}
+              </div>
+              <p>
+                {
+                  ["Moneda", "Método", "Comprobante", "Confirmación"][
+                    stepNumber - 1
+                  ]
+                }
+              </p>
+            </div>
+          ))}
+        </div>
 
-          {/* Campos para Transferencia Bancaria */}
-          {(selectedMethod === "transferencia" ||
-            selectedMethod === "transferenciaUSA" ||
-            selectedMethod === "transferenciaUK") && (
-            <div className="bank-details">
-              <label>Selecciona el banco:</label>
-              <select
-                onChange={handleBankChange}
-                className="custom-bank-select"
+        {/* Validación de error */}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+        {/* Paso 1: Selección de moneda */}
+        <CSSTransition
+          in={step === 1}
+          timeout={300}
+          classNames="fade"
+          unmountOnExit
+        >
+          <div>
+            <h2>¿Qué moneda quieres recargar?</h2>
+            <p className="hint">Selecciona una opción para continuar</p>
+
+            <div className="currency-selection">
+              <div
+                className={`currency-card ${payment === "EUR" ? "active" : ""}`}
+                onClick={() => handleCurrencyChange("EUR")}
               >
-                <option value="">Selecciona un banco</option>
-                {payment === "EUR"
-                  ? banksEUR
-                      .filter((bank) => bank.acceur_status === "Activo")
-                      .map((bank) => {
-                        return bank.acceur_Bank ? (
-                          <option value={bank.acceur_id}>
-                            {bank.acceur_Bank}
-                          </option>
-                        ) : null;
-                      })
-                  : payment === "USD"
-                  ? banksUSD
-                      .filter((bank) => bank.accusd_status === "Activo")
-                      .map((bank) => {
-                        return bank.accusd_Bank ? (
-                          <option value={bank.accusd_id}>
-                            {bank.accusd_Bank}
-                          </option>
-                        ) : null;
-                      })
-                  : payment === "GBP"
-                  ? banksUSD
-                      .filter((bank) => bank.accusd_status === "Activo")
-                      .map((bank) => {
-                        return bank.accusd_Bank ? (
-                          <option value={bank.accusd_id}>
-                            {bank.accusd_Bank}
-                          </option>
-                        ) : null;
-                      })
-                  : null}
-              </select>
-              {bankOptionPay &&
-                (payment === "EUR"
-                  ? banksEUR.map((bank) => {
-                      return (
-                        bank.acceur_id === parseInt(bankOptionPay) && (
-                          <p className="iban-info">{bank.acceur_number}</p>
-                        )
-                      );
-                    })
-                  : payment === "USD"
-                  ? banksUSD.map((bank) => {
-                      return bank.accusd_id === parseInt(bankOptionPay) ? (
-                        <p className="iban-info">{bank.accusd_number}</p>
-                      ) : null;
-                    })
-                  : payment === "GBP"
-                  ? banksUSD.map((bank) => {
-                      return bank.accusd_id === parseInt(bankOptionPay) ? (
-                        <p className="iban-info">{bank.accgbp_number}</p>
-                      ) : null;
-                    })
-                  : null)}
-              <div className="form-group">
-                <label>
-                  Monto a transferir{" "}
-                  <span
-                    style={{
-                      color: "red",
-                      marginTop: "5px",
-                      marginLeft: "10px",
-                    }}
-                  >
-                    🔴 Solo aceptamos transferencias a partir de 20 euros.
-                  </span>
-                </label>
+                <h3>Euros</h3>
+                <p>€</p>
+              </div>
+              <div
+                className={`currency-card ${payment === "USD" ? "active" : ""}`}
+                onClick={() => handleCurrencyChange("USD")}
+              >
+                <h3>Dólares</h3>
+                <p>$</p>
+              </div>
+              <div
+                className={`currency-card ${payment === "GBP" ? "active" : ""}`}
+                onClick={() => handleCurrencyChange("GBP")}
+              >
+                <h3>Libras</h3>
+                <p>£</p>
+              </div>
+            </div>
+          </div>
+        </CSSTransition>
 
-                <input
-                  type="number"
-                  className={`custom-form-input ${
-                    isValid ? "valid" : "invalid"
-                  }`} // Agregar clase de validación
-                  placeholder="Introduce el monto"
-                  value={sendAmount}
-                  onChange={handleAmountChangeBs}
-                />
-                <div
-                  className="warning-message"
-                  style={{ color: "red", marginTop: "5px" }}
+        {/* Paso 2: Selección de método */}
+        <CSSTransition
+          in={step === 2}
+          timeout={300}
+          classNames="fade"
+          unmountOnExit
+        >
+          <div className="form-container-edit">
+            <h2>Selecciona el método de recarga</h2>
+            <select
+              className="custom-method-select"
+              onChange={handleMethodChange}
+              value={selectedMethod}
+            >
+              <option value="">Selecciona el método</option>
+              {payment === "EUR" && (
+                <>
+                  <option value="transferencia">Transferencia Bancaria</option>
+                  <option value="efectivoBBVA">Efectivo Móvil BBVA</option>
+                  <option value="efectivoSantander">
+                    Efectivo Por Cajero Santander
+                  </option>
+                  <option value="efectivoMadrid">
+                    Entrega en efectivo en Madrid
+                  </option>
+                </>
+              )}
+              {payment === "USD" && (
+                <option value="transferenciaUSA">
+                  Transferencia Bancaria - Bank of America
+                </option>
+              )}
+              {payment === "GBP" && (
+                <option value="transferenciaUK">Transferencia Bancaria</option>
+              )}
+            </select>
+
+            {/* Campos para Transferencia Bancaria */}
+            {(selectedMethod === "transferencia" ||
+              selectedMethod === "transferenciaUSA" ||
+              selectedMethod === "transferenciaUK") && (
+              <div className="bank-details">
+                <label>Selecciona el banco:</label>
+                <select
+                  onChange={handleBankChange}
+                  className="custom-bank-select"
                 >
-                  {/* Mensaje de advertencia */}
-                  {sendAmount && sendAmount < 20 && (
-                    <span>
-                      🔴 Solo aceptamos transferencias a partir de 20 euros.
-                    </span>
+                  <option value="">Selecciona un banco</option>
+                  {payment === "EUR"
+                    ? banksEUR
+                        .filter((bank) => bank.acceur_status === "Activo")
+                        .map((bank) => {
+                          return bank.acceur_Bank ? (
+                            <option value={bank.acceur_id}>
+                              {bank.acceur_Bank}
+                            </option>
+                          ) : null;
+                        })
+                    : payment === "USD"
+                    ? banksUSD
+                        .filter((bank) => bank.accusd_status === "Activo")
+                        .map((bank) => {
+                          return bank.accusd_Bank ? (
+                            <option value={bank.accusd_id}>
+                              {bank.accusd_Bank}
+                            </option>
+                          ) : null;
+                        })
+                    : payment === "GBP"
+                    ? banksGBP
+                        .filter((bank) => bank.accgbp_status === "Activo")
+                        .map((bank) => {
+                          return bank.accgbp_Bank ? (
+                            <option value={bank.accgbp_id}>
+                              {bank.accgbp_Bank}
+                            </option>
+                          ) : null;
+                        })
+                    : null}
+                </select>
+                {bankOptionPay &&
+                  (payment === "EUR"
+                    ? banksEUR.map((bank) => {
+                        return (
+                          bank.acceur_id === parseInt(bankOptionPay) && (
+                            <p className="iban-info">{bank.acceur_number}</p>
+                          )
+                        );
+                      })
+                    : payment === "USD"
+                    ? banksUSD.map((bank) => {
+                        return bank.accusd_id === parseInt(bankOptionPay) ? (
+                          <p className="iban-info">{bank.accusd_number}</p>
+                        ) : null;
+                      })
+                    : payment === "GBP"
+                    ? banksGBP.map((bank) => {
+                        return bank.accgbp_id === parseInt(bankOptionPay) ? (
+                          <p className="iban-info">{bank.accgbp_number}</p>
+                        ) : null;
+                      })
+                    : null)}
+                <div className="form-group">
+                  <label>
+                    Monto a transferir{" "}
+                    {payment === "EUR" && (
+                      <span
+                        style={{
+                          color: "red",
+                          marginTop: "5px",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        🔴 Solo aceptamos transferencias a partir de 20 Euros.
+                      </span>
+                    )}
+                    {payment === "USD" && (
+                      <span
+                        style={{
+                          color: "red",
+                          marginTop: "5px",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        🔴 Solo aceptamos transferencias a partir de 20 Dólares.
+                      </span>
+                    )}
+                    {payment === "GBP" && (
+                      <span
+                        style={{
+                          color: "red",
+                          marginTop: "5px",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        🔴 Solo aceptamos transferencias a partir de 20 Libras.
+                      </span>
+                    )}
+                  </label>
+
+                  <input
+                    type="number"
+                    className={`custom-form-input ${
+                      isValid ? "valid" : "invalid"
+                    }`} // Agregar clase de validación
+                    placeholder="Introduce el monto"
+                    value={sendAmount}
+                    onChange={handleAmountChangeBs}
+                  />
+                  <div
+                    className="warning-message"
+                    style={{ color: "red", marginTop: "5px" }}
+                  >
+                    {/* Mensaje de advertencia */}
+                    {sendAmount && sendAmount < 20 && payment === "EUR" && (
+                      <span>
+                        🔴 Solo aceptamos transferencias a partir de 20 Euros.
+                      </span>
+                    )}
+                    {sendAmount && sendAmount < 20 && payment === "USD" && (
+                      <span>
+                        🔴 Solo aceptamos transferencias a partir de 20 Dólares.
+                      </span>
+                    )}
+                    {sendAmount && sendAmount < 20 && payment === "GBP" && (
+                      <span>
+                        🔴 Solo aceptamos transferencias a partir de 20 Libras.
+                      </span>
+                    )}
+                  </div>
+                  {isValid && (
+                    <div
+                      className="form-feedback"
+                      style={{ color: "green", marginTop: "5px" }}
+                    >
+                      {/* Mensaje de feedback */}
+                      <span>✅ Monto válido para transferencia.</span>
+                    </div>
                   )}
                 </div>
-                {isValid && (
-                  <div
-                    className="form-feedback"
-                    style={{ color: "green", marginTop: "5px" }}
-                  >
-                    {/* Mensaje de feedback */}
-                    <span>✅ Monto válido para transferencia.</span>
-                  </div>
-                )}
               </div>
-            </div>
-          )}
-
-          {/* Campos para Efectivo Móvil */}
-          {(selectedMethod === "efectivoBBVA" ||
-            selectedMethod === "efectivoSantander") && (
-            <div className="efectivo-movil">
-              <p>
-                Deberás realizar un efectivo móvil a tu nombre y a tu número
-                telefónico.
-              </p>
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input
-                  type="text"
-                  className="custom-form-input"
-                  placeholder="Teléfono"
-                  value={cashPhone}
-                  onChange={(e) => setCashPhone(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Código de la transacción</label>
-                <input
-                  type="text"
-                  className="custom-form-input"
-                  placeholder="Código"
-                  value={cash}
-                  onChange={(e) => setCash(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Entrega en Efectivo en Madrid */}
-          {selectedMethod === "efectivoMadrid" && (
-            <div className="efectivo-madrid">
-              <p>
-                Para entregas en efectivo en Madrid, deberás contactarte por
-                correo electrónico o WhatsApp. Este tipo de recargas **no se
-                reflejará en la página**. Por favor, elige otro método si deseas
-                que la recarga se refleje en la página.
-              </p>
-              <button
-                onClick={() => window.open("mailto:info@genericemail.com")}
-                className="contact-button"
-              >
-                Correo electrónico
-              </button>
-              <button
-                onClick={() => window.open("https://wa.me/123456789")}
-                className="contact-button"
-              >
-                WhatsApp
-              </button>
-            </div>
-          )}
-
-          {/* Archivo de comprobante */}
-          {selectedMethod && (
-            <>
-              <div className="file-upload">
-                {selectedMethod !== "efectivoMadrid" && (
-                  <>
-                    <h4>Adjuntar comprobante de pago</h4>
-                    <input type="file" onChange={handleFileChange} />
-                  </>
-                )}
-              </div>
-
-              <div
-                className="form-actions"
-                style={{ justifyContent: "center" }}
-              >
-                <button className="back-button" onClick={handlePreviousStep}>
-                  Volver
-                </button>
-                {selectedMethod !== "efectivoMadrid" && (
-                  <button className="continue-button" onClick={handleNextStep}>
-                    Continuar
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </CSSTransition>
-
-      {/* Paso 3: Confirmar comprobante */}
-      <CSSTransition
-        in={step === 3}
-        timeout={300}
-        classNames="fade"
-        unmountOnExit
-      >
-        <div className="form-container-edit step-3">
-          <h2>Confirmar Comprobante</h2>
-          <p>
-            {mov_img ? (
-              <img
-                src={imageUrl}
-                alt="Imagen seleccionada"
-                style={{ width: "300px", alignItems: "center" }}
-              />
-            ) : (
-              "Ningún archivo seleccionado"
             )}
-          </p>
 
-          <div className="form-actions">
-            <button className="back-button" onClick={handlePreviousStep}>
-              Volver
-            </button>
-            <button className="continue-button" onClick={handleSubmitLoad}>
-              Confirmar
-            </button>
+            {/* Campos para Efectivo Móvil */}
+            {(selectedMethod === "efectivoBBVA" ||
+              selectedMethod === "efectivoSantander") && (
+              <div className="efectivo-movil">
+                <p>
+                  Deberás realizar un efectivo móvil a tu nombre y a tu número
+                  telefónico.
+                </p>
+                <div className="form-group">
+                  <label>Teléfono</label>
+                  <input
+                    type="text"
+                    className="custom-form-input"
+                    placeholder="Teléfono"
+                    value={cashPhone}
+                    onChange={(e) => setCashPhone(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Código de la transacción</label>
+                  <input
+                    type="text"
+                    className="custom-form-input"
+                    placeholder="Código"
+                    value={cash}
+                    onChange={(e) => setCash(e.target.value)}
+                  />
+                </div>
+                <span
+                        style={{
+                          color: "red",
+                          marginTop: "5px",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        🔴 Solo aceptamos transferencias a partir de 20 Euros.
+                      </span>
+                <div className="form-group">
+                  <label>Monto a Transferir</label>
+                  <input
+                    type="number"
+                    className={`custom-form-input ${
+                      isValid ? "valid" : "invalid"
+                    }`} // Agregar clase de validación
+                    placeholder="Introduce el monto"
+                    value={sendAmount}
+                    onChange={(e)=> setSendAmount(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Entrega en Efectivo en Madrid */}
+            {selectedMethod === "efectivoMadrid" && (
+              <div className="efectivo-madrid">
+                <p>
+                  Para entregas en efectivo en Madrid, deberás contactarte por
+                  correo electrónico o WhatsApp. Este tipo de recargas **no se
+                  reflejará en la página**. Por favor, elige otro método si
+                  deseas que la recarga se refleje en la página.
+                </p>
+                <button
+                  onClick={() => window.open("mailto:info@genericemail.com")}
+                  className="contact-button"
+                >
+                  Correo electrónico
+                </button>
+                <button
+                  onClick={() => window.open("https://wa.me/123456789")}
+                  className="contact-button"
+                >
+                  WhatsApp
+                </button>
+              </div>
+            )}
+
+            {/* Archivo de comprobante */}
+            {selectedMethod && (
+              <>
+                <div className="file-upload">
+                  {selectedMethod !== "efectivoMadrid" && (
+                    <>
+                      <h4>Adjuntar comprobante de pago</h4>
+                      <input type="file" onChange={handleFileChange} />
+                    </>
+                  )}
+                </div>
+
+                <div
+                  className="form-actions"
+                  style={{ justifyContent: "center" }}
+                >
+                  <button className="back-button" onClick={handlePreviousStep}>
+                    Volver
+                  </button>
+                  {selectedMethod !== "efectivoMadrid" && (
+                    <button
+                      className="continue-button"
+                      onClick={handleNextStep}
+                      disabled={sendAmount && sendAmount < 20}
+                    >
+                      Continuar
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
-        </div>
-      </CSSTransition>
+        </CSSTransition>
 
-      {/* Paso 4: Confirmación final */}
-      <CSSTransition
-  in={step === 4}
-  timeout={300}
-  classNames="fade"
-  unmountOnExit
->
-  <div className="form-container-edit step-4">
-    <h2>
-      {transactionError ? "¡Ocurrió un problema!" : "¡Recarga Exitosa!"}
-    </h2>
-    <p>
-      {transactionError
-        ? "Hubo un error en la transacción. Por favor, intenta nuevamente más tarde."
-        : "En breve se verá reflejado el estatus de tu transferencia."}
-    </p>
-    {transactionError ? (
-      <FaTimesCircle size={50} color="#dc3545" />
-    ) : (
-      <FaCheckCircle size={50} color="#28a745" />
-    )}
+        {/* Paso 3: Confirmar comprobante */}
+        <CSSTransition
+          in={step === 3}
+          timeout={300}
+          classNames="fade"
+          unmountOnExit
+        >
+          <div className="form-container-edit step-3">
+            <h2>Confirmar Comprobante</h2>
+            <p>
+              {mov_img ? (
+                <img
+                  src={imageUrl}
+                  alt="Imagen seleccionada"
+                  style={{ width: "300px", alignItems: "center" }}
+                />
+              ) : (
+                "Ningún archivo seleccionado"
+              )}
+            </p>
 
-    <div className="form-actions">
-      <button className="another-recharge-button" onClick={resetRecharge}>
-        Realizar otra recarga
-      </button>
-      <button
-        className="finish-button"
-        onClick={() => (window.location.href = "/changes")}
-      >
-        Finalizar
-      </button>
-    </div>
-  </div>
-</CSSTransition>
-    </div>
-    
+            <div className="form-actions">
+              <button className="back-button" onClick={handlePreviousStep}>
+                Volver
+              </button>
+              <button className="continue-button" disabled={mov_img === null} onClick={handleSubmitLoad}>
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </CSSTransition>
+
+        {/* Paso 4: Confirmación final */}
+        <CSSTransition
+          in={step === 4}
+          timeout={300}
+          classNames="fade"
+          unmountOnExit
+        >
+          <div className="form-container-edit step-4">
+            <h2>
+              {transactionError ? "¡Ocurrió un problema!" : "¡Recarga Exitosa!"}
+            </h2>
+            <p>
+              {transactionError
+                ? "Hubo un error en la transacción. Por favor, intenta nuevamente más tarde."
+                : "En breve se verá reflejado el estatus de tu transferencia."}
+            </p>
+            {transactionError ? (
+              <FaTimesCircle size={50} color="#dc3545" />
+            ) : (
+              <FaCheckCircle size={50} color="#28a745" />
+            )}
+
+            <div className="form-actions">
+              <button
+                className="another-recharge-button"
+                onClick={resetRecharge}
+              >
+                Realizar otra recarga
+              </button>
+              <button
+                className="finish-button"
+                onClick={() => (window.location.href = "/changes")}
+              >
+                Finalizar
+              </button>
+            </div>
+          </div>
+        </CSSTransition>
+      </div>
     ) : (
-      <NotFound />  // Usar el componente NotFound aquí
+      <NotFound /> // Usar el componente NotFound aquí
     )
-    ) : (
-      <Redirect to="/login" />
+  ) : (
+    <Redirect to="/login" />
   );
 }
 

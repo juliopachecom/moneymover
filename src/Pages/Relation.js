@@ -6,8 +6,6 @@ import { NotFound } from "../Components/NotFound";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-
-
 // Importar las banderas
 import usaFlag from "../Assets/Images/usa.png";
 import colombiaFlag from "../Assets/Images/colombia.png";
@@ -19,7 +17,10 @@ import peruFlag from "../Assets/Images/peru.png";
 import chileFlag from "../Assets/Images/chile.png";
 import ecuadorFlag from "../Assets/Images/ecuador.png";
 
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
+
 function Relation() {
+  useAxiosInterceptors();
   const { loggedAdm, infoTkn, url } = useDataContext();
 
   // Datos de Movimientos
@@ -28,27 +29,108 @@ function Relation() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [dailyView, setDailyView] = useState(false);
+  const [dailyView, setDailyView] = useState('');
 
   const getUserDepositRanking = () => {
     return users
       .map((user) => {
-        const totalDeposits = movements
+        const totalDepositsEur = movements
           .filter(
             (mov) =>
               mov.User.use_id === user.use_id &&
               mov.mov_type === "Deposito" &&
               mov.mov_status === "V" &&
-              (!startDate || new Date(mov.mov_date) >= startDate) && // Filtrar por fecha de inicio
-              (!endDate || new Date(mov.mov_date) <= endDate) // Filtrar por fecha de fin
+              mov.mov_currency === "EUR" &&
+              (!startDate || new Date(mov.mov_date) >= startDate) &&
+              (!endDate || new Date(mov.mov_date) <= endDate)
           )
           .reduce((sum, mov) => sum + mov.mov_amount, 0);
-
-        return { ...user, totalDeposits };
+  
+        const totalDepositsUsd = movements
+          .filter(
+            (mov) =>
+              mov.User.use_id === user.use_id &&
+              mov.mov_type === "Deposito" &&
+              mov.mov_status === "V" &&
+              mov.mov_currency === "USD" &&
+              (!startDate || new Date(mov.mov_date) >= startDate) &&
+              (!endDate || new Date(mov.mov_date) <= endDate)
+          )
+          .reduce((sum, mov) => sum + mov.mov_amount, 0);
+  
+        const totalDepositsGbp = movements
+          .filter(
+            (mov) =>
+              mov.User.use_id === user.use_id &&
+              mov.mov_type === "Deposito" &&
+              mov.mov_status === "V" &&
+              mov.mov_currency === "GBP" &&
+              (!startDate || new Date(mov.mov_date) >= startDate) &&
+              (!endDate || new Date(mov.mov_date) <= endDate)
+          )
+          .reduce((sum, mov) => sum + mov.mov_amount, 0);
+  
+        return { 
+          ...user, 
+          totalDepositsEur, 
+          totalDepositsUsd, 
+          totalDepositsGbp 
+        };
       })
-      .filter((user) => user.totalDeposits > 0) // Solo usuarios que han hecho depósitos
-      .sort((a, b) => b.totalDeposits - a.totalDeposits); // Ordenar de mayor a menor
+      .filter((user) => user.totalDepositsEur > 0 || user.totalDepositsUsd > 0 || user.totalDepositsGbp > 0) // Solo usuarios que han hecho depósitos
+      .sort((a, b) => b.totalDepositsEur - a.totalDepositsEur); // Ordenar por depósitos en EUR
   };
+  
+  const getUserSendRanking = () => {
+    return users
+      .map((user) => {
+        const totalRetirosEur = movements
+          .filter(
+            (mov) =>
+              mov.User.use_id === user.use_id &&
+              mov.mov_type === "Retiro" &&
+              mov.mov_status === "V" &&
+              mov.mov_oldCurrency === "EUR" &&
+              (!startDate || new Date(mov.mov_date) >= startDate) &&
+              (!endDate || new Date(mov.mov_date) <= endDate)
+          )
+          .reduce((sum, mov) => sum + mov.mov_oldAmount, 0);
+  
+        const totalRetirosUsd = movements
+          .filter(
+            (mov) =>
+              mov.User.use_id === user.use_id &&
+              mov.mov_type === "Retiro" &&
+              mov.mov_status === "V" &&
+              mov.mov_oldCurrency === "USD" &&
+              (!startDate || new Date(mov.mov_date) >= startDate) &&
+              (!endDate || new Date(mov.mov_date) <= endDate)
+          )
+          .reduce((sum, mov) => sum + mov.mov_oldAmount, 0);
+  
+        const totalRetirosGbp = movements
+          .filter(
+            (mov) =>
+              mov.User.use_id === user.use_id &&
+              mov.mov_type === "Retiro" &&
+              mov.mov_status === "V" &&
+              mov.mov_oldCurrency === "GBP" &&
+              (!startDate || new Date(mov.mov_date) >= startDate) &&
+              (!endDate || new Date(mov.mov_date) <= endDate)
+          )
+          .reduce((sum, mov) => sum + mov.mov_oldAmount, 0);
+  
+        return { 
+          ...user, 
+          totalRetirosEur, 
+          totalRetirosUsd, 
+          totalRetirosGbp 
+        };
+      })
+      .filter((user) => user.totalRetirosEur > 0 || user.totalRetirosUsd > 0 || user.totalRetirosGbp > 0) // Solo usuarios que han hecho retiros
+      .sort((a, b) => b.totalRetirosEur - a.totalRetirosEur); // Ordenar por retiros en EUR
+  };
+  
 
   // Función para obtener el ranking de depósitos del día
   const getDailyDepositRanking = () => {
@@ -72,18 +154,11 @@ function Relation() {
       .sort((a, b) => b.totalDeposits - a.totalDeposits); // Ordenar de mayor a menor
   };
 
-
-
-
-
-
   // Datos de Usuarios
   const [users, setUsers] = useState([]);
   const usersWithPositiveBalance = users.filter(
     (user) =>
-      user.use_amountUsd > 0 ||
-      user.use_amountEur > 0 ||
-      user.use_amountGbp > 0
+      user.use_amountUsd > 0 || user.use_amountEur > 0 || user.use_amountGbp > 0
   );
 
   // Mapa de banderas
@@ -148,6 +223,16 @@ function Relation() {
     let totalDepositoUsd = 0;
     let totalDepositoGbp = 0;
     let totalRetiroBolivares = 0;
+    let totalRetiroArs = 0;
+    let totalRetiroCop = 0;
+    let totalRetiroClp = 0;
+    let totalRetiroPen = 0;
+    let totalRetiroEcu = 0;
+    let totalRetiroPan = 0;
+    let totalRetiroBrl = 0;
+    let totalRetiroMex = 0;
+    let totalRetiroUsd = 0;
+    let totalRetiroEur = 0;
 
     movements
       .filter(
@@ -163,11 +248,30 @@ function Relation() {
           } else if (mov.mov_currency === "GBP") {
             totalDepositoGbp += mov.mov_amount;
           }
-        } else if (
-          mov.mov_type === "Retiro" &&
-          mov.mov_currency === "BS" // Solo retiros en Bolívares
-        ) {
-          totalRetiroBolivares += mov.mov_amount;
+        } else if (mov.mov_type === "Retiro") {
+          if (mov.mov_oldCurrency === "EUR") {
+            totalRetiroEur += mov.mov_oldAmount;
+          } else if (mov.mov_currency === "BS") {
+            totalRetiroBolivares += mov.mov_amount;
+          } else if (mov.mov_currency === "ARS") {
+            totalRetiroArs += mov.mov_amount;
+          } else if (mov.mov_currency === "COP") {
+            totalRetiroCop += mov.mov_amount;
+          } else if (mov.mov_currency === "CLP") {
+            totalRetiroClp += mov.mov_amount;
+          } else if (mov.mov_currency === "PEN") {
+            totalRetiroPen += mov.mov_amount;
+          } else if (mov.mov_currency === "USD-ECU") {
+            totalRetiroEcu += mov.mov_amount;
+          } else if (mov.mov_currency === "USD-PAN") {
+            totalRetiroPan += mov.mov_amount;
+          } else if (mov.mov_currency === "BRL") {
+            totalRetiroBrl += mov.mov_amount;
+          } else if (mov.mov_currency === "MEX") {
+            totalRetiroMex += mov.mov_amount;
+          } else if (mov.mov_currency === "USD") {
+            totalRetiroUsd += mov.mov_amount;
+          }
         }
       });
 
@@ -176,6 +280,18 @@ function Relation() {
       totalDepositoUsd,
       totalDepositoGbp,
       totalRetiroBolivares,
+      totalRetiroArs,
+      totalRetiroCop,
+      totalRetiroClp,
+      totalRetiroPen,
+      totalRetiroEcu,
+      totalRetiroPan,
+      totalRetiroBrl,
+      totalRetiroEur,
+      totalRetiroMex,
+      totalRetiroUsd,
+      
+
     };
   };
 
@@ -184,6 +300,16 @@ function Relation() {
     totalDepositoUsd,
     totalDepositoGbp,
     totalRetiroBolivares,
+    totalRetiroArs,
+    totalRetiroCop,
+    totalRetiroClp,
+    totalRetiroPen,
+    totalRetiroEcu,
+    totalRetiroPan,
+    totalRetiroBrl,
+    totalRetiroMex,
+    totalRetiroUsd,
+    totalRetiroEur
   } = calcularTotales();
 
   return loggedAdm ? (
@@ -322,7 +448,7 @@ function Relation() {
                             : null)}
                         >
                           {movement.mov_type === "Retiro"
-                            ? `${movement.mov_currency} ${movement.mov_amount}`
+                            ? `(${movement.mov_oldCurrency} ${movement.mov_oldAmount}) ${movement.mov_currency} ${movement.mov_amount}`
                             : movement.mov_typeOutflow === "efectivo" // Aquí se añade la lógica para Efectivo
                               ? "EFECTIVO"
                               : 0}
@@ -339,9 +465,13 @@ function Relation() {
                                   {movement.AccountsBsUser.accbsUser_country}{" "}
                                   <img
                                     src={
-                                      flagMap[movement.AccountsBsUser.accbsUser_country]
+                                      flagMap[
+                                      movement.AccountsBsUser.accbsUser_country
+                                      ]
                                     }
-                                    alt={movement.AccountsBsUser.accbsUser_country}
+                                    alt={
+                                      movement.AccountsBsUser.accbsUser_country
+                                    }
                                     style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
                                   />
                                 </>
@@ -356,7 +486,8 @@ function Relation() {
                                         style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
                                       />
                                     </>
-                                  ) : movement.mov_typeOutflow === "sendOption" ? (
+                                  ) : movement.mov_typeOutflow ===
+                                    "sendOption" ? (
                                     <>
                                       Retiro
                                       <img
@@ -384,19 +515,77 @@ function Relation() {
                 </tr>
               )}
             </tbody>
-
-
-
           </table>
         </div>
+        <br />
 
         {/* Sección de Totales */}
-        <div className="totals-section">
-          <h3>Totales</h3>
-          <p>Total Depósitos en Euros: € {totalDepositoEur.toFixed(2)}</p>
-          <p>Total Depósitos en Dólares: $ {totalDepositoUsd.toFixed(2)}</p>
-          <p>Total Depósitos en Libras: £ {totalDepositoGbp.toFixed(2)}</p>
-          <p>Total Retiros en Bolívares: VES {totalRetiroBolivares.toFixed(2)}</p>
+        <h2>Depostios</h2>
+        <div className="transactions-section">
+          <table className="transactions-table">
+            <tr>
+              <th>Depósitos en Euros</th>
+              <th>Depósitos en Dólares</th>
+              <th>Depósitos en Libras</th>
+            </tr>
+            <tr>
+              <td>€ {totalDepositoEur.toFixed(2)}</td>
+              <td>$ {totalDepositoUsd.toFixed(2)}</td>
+              <td>£ {totalDepositoGbp.toFixed(2)}</td>
+            </tr>
+          </table>
+        </div>
+        <br />
+
+        <h2>Retiros</h2>
+        <div className="transactions-section">
+          <table className="transactions-table">
+           
+            <tr>
+              <td>Bolívares</td>
+              <td>Bs {totalRetiroBolivares.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Pesos Argentinos</td>
+              <td>ARS {totalRetiroArs.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Pesos Colombianos</td>
+              <td>COP {totalRetiroCop.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Pesos Chilenos</td>
+              <td>CLP {totalRetiroClp.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Soles Peruanos</td>
+              <td>PEN {totalRetiroPen.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Dólares Ecuatorianos</td>
+              <td>USD {totalRetiroEcu.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Dólares Panameños</td>
+              <td>USD {totalRetiroPan.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Reales Brasileños</td>
+              <td>BRL {totalRetiroBrl.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Pesos Mexicanos</td>
+              <td>MEX {totalRetiroMex.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Dólares</td>
+              <td>USD {totalRetiroUsd.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Retiros en Euros</td>
+              <td>€ {totalRetiroEur.toFixed(2)}</td>
+            </tr>
+          </table>
         </div>
 
         {/* Botón para abrir el modal */}
@@ -404,7 +593,10 @@ function Relation() {
           Mostrar usuarios con saldo positivo
         </button>
         {/* Botón para abrir el modal de ranking de depósitos */}
-        <button onClick={() => setShowDepositModal(true)} className="buttonmodal">
+        <button
+          onClick={() => setShowDepositModal(true)}
+          className="buttonmodal"
+        >
           Mostrar Ranking de Depósitos
         </button>
 
@@ -412,49 +604,77 @@ function Relation() {
           <div className="modal-overlay">
             <div className="modal-content">
               <h3>Ranking de Depósitos</h3>
-              <button className="close-button" onClick={() => setShowDepositModal(false)}>
+              <button
+                className="close-button"
+                onClick={() => setShowDepositModal(false)}
+              >
                 X
               </button>
 
               {/* Filtros de Fecha */}
               <div className="date-filter">
                 <label>Desde:</label>
-                <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                />
                 <label>Hasta:</label>
-                <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} />
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                />
               </div>
 
-              <button onClick={() => setDailyView(false)}>Total Depósitos</button>
-              <button onClick={() => setDailyView(true)}>Depósitos del Día</button>
+              <button onClick={() => setDailyView('Total')}>
+                Total Depósitos
+              </button>
+              <button onClick={() => setDailyView('DepósitosDaily')}>
+                Depósitos del Día
+              </button>
+              <button onClick={() => setDailyView('RetirosDaily')}>
+                Retiros totales del Día
+              </button>
 
               {/* Tabla de ranking */}
               <table className="deposit-ranking-table">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Total Depósitos (USD)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(dailyView ? getDailyDepositRanking() : getUserDepositRanking()).map((user, index) => (
-                    <tr key={index}>
-                      <td>{`${user.use_name} ${user.use_lastName}`}</td>
-                      <td>${user.totalDeposits.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Total Depósitos (EUR)</th>
+      <th>Total Depósitos (USD)</th>
+      <th>Total Depósitos (GBP)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {(dailyView === "DepósitosDaily"
+      ? getDailyDepositRanking()
+      : dailyView === "Total" ? getUserDepositRanking()
+        : getUserSendRanking()
+    ).map((user, index) => (
+      <tr key={index}>
+        <td>{`${user.use_name} ${user.use_lastName}`}</td>
+        <td>€{(user.totalDepositsEur || 0).toFixed(2)}</td>
+        <td>${(user.totalDepositsUsd || 0).toFixed(2)}</td>
+        <td>£{(user.totalDepositsGbp || 0).toFixed(2)}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+
             </div>
           </div>
         )}
-
 
         {showModal && (
           <div className="modal-overlay">
             <div className="modal-content">
               <h3>Usuarios con Saldo Positivo</h3>
               {/* Botón para cerrar el modal */}
-              <button className="close-button" onClick={() => setShowModal(false)}>
+              <button
+                className="close-button"
+                onClick={() => setShowModal(false)}
+              >
                 X
               </button>
 

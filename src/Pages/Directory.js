@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { FaEdit } from "react-icons/fa";
 import venezuelaFlag from "../Assets/Images/venezuela.png";
 import chile from "../Assets/Images/chile.png";
 import colombia from "../Assets/Images/colombia.png";
@@ -13,8 +14,10 @@ import { useDataContext } from "../Context/dataContext";
 import { toast } from "react-toastify";
 import { banksByCountry } from "../Utils/Variables";
 import { Redirect } from "react-router-dom";
+import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 function Directory() {
+  useAxiosInterceptors();
   const { logged, url, infoTkn } = useDataContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -26,6 +29,11 @@ function Directory() {
   const [accbsUser_phone, setAccbsUser_phone] = useState("");
   const [accbsUser_type, setAccbsUser_type] = useState("");
   const [accbsUser_country, setAccbsUser_country] = useState("");
+
+  // Estado para editar beneficiario
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
+
 
   //Alternar entre activos e inactivos
   const [showInactive, setShowInactive] = useState(false);
@@ -43,6 +51,19 @@ function Directory() {
 
   // Prefijos para teléfono
   const [telefonoPrefix, setTelefonoPrefix] = useState("");
+
+
+  const openEditModal = (beneficiario) => {
+    setSelectedBeneficiary(beneficiario);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setSelectedBeneficiary(null);
+    setIsEditModalOpen(false);
+  };
+  
+  
 
   // Fetch de datos del usuario
   const fetchDataUser = useCallback(async () => {
@@ -176,6 +197,55 @@ function Directory() {
     }
   };
 
+  const handleEdit = async (beneficiario) => {
+    try {
+      await axios.put(
+        `${url}/AccBsUser/${beneficiario.accbsUser_id}`,
+        {
+          accbsUser_bank: beneficiario.accbsUser_bank,
+          accbsUser_number: beneficiario.accbsUser_number,
+          accbsUser_dni: beneficiario.accbsUser_dni,
+          accbsUser_phone: beneficiario.accbsUser_phone,
+          accbsUser_type: beneficiario.accbsUser_type,
+          accbsUser_country: beneficiario.accbsUser_country, // Asegúrate de incluir el país
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+  
+      // Cerrar el modal después de editar
+      closeEditModal();
+  
+      // Recargar la página para mostrar los cambios
+      window.location.reload();
+  
+      toast.success("Beneficiario editado con éxito!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Error al editar el beneficiario", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
+  
+
   const handleStatus = async (beneficiario) => {
     try {
       if (beneficiario.accbsUser_status === "Inactivo") {
@@ -258,23 +328,21 @@ function Directory() {
             <div className="beneficiario-card" key={beneficiario.accbsUser_id}>
               <img
                 src={
-                  beneficiario.accbsUser_country === "venezuela"
+                  beneficiario.accbsUser_country === "Venezuela"
                     ? venezuelaFlag
-                    : beneficiario.accbsUser_country === "argentina"
+                    : beneficiario.accbsUser_country === "Argentina"
                     ? argentina
-                    : beneficiario.accbsUser_country === "Venezuela"
-                    ? venezuelaFlag
-                    : beneficiario.accbsUser_country === "colombia"
+                    : beneficiario.accbsUser_country === "Colombia"
                     ? colombia
-                    : beneficiario.accbsUser_country === "chile"
+                    : beneficiario.accbsUser_country === "Chile"
                     ? chile
-                    : beneficiario.accbsUser_country === "ecuador"
+                    : beneficiario.accbsUser_country === "Ecuador"
                     ? ecuador
-                    : beneficiario.accbsUser_country === "brasil"
+                    : beneficiario.accbsUser_country === "Brasil"
                     ? brasil
-                    : beneficiario.accbsUser_country === "peru"
+                    : beneficiario.accbsUser_country === "Peru"
                     ? peru
-                    : beneficiario.accbsUser_country === "panama"
+                    : beneficiario.accbsUser_country === "Panama"
                     ? panama
                     : //Falta agregar el de Mexico
                       null
@@ -299,8 +367,13 @@ function Directory() {
               >
                 Envía tu Remesa
               </button>
+              <div className="remesa-button tooltip" onClick={() => openEditModal(beneficiario)}>
+  <FaEdit />
+  <span className="tooltiptext">Editar Beneficiario</span>
+</div>
+
               <span
-                className="estado"
+                className="remesa-button"
                 onClick={() => {
                   handleStatus(beneficiario);
                 }}
@@ -489,6 +562,147 @@ function Directory() {
           </div>
         </div>
       )}
+
+      {/* Modal para editar beneficiario */}
+      {isEditModalOpen && selectedBeneficiary && (
+  <div className="modal-overlay fadeIn">
+    <div className="modal-content fadeIn">
+      <button className="modal-close" onClick={closeEditModal}>
+        &times;
+      </button>
+      <h2>Editar Beneficiario</h2>
+
+      <form onSubmit={handleEdit}>
+        <label>País</label>
+        <select
+          value={selectedBeneficiary.accbsUser_country}
+          onChange={(e) =>
+            setSelectedBeneficiary((prevState) => ({
+              ...prevState,
+              accbsUser_country: e.target.value,
+            }))
+          }
+        >
+          <option value="Venezuela">Venezuela</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Colombia">Colombia</option>
+          <option value="Chile">Chile</option>
+          <option value="Ecuador">Ecuador</option>
+          <option value="Panama">Panamá</option>
+          <option value="Mexico">México</option>
+          <option value="Brasil">Brasil</option>
+          <option value="Estados Unidos">Estados Unidos</option>
+        </select>
+
+        <label>Nombre y Apellido</label>
+        <input
+          type="text"
+          value={selectedBeneficiary.accbsUser_owner}
+          onChange={(e) =>
+            setSelectedBeneficiary((prevState) => ({
+              ...prevState,
+              accbsUser_owner: e.target.value,
+            }))
+          }
+        />
+
+        <label>Cédula</label>
+        <input
+          type="text"
+          value={selectedBeneficiary.accbsUser_dni}
+          onChange={(e) =>
+            setSelectedBeneficiary((prevState) => ({
+              ...prevState,
+              accbsUser_dni: e.target.value,
+            }))
+          }
+        />
+
+        <label>Seleccione el tipo de transacción</label>
+        <select
+          value={selectedBeneficiary.accbsUser_type}
+          onChange={(e) =>
+            setSelectedBeneficiary((prevState) => ({
+              ...prevState,
+              accbsUser_type: e.target.value,
+            }))
+          }
+        >
+          {selectedBeneficiary.accbsUser_country === "Venezuela" && (
+            <option value="Pago Movil">Pago Móvil</option>
+          )}
+          <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+        </select>
+
+        {selectedBeneficiary.accbsUser_type === "Pago Movil" && (
+          <>
+            <label>Número de Teléfono</label>
+            <div className="telefono-input">
+              <select
+                value={telefonoPrefix}
+                onChange={(e) => setTelefonoPrefix(e.target.value)}
+              >
+                <option value="0414">0414</option>
+                <option value="0424">0424</option>
+                <option value="0412">0412</option>
+                <option value="0416">0416</option>
+                <option value="0426">0426</option>
+              </select>
+              <input
+                type="text"
+                value={selectedBeneficiary.accbsUser_phone.slice(-7)}
+                onChange={(e) =>
+                  setSelectedBeneficiary((prevState) => ({
+                    ...prevState,
+                    accbsUser_phone: telefonoPrefix + e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </>
+        )}
+
+        {selectedBeneficiary.accbsUser_type === "Cuenta Bancaria" && (
+          <>
+            <label>Número de Cuenta</label>
+            <input
+              type="text"
+              value={selectedBeneficiary.accbsUser_number}
+              onChange={(e) =>
+                setSelectedBeneficiary((prevState) => ({
+                  ...prevState,
+                  accbsUser_number: e.target.value,
+                }))
+              }
+            />
+          </>
+        )}
+
+        <label>Banco</label>
+        <select
+          value={selectedBeneficiary.accbsUser_bank}
+          onChange={(e) =>
+            setSelectedBeneficiary((prevState) => ({
+              ...prevState,
+              accbsUser_bank: e.target.value,
+            }))
+          }
+        >
+          {banksByCountry[selectedBeneficiary.accbsUser_country]?.map((bank) => (
+            <option key={bank} value={bank}>
+              {bank}
+            </option>
+          ))}
+        </select>
+
+        <button type="submit" className="submit-button">
+          Guardar Cambios
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   ) : (
     <Redirect to="/login" />

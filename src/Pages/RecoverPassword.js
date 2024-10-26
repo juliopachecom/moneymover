@@ -4,10 +4,9 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
-import { Redirect } from "react-router-dom";
 
 function RecoverPassword() {
-  const { logged, url } = useDataContext();
+  const { url } = useDataContext();
   const [email, setEmail] = useState("");
   const history = useHistory();
   const [loading, setLoading] = useState(false);
@@ -34,7 +33,7 @@ function RecoverPassword() {
     }
   };
 
-  return logged ? (
+  return (
     <div className="recover-container">
       <form className="recover-form" onSubmit={handleSubmit}>
         <div className="text-center mb-4">
@@ -76,9 +75,7 @@ function RecoverPassword() {
         pauseOnHover
       />
     </div>
-  ) : (
-    <Redirect to="/Login" />
-  );
+  )
 }
 
 export { RecoverPassword };
