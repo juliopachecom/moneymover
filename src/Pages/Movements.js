@@ -189,52 +189,78 @@ function Movements() {
       </div>
 
       {/* Modal para detalles del movimiento */}
-      {selectedMovement && (
-        <div className="modal-overlay fadeIn" style={{ zIndex: 2000 }}>
-          <div className="modal-content fadeIn">
-            <h2>Detalles del Movimiento</h2>
-            <button className="modal-close" onClick={closeDetails}>
-              &times;
-            </button>
-            <div className="modal-details">
-              <p>
-                <strong>Referencia:</strong> {selectedMovement.mov_ref}
-              </p>
-              <p>
-                <strong>Fecha:</strong> {selectedMovement.mov_date}
-              </p>
-              <p>
-                <strong>Monto:</strong> {selectedMovement.mov_amount}{" "}
-                {selectedMovement.mov_currency}
-              </p>
-              <p>
-                <strong>Estado:</strong>{" "}
-                {selectedMovement.mov_status === "E"
-                  ? "En espera"
-                  : selectedMovement.mov_status === "V"
-                  ? "Aprobada"
-                  : "Rechazada"}
-              </p>
-              <p
-                dangerouslySetInnerHTML={{
-                  __html:
-                    selectedMovement && selectedMovement.mov_comment !== 'undefined'  ?
-                    selectedMovement.mov_comment.replace(/\n/g, "<br/>") : null
-                }}
-              />
-              {selectedMovement.mov_img &&
-                !selectedMovement.mov_img.toLowerCase().includes(".pdf") && (
-                  <img
-                    className="modal-image"
-                    alt="ImageMovement"
-                    src={`${url}/Movements/image/${selectedMovement.mov_img}`}
-                  />
-                )}
-              {!selectedMovement.mov_img && <p>No hay documento adjunto.</p>}
-            </div>
+{selectedMovement && (
+  <div className="modal-overlay fadeIn" style={{ zIndex: 2000 }}>
+    <div className="modal-content fadeIn">
+      <h2>Detalles del Movimiento</h2>
+      <button className="modal-close" onClick={closeDetails}>
+        &times;
+      </button>
+      <div className="modal-details">
+        <p>
+          <strong>Referencia:</strong> {selectedMovement.mov_ref}
+        </p>
+        <p>
+          <strong>Fecha:</strong> {selectedMovement.mov_date}
+        </p>
+        <p>
+          <strong>Monto:</strong> {selectedMovement.mov_amount}{" "}
+          {selectedMovement.mov_currency}
+        </p>
+        <p>
+          <strong>Estado:</strong>{" "}
+          {selectedMovement.mov_status === "E"
+            ? "En espera"
+            : selectedMovement.mov_status === "V"
+            ? "Aprobada"
+            : "Rechazada"}
+        </p>
+
+        {/* Condición para mostrar detalles de la transferencia o el comentario */}
+        {selectedMovement.mov_typeOutflow === "transferencia" ? (
+          <div>
+            <p>
+              <strong>Banco:</strong> {selectedMovement.AccountsBsUser.accbsUser_bank}
+            </p>
+            <p>
+              <strong>Propietario:</strong> {selectedMovement.AccountsBsUser.accbsUser_owner}
+            </p>
+            <p>
+              <strong>Número de cuenta o Pago Movil:</strong>{" "}
+              {selectedMovement.AccountsBsUser.accbsUser_number
+                ? selectedMovement.AccountsBsUser.accbsUser_number
+                : selectedMovement.AccountsBsUser.accbsUser_phone}
+            </p>
+            <p>
+              <strong>DNI:</strong> {selectedMovement.AccountsBsUser.accbsUser_dni}
+            </p>
           </div>
-        </div>
-      )}
+        ) : (
+          // Mostrar el comentario si no es una transferencia
+          <p
+            dangerouslySetInnerHTML={{
+              __html: selectedMovement.mov_comment
+                ? selectedMovement.mov_comment.replace(/\n/g, "<br/>")
+                : "Sin comentarios disponibles.",
+            }}
+          />
+        )}
+
+        {/* Mostrar imagen si está disponible */}
+        {selectedMovement.mov_img &&
+          !selectedMovement.mov_img.toLowerCase().includes(".pdf") && (
+            <img
+              className="modal-image"
+              alt="ImageMovement"
+              src={`${url}/Movements/image/${selectedMovement.mov_img}`}
+            />
+          )}
+        {!selectedMovement.mov_img && <p>No hay documento adjunto.</p>}
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   ) : (
     <Redirect to="/Login" />
