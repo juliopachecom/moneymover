@@ -29,7 +29,92 @@ function Relation() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [dailyView, setDailyView] = useState('');
+  const [showModalDepositsAndWithdrawals, setShowModalDepositsAndWithdrawals] = useState(false);
+const [dailyDate, setDailyDate] = useState(new Date()); // Fecha por defecto el día actual
+
+const [dailyTotalsByUser, setDailyTotalsByUser] = useState([]);
+
+
+const [dailyTotalDepositsEur, setDailyTotalDepositsEur] = useState(0);
+const [dailyTotalWithdrawalsEur, setDailyTotalWithdrawalsEur] = useState(0);
+const [dailyTotalDepositsUsd, setDailyTotalDepositsUsd] = useState(0);
+const [dailyTotalWithdrawalsUsd, setDailyTotalWithdrawalsUsd] = useState(0);
+const [dailyTotalDepositsGbp, setDailyTotalDepositsGbp] = useState(0);
+const [dailyTotalWithdrawalsGbp, setDailyTotalWithdrawalsGbp] = useState(0);
+
+const calculateDailyTotals = (date) => {
+  const selectedDate = date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+  
+  // Variables para totales por cada moneda
+  let totalDepositsEur = 0;
+  let totalWithdrawalsEur = 0;
+  let totalDepositsUsd = 0;
+  let totalWithdrawalsUsd = 0;
+  let totalDepositsGbp = 0;
+  let totalWithdrawalsGbp = 0;
+
+  // Crear un mapa para almacenar los depósitos y retiros por usuario y moneda
+  const userTotalsMap = new Map();
+
+  movements
+    .filter((mov) => mov.mov_status === "V" && mov.mov_date.startsWith(selectedDate))
+    .forEach((mov) => {
+      if (!userTotalsMap.has(mov.User.use_id)) {
+        userTotalsMap.set(mov.User.use_id, {
+          user: mov.User,
+          depositsEur: 0,
+          depositsUsd: 0,
+          depositsGbp: 0,
+          withdrawalsEur: 0,
+          withdrawalsUsd: 0,
+          withdrawalsGbp: 0,
+        });
+      }
+      const userData = userTotalsMap.get(mov.User.use_id);
+
+      // Calcular los depósitos por moneda
+      if (mov.mov_type === "Deposito") {
+        if (mov.mov_currency === "EUR") {
+          totalDepositsEur += mov.mov_amount;
+          userData.depositsEur += mov.mov_amount;
+        } else if (mov.mov_currency === "USD") {
+          totalDepositsUsd += mov.mov_amount;
+          userData.depositsUsd += mov.mov_amount;
+        } else if (mov.mov_currency === "GBP") {
+          totalDepositsGbp += mov.mov_amount;
+          userData.depositsGbp += mov.mov_amount;
+        }
+      }
+
+      // Calcular los retiros por moneda
+      if (mov.mov_type === "Retiro") {
+        if (mov.mov_oldCurrency === "EUR") {
+          totalWithdrawalsEur += mov.mov_oldAmount;
+          userData.withdrawalsEur += mov.mov_oldAmount;
+        } else if (mov.mov_oldCurrency === "USD") {
+          totalWithdrawalsUsd += mov.mov_oldAmount;
+          userData.withdrawalsUsd += mov.mov_oldAmount;
+        } else if (mov.mov_oldCurrency === "GBP") {
+          totalWithdrawalsGbp += mov.mov_oldAmount;
+          userData.withdrawalsGbp += mov.mov_oldAmount;
+        }
+      }
+
+      userTotalsMap.set(mov.User.use_id, userData);
+    });
+
+  // Actualizar el estado con los totales diarios por moneda
+  setDailyTotalDepositsEur(totalDepositsEur);
+  setDailyTotalWithdrawalsEur(totalWithdrawalsEur);
+  setDailyTotalDepositsUsd(totalDepositsUsd);
+  setDailyTotalWithdrawalsUsd(totalWithdrawalsUsd);
+  setDailyTotalDepositsGbp(totalDepositsGbp);
+  setDailyTotalWithdrawalsGbp(totalWithdrawalsGbp);
+
+  // Convertir el mapa a una lista de usuarios con sus totales
+  setDailyTotalsByUser(Array.from(userTotalsMap.values()));
+};
+
 
   const getUserDepositRanking = () => {
     return users
@@ -45,7 +130,7 @@ function Relation() {
               (!endDate || new Date(mov.mov_date) <= endDate)
           )
           .reduce((sum, mov) => sum + mov.mov_amount, 0);
-  
+
         const totalDepositsUsd = movements
           .filter(
             (mov) =>
@@ -57,7 +142,7 @@ function Relation() {
               (!endDate || new Date(mov.mov_date) <= endDate)
           )
           .reduce((sum, mov) => sum + mov.mov_amount, 0);
-  
+
         const totalDepositsGbp = movements
           .filter(
             (mov) =>
@@ -69,90 +154,24 @@ function Relation() {
               (!endDate || new Date(mov.mov_date) <= endDate)
           )
           .reduce((sum, mov) => sum + mov.mov_amount, 0);
-  
-        return { 
-          ...user, 
-          totalDepositsEur, 
-          totalDepositsUsd, 
-          totalDepositsGbp 
+
+        return {
+          ...user,
+          totalDepositsEur,
+          totalDepositsUsd,
+          totalDepositsGbp,
         };
       })
-      .filter((user) => user.totalDepositsEur > 0 || user.totalDepositsUsd > 0 || user.totalDepositsGbp > 0) // Solo usuarios que han hecho depósitos
+      .filter(
+        (user) =>
+          user.totalDepositsEur > 0 ||
+          user.totalDepositsUsd > 0 ||
+          user.totalDepositsGbp > 0
+      ) // Solo usuarios que han hecho depósitos
       .sort((a, b) => b.totalDepositsEur - a.totalDepositsEur); // Ordenar por depósitos en EUR
   };
-  
-  const getUserSendRanking = () => {
-    return users
-      .map((user) => {
-        const totalRetirosEur = movements
-          .filter(
-            (mov) =>
-              mov.User.use_id === user.use_id &&
-              mov.mov_type === "Retiro" &&
-              mov.mov_status === "V" &&
-              mov.mov_oldCurrency === "EUR" &&
-              (!startDate || new Date(mov.mov_date) >= startDate) &&
-              (!endDate || new Date(mov.mov_date) <= endDate)
-          )
-          .reduce((sum, mov) => sum + mov.mov_oldAmount, 0);
-  
-        const totalRetirosUsd = movements
-          .filter(
-            (mov) =>
-              mov.User.use_id === user.use_id &&
-              mov.mov_type === "Retiro" &&
-              mov.mov_status === "V" &&
-              mov.mov_oldCurrency === "USD" &&
-              (!startDate || new Date(mov.mov_date) >= startDate) &&
-              (!endDate || new Date(mov.mov_date) <= endDate)
-          )
-          .reduce((sum, mov) => sum + mov.mov_oldAmount, 0);
-  
-        const totalRetirosGbp = movements
-          .filter(
-            (mov) =>
-              mov.User.use_id === user.use_id &&
-              mov.mov_type === "Retiro" &&
-              mov.mov_status === "V" &&
-              mov.mov_oldCurrency === "GBP" &&
-              (!startDate || new Date(mov.mov_date) >= startDate) &&
-              (!endDate || new Date(mov.mov_date) <= endDate)
-          )
-          .reduce((sum, mov) => sum + mov.mov_oldAmount, 0);
-  
-        return { 
-          ...user, 
-          totalRetirosEur, 
-          totalRetirosUsd, 
-          totalRetirosGbp 
-        };
-      })
-      .filter((user) => user.totalRetirosEur > 0 || user.totalRetirosUsd > 0 || user.totalRetirosGbp > 0) // Solo usuarios que han hecho retiros
-      .sort((a, b) => b.totalRetirosEur - a.totalRetirosEur); // Ordenar por retiros en EUR
-  };
-  
 
-  // Función para obtener el ranking de depósitos del día
-  const getDailyDepositRanking = () => {
-    const today = new Date().toISOString().split("T")[0];
-
-    return users
-      .map((user) => {
-        const totalDeposits = movements
-          .filter(
-            (mov) =>
-              mov.User.use_id === user.use_id &&
-              mov.mov_type === "Deposito" &&
-              mov.mov_status === "V" &&
-              mov.mov_date.startsWith(today) // Filtrar por fecha de hoy
-          )
-          .reduce((sum, mov) => sum + mov.mov_amount, 0);
-
-        return { ...user, totalDeposits };
-      })
-      .filter((user) => user.totalDeposits > 0) // Solo usuarios que han hecho depósitos
-      .sort((a, b) => b.totalDeposits - a.totalDeposits); // Ordenar de mayor a menor
-  };
+  
 
   // Datos de Usuarios
   const [users, setUsers] = useState([]);
@@ -216,6 +235,11 @@ function Relation() {
     fetchDataMovemments();
     fetchDataUsers();
   }, [fetchDataMovemments, fetchDataUsers]);
+
+  const openDailyModal = () => {
+    calculateDailyTotals(dailyDate); // Calcular los totales para la fecha predeterminada (hoy)
+    setShowModalDepositsAndWithdrawals(true);
+  };
 
   // Función para calcular los totales
   const calcularTotales = () => {
@@ -290,8 +314,6 @@ function Relation() {
       totalRetiroEur,
       totalRetiroMex,
       totalRetiroUsd,
-      
-
     };
   };
 
@@ -309,7 +331,7 @@ function Relation() {
     totalRetiroBrl,
     totalRetiroMex,
     totalRetiroUsd,
-    totalRetiroEur
+    totalRetiroEur,
   } = calcularTotales();
 
   return loggedAdm ? (
@@ -432,14 +454,15 @@ function Relation() {
                             : null)}
                         >
                           {movement.mov_type === "Deposito"
-                            ? `${movement.mov_currency === "EUR"
-                              ? "€"
-                              : movement.mov_currency === "USD"
-                                ? "$"
-                                : movement.mov_currency === "GBP"
+                            ? `${
+                                movement.mov_currency === "EUR"
+                                  ? "€"
+                                  : movement.mov_currency === "USD"
+                                  ? "$"
+                                  : movement.mov_currency === "GBP"
                                   ? "£"
                                   : ""
-                            } ${movement.mov_amount}`
+                              } ${movement.mov_amount}`
                             : 0}
                         </td>
                         <td
@@ -450,61 +473,61 @@ function Relation() {
                           {movement.mov_type === "Retiro"
                             ? `(${movement.mov_oldCurrency} ${movement.mov_oldAmount}) ${movement.mov_currency} ${movement.mov_amount}`
                             : movement.mov_typeOutflow === "efectivo" // Aquí se añade la lógica para Efectivo
-                              ? "EFECTIVO"
-                              : 0}
+                            ? "EFECTIVO"
+                            : 0}
                         </td>
                         {(tipoMovimiento === "Retiro" ||
                           tipoMovimiento === "TODOS") && (
-                            <td>{movement.mov_currencyPrice}</td>
-                          )}
+                          <td>{movement.mov_currencyPrice}</td>
+                        )}
                         {(tipoMovimiento === "Retiro" ||
                           tipoMovimiento === "TODOS") && (
-                            <td>
-                              {movement.AccountsBsUser ? (
-                                <>
-                                  {movement.AccountsBsUser.accbsUser_country}{" "}
-                                  <img
-                                    src={
-                                      flagMap[
+                          <td>
+                            {movement.AccountsBsUser ? (
+                              <>
+                                {movement.AccountsBsUser.accbsUser_country}{" "}
+                                <img
+                                  src={
+                                    flagMap[
                                       movement.AccountsBsUser.accbsUser_country
-                                      ]
-                                    }
-                                    alt={
-                                      movement.AccountsBsUser.accbsUser_country
-                                    }
-                                    style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
-                                  />
-                                </>
-                              ) : (
-                                <>
-                                  {movement.mov_typeOutflow === "efectivo" ? (
-                                    <>
-                                      Efectivo{" "}
-                                      <img
-                                        src={venezuelaFlag}
-                                        alt="Efectivo"
-                                        style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
-                                      />
-                                    </>
-                                  ) : movement.mov_typeOutflow ===
-                                    "sendOption" ? (
-                                    <>
-                                      Retiro
-                                      <img
-                                        src={usaFlag}
-                                        alt="Retiro"
-                                        style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
-                                      />
-                                    </>
-                                  ) : null}
-                                </>
-                              )}
-                            </td>
-                          )}
+                                    ]
+                                  }
+                                  alt={
+                                    movement.AccountsBsUser.accbsUser_country
+                                  }
+                                  style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
+                                />
+                              </>
+                            ) : (
+                              <>
+                                {movement.mov_typeOutflow === "efectivo" ? (
+                                  <>
+                                    Efectivo{" "}
+                                    <img
+                                      src={venezuelaFlag}
+                                      alt="Efectivo"
+                                      style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
+                                    />
+                                  </>
+                                ) : movement.mov_typeOutflow ===
+                                  "sendOption" ? (
+                                  <>
+                                    Retiro
+                                    <img
+                                      src={usaFlag}
+                                      alt="Retiro"
+                                      style={{ width: "20px" }} // Ajusta el tamaño según sea necesario
+                                    />
+                                  </>
+                                ) : null}
+                              </>
+                            )}
+                          </td>
+                        )}
                         {(tipoMovimiento === "Retiro" ||
                           tipoMovimiento === "TODOS") && (
-                            <td>{movement.mov_oldCurrency}</td>
-                          )}
+                          <td>{movement.mov_oldCurrency}</td>
+                        )}
                         <td>{movement.mov_date}</td>
                       </tr>
                     );
@@ -540,7 +563,6 @@ function Relation() {
         <h2>Retiros</h2>
         <div className="transactions-section">
           <table className="transactions-table">
-           
             <tr>
               <td>Bolívares</td>
               <td>Bs {totalRetiroBolivares.toFixed(2)}</td>
@@ -599,72 +621,64 @@ function Relation() {
         >
           Mostrar Ranking de Depósitos
         </button>
-
-        {showDepositModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h3>Ranking de Depósitos</h3>
-              <button
-                className="close-button"
-                onClick={() => setShowDepositModal(false)}
-              >
-                X
-              </button>
-
-              {/* Filtros de Fecha */}
-              <div className="date-filter">
-                <label>Desde:</label>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                />
-                <label>Hasta:</label>
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                />
-              </div>
-
-              <button onClick={() => setDailyView('Total')}>
-                Total Depósitos
-              </button>
-              <button onClick={() => setDailyView('DepósitosDaily')}>
-                Depósitos del Día
-              </button>
-              <button onClick={() => setDailyView('RetirosDaily')}>
-                Retiros totales del Día
-              </button>
-
-              {/* Tabla de ranking */}
-              <table className="deposit-ranking-table">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Total Depósitos (EUR)</th>
-      <th>Total Depósitos (USD)</th>
-      <th>Total Depósitos (GBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    {(dailyView === "DepósitosDaily"
-      ? getDailyDepositRanking()
-      : dailyView === "Total" ? getUserDepositRanking()
-        : getUserSendRanking()
-    ).map((user, index) => (
-      <tr key={index}>
-        <td>{`${user.use_name} ${user.use_lastName}`}</td>
-        <td>€{(user.totalDepositsEur || 0).toFixed(2)}</td>
-        <td>${(user.totalDepositsUsd || 0).toFixed(2)}</td>
-        <td>£{(user.totalDepositsGbp || 0).toFixed(2)}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+        {/* Botón para abrir el modal de Depósitos y Retiros del Día */}
+<button onClick={openDailyModal} className="buttonmodal">
+  Mostrar Depósitos y Retiros del Día
+</button>
 
 
-            </div>
-          </div>
-        )}
+{showDepositModal && (
+  <div className="modal-overlay">
+    <div className="deposits-withdrawals-modal">
+    <div className="modal-content">
+      <h3>Ranking de Depósitos</h3>
+      <button
+        className="button close-button"
+        onClick={() => setShowDepositModal(false)}
+      >
+        X
+      </button>
+
+      {/* Filtros de Fecha */}
+      <div className="date-filter">
+        <label>Desde:</label>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+        />
+        <label>Hasta:</label>
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+        />
+      </div>
+
+      {/* Tabla de ranking de depósitos */}
+      <table className="table deposit-ranking-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Total Depósitos (EUR)</th>
+            <th>Total Depósitos (USD)</th>
+            <th>Total Depósitos (GBP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {getUserDepositRanking().map((user, index) => (
+            <tr key={index}>
+              <td>{`${user.use_name} ${user.use_lastName}`}</td>
+              <td>€{(user.totalDepositsEur || 0).toFixed(2)}</td>
+              <td>${(user.totalDepositsUsd || 0).toFixed(2)}</td>
+              <td>£{(user.totalDepositsGbp || 0).toFixed(2)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+)}
+
 
         {showModal && (
           <div className="modal-overlay">
@@ -710,6 +724,93 @@ function Relation() {
             </div>
           </div>
         )}
+
+{showModalDepositsAndWithdrawals && (
+  <div className="modal-overlay">
+    <div className="deposits-withdrawals-modal">
+  <div className="modal-content">
+    <h3>Total de Depósitos y Retiros del Día</h3>
+    <button
+      className="button close-button"
+      onClick={() => setShowModalDepositsAndWithdrawals(false)}
+    >
+      X
+    </button>
+
+    {/* Calendario de filtro de día */}
+    <div className="date-filter">
+      <label>Seleccionar Día:</label>
+      <DatePicker
+        selected={dailyDate}
+        onChange={(date) => {
+          setDailyDate(date);
+          calculateDailyTotals(date);
+        }}
+      />
+    </div>
+
+    {/* Mostrar los totales del día por moneda */}
+    <div className="totals-section">
+      <div className="total-box">
+        <h5>Totales en EUR</h5>
+        <div className="amount deposits">Depósitos: €{dailyTotalDepositsEur.toFixed(2)}</div>
+        <div className="amount withdrawals">Retiros: €{dailyTotalWithdrawalsEur.toFixed(2)}</div>
+      </div>
+      <div className="total-box">
+        <h5>Totales en USD</h5>
+        <div className="amount deposits">Depósitos: ${dailyTotalDepositsUsd.toFixed(2)}</div>
+        <div className="amount withdrawals">Retiros: ${dailyTotalWithdrawalsUsd.toFixed(2)}</div>
+      </div>
+      <div className="total-box">
+        <h5>Totales en GBP</h5>
+        <div className="amount deposits">Depósitos: £{dailyTotalDepositsGbp.toFixed(2)}</div>
+        <div className="amount withdrawals">Retiros: £{dailyTotalWithdrawalsGbp.toFixed(2)}</div>
+      </div>
+    </div>
+
+    {/* Desglose por usuario */}
+    <h4>Depósitos y Retiros por Usuario y Moneda</h4>
+    <table className="user-totals-table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Depósitos EUR</th>
+          <th>Depósitos USD</th>
+          <th>Depósitos GBP</th>
+          <th>Retiros EUR</th>
+          <th>Retiros USD</th>
+          <th>Retiros GBP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {dailyTotalsByUser.length > 0 ? (
+          dailyTotalsByUser.map((entry, index) => (
+            <tr key={index}>
+              <td>{`${entry.user.use_name} ${entry.user.use_lastName}`}</td>
+              <td className="deposits">€{entry.depositsEur.toFixed(2)}</td>
+              <td className="deposits">${entry.depositsUsd.toFixed(2)}</td>
+              <td className="deposits">£{entry.depositsGbp.toFixed(2)}</td>
+              <td className="withdrawals">€{entry.withdrawalsEur.toFixed(2)}</td>
+              <td className="withdrawals">${entry.withdrawalsUsd.toFixed(2)}</td>
+              <td className="withdrawals">£{entry.withdrawalsGbp.toFixed(2)}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="7">No hay depósitos o retiros para el día seleccionado</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+)}
+
+
+
       </div>
     </div>
   ) : (

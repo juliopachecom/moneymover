@@ -16,6 +16,7 @@ import venezuelaFlag from "../Assets/Images/venezuela.png";
 import brasilFlag from "../Assets/Images/square.png";
 import peruFlag from "../Assets/Images/peru.png";
 import chileFlag from "../Assets/Images/chile.png";
+import ukFlag from "../Assets/Images/uk.png";
 import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
 // Mapa de banderas
@@ -28,6 +29,8 @@ const flagMap = {
   BRL: brasilFlag,
   ARS: argentinaFlag,
   "USD-PA": panamaFlag,
+  EUR: spainFlag,
+  GBP: ukFlag,
 };
 
 function Movements() {
@@ -122,6 +125,7 @@ function Movements() {
           <thead>
             <tr>
               <th>Fecha</th>
+              <th>Referencia</th>
               <th>Tipo</th>
               <th>Monto</th>
               <th>Estado</th>
@@ -129,13 +133,28 @@ function Movements() {
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map((transaction) => (
+            {filteredTransactions.reverse().map((transaction) => (
               <tr key={transaction.mov_id}>
                 <td>{transaction.mov_date}</td>
+                <td>{transaction.mov_ref}</td>
                 <td>{transaction.mov_type}</td>
-                <td style={{display:  'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom:  '20px'}}>
-                  <span style={{textAlign: "start"}}>
-                  {transaction.mov_amount}{" "}{transaction.mov_type === 'Deposito'? null : "("+ transaction.mov_oldAmount + " " + transaction.mov_oldCurrency + ")"}
+                <td
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingBottom: "20px",
+                  }}
+                >
+                  <span style={{ textAlign: "start" }}>
+                    {transaction.mov_amount}{" "}
+                    {transaction.mov_type === "Deposito"
+                      ? null
+                      : "(" +
+                        transaction.mov_oldAmount +
+                        " " +
+                        transaction.mov_oldCurrency +
+                        ")"}
                   </span>
                   <img
                     src={flagMap[transaction.mov_currency] || spainFlag}
@@ -173,14 +192,16 @@ function Movements() {
       {selectedMovement && (
         <div className="modal-overlay fadeIn" style={{ zIndex: 2000 }}>
           <div className="modal-content fadeIn">
-            
             <h2>Detalles del Movimiento</h2>
             <button className="modal-close" onClick={closeDetails}>
               &times;
             </button>
             <div className="modal-details">
               <p>
-                <strong>ID:</strong> {selectedMovement.mov_id}
+                <strong>Referencia:</strong> {selectedMovement.mov_ref}
+              </p>
+              <p>
+                <strong>Fecha:</strong> {selectedMovement.mov_date}
               </p>
               <p>
                 <strong>Monto:</strong> {selectedMovement.mov_amount}{" "}
@@ -194,9 +215,13 @@ function Movements() {
                   ? "Aprobada"
                   : "Rechazada"}
               </p>
-              <p>
-                <strong>Fecha:</strong> {selectedMovement.mov_date}
-              </p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html:
+                    selectedMovement && selectedMovement.mov_comment !== 'undefined'  ?
+                    selectedMovement.mov_comment.replace(/\n/g, "<br/>") : null
+                }}
+              />
               {selectedMovement.mov_img &&
                 !selectedMovement.mov_img.toLowerCase().includes(".pdf") && (
                   <img

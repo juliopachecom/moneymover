@@ -590,6 +590,7 @@ function AdminDashboard() {
     setShowRejectionReason(false); // Oculta el cuadro de texto
   };
 
+  
   useEffect(() => {
     fetchDataAdm();
     fetchDataMovemments();
@@ -816,6 +817,9 @@ function AdminDashboard() {
                           )}
                           {movement.mov_currency === "EUR" && (
                             <img src={spainFlag} alt="EUR" />
+                          )}
+                          {movement.mov_currency === "GBP" && (
+                            <img src={ukFlag} alt="GBP" />
                           )}
                         </td>
                         <td>

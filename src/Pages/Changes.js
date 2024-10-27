@@ -736,7 +736,7 @@ function Changes() {
             ) : null}
             <p>
               <strong>Monto:</strong>{" "}
-              {selectedMovement.mov_currency === "EUR" ? "€" : "$"}
+              {selectedMovement.mov_currency === "EUR" ? "€" : selectedMovement.mov_currency === "USD" ? "$" : "£"}
               {selectedMovement.mov_amount}
             </p>
             <p>

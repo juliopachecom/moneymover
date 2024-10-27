@@ -50,13 +50,6 @@ function Home() {
       return;
     }
 
-    console.log("Calculating remittance with:", {
-      sendCountry,
-      receiveCountry,
-      sendAmount,
-      exchangeRate,
-    });
-
     let selectedRate;
 
     if (sendCountry === "EUR") {
@@ -116,7 +109,6 @@ function Home() {
     }
 
     const result = sendAmount * selectedRate;
-    console.log("Calculated receive amount:", result);
     setReceiveAmount(result);
   }, [sendCountry, receiveCountry, sendAmount, exchangeRate]);
 
@@ -128,8 +120,6 @@ function Home() {
         },
       });
       setExchangeRate(response.data);
-      console.log(response.data); // Puedes quitar este console.log si ya no lo necesitas.
-      // setLoading(false);
     } catch (error) {
       console.error("Error fetching exchange rate", error);
       // setError("Error fetching exchange rate");

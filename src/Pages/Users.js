@@ -8,18 +8,17 @@ import {
   FaClock,
   FaArrowDown,
   FaArrowUp,
-
 } from "react-icons/fa";
 import NavBarAdmin from "../Components/NavBarAdmin"; // Importando NavBarAdmin
 // import { toast, ToastContainer } from "react-toastify";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { NotFound } from "../Components/NotFound";
-import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle } from 'react-icons/ai';
-
-
-
-
+import {
+  AiOutlineCheckCircle,
+  AiOutlineClockCircle,
+  AiOutlineCloseCircle,
+} from "react-icons/ai";
 
 function Users() {
   const { loggedAdm, infoTkn, url } = useDataContext();
@@ -143,12 +142,6 @@ function Users() {
     setDNI("");
     setPhone("");
     setVerif("");
-  };
-
-  // Función para manejar cambios en el estado de verificación
-  const handleUserVerificationChange = (e) => {
-    const { value } = e.target;
-    setSelectedUser((prev) => ({ ...prev, use_verif: value }));
   };
 
   // Iconos de verificación
@@ -472,86 +465,114 @@ function Users() {
         )}
 
         {/* Modal de Movimientos */}
-       {/* Modal de Movimientos */}
-{showMovementsModal && selectedUser && (
-  <div className="modal">
-    <div className="modal-content">
-      <h3>Movimientos de {selectedUser.use_name} {selectedUser.use_lastName}</h3>
-      <table className="movements__table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Moneda</th>
-            <th>Monto</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-            <th>Comentario</th>
-            <th>Imagen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {movements.reverse().map((move) => (
-            move.User.use_id === selectedUser.use_id ? (
-              <tr key={move.mov_id}>
-                <td>{move.mov_id}</td>
-                <td>{move.mov_currency}</td>
-                <td>
-                  {move.mov_type === 'Retiro'
-                    ? `(${move.mov_oldAmount} ${move.mov_oldCurrency}) ${move.mov_amount}`
-                    : move.mov_amount
-                  }
-                </td>
-                <td>
-                  {move.mov_type === 'Deposito' ? (
-                    <FaArrowDown color="green" />
-                  ) : move.mov_type === 'Retiro' ? (
-                    <FaArrowUp color="red" />
-                  ) : null}
-                </td>
-                <td>
-                  {move.mov_status === 'R' ? (
-                    <AiOutlineCloseCircle style={{ color: 'red', fontSize: '2em' }} />
-                  ) : move.mov_status === 'V' ? (
-                    <AiOutlineCheckCircle style={{ color: 'green', fontSize: '2em' }} />
-                  ) : (
-                    <AiOutlineClockCircle style={{ color: 'blue', fontSize: '2em' }} />
-                  )}
-                </td>
-                <td>{move.mov_date}</td>
-                <td
-                  dangerouslySetInnerHTML={{
-                    __html: move.mov_comment.replace(/\n/g, "<br/>"),
-                  }}
-                />
-                <td>
-                  {move.mov_img ? (
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => {
-                        setSelectedMovement(move);
-                        setShowMovementsModal(false);
-                        setShowMovementImageModal(true);
-                      }}
-                    >
-                      Ver Imagen
-                    </button>
-                  ) : (
-                    <p>No se encontraron resultados</p>
-                  )}
-                </td>
-              </tr>
-            ) : null
-          ))}
-        </tbody>
-      </table>
-      <button onClick={closeModal} className="close-button">
-        Cerrar
-      </button>
-    </div>
-  </div>
-)}
+        {/* Modal de Movimientos */}
+        {showMovementsModal && selectedUser && (
+          <div className="modal">
+            <div className="modal-content">
+              <h3>
+                Movimientos de {selectedUser.use_name}{" "}
+                {selectedUser.use_lastName}
+              </h3>
+              <table className="movements__table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Moneda</th>
+                    <th>Monto</th>
+                    <th>Tipo</th>
+                    <th>Referencia</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Comentario</th>
+                    <th>Imagen</th>
 
+                  </tr>
+                </thead>
+                <tbody>
+                  {movements.reverse().map((move) =>
+                    move.User.use_id === selectedUser.use_id ? (
+                      <tr key={move.mov_id}>
+                        <td>{move.mov_id}</td>
+                        <td>{move.mov_currency}</td>
+                        <td>
+                          {move.mov_type === "Retiro"
+                            ? `(${move.mov_oldAmount} ${move.mov_oldCurrency}) ${move.mov_amount}`
+                            : move.mov_amount}
+                        </td>
+                        <td>
+                          {move.mov_type === "Deposito" ? (
+                            <FaArrowDown color="green" />
+                          ) : move.mov_type === "Retiro" ? (
+                            <FaArrowUp color="red" />
+                          ) : null}
+                        </td>
+                        <td>{move.mov_ref}</td>
+                        <td>
+                          {move.mov_status === "R" ? (
+                            <AiOutlineCloseCircle style={{ color: "red", fontSize: "2em" }} />
+                          ) : move.mov_status === "V" ? (
+                            <AiOutlineCheckCircle
+                              style={{ color: "green", fontSize: "2em" }}
+                            />
+                          ) : (
+                            <AiOutlineClockCircle style={{ color: "blue", fontSize: "2em" }} />
+                          )}
+                        </td>
+                        <td>{move.mov_date}</td>
+
+                        {/* Mostrar la información basada en el tipo de movimiento */}
+                        <td>
+                          {move.mov_typeOutflow === "transferencia" ? (
+                            <div>
+                              <strong>Banco:</strong> {move.AccountsBsUser.accbsUser_bank}
+                              <br />
+                              <strong>Propietario:</strong> {move.AccountsBsUser.accbsUser_owner}
+                              <br />
+                              <strong>Número de cuenta:</strong>{" "}
+                              {move.AccountsBsUser.accbsUser_number
+                                ? move.AccountsBsUser.accbsUser_number
+                                : move.AccountsBsUser.accbsUser_phone}
+                              <br />
+                              <strong>DNI:</strong> {move.AccountsBsUser.accbsUser_dni}
+                            </div>
+                          ) : (
+                            // Si no es transferencia, mostrar el comentario
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: move.mov_comment.replace(/\n/g, "<br/>"),
+                              }}
+                            />
+                          )}
+                        </td>
+
+                        <td>
+                          {move.mov_img ? (
+                            <button
+                              className="btn btn-primary"
+                              onClick={() => {
+                                setSelectedMovement(move);
+                                setShowMovementsModal(false);
+                                setShowMovementImageModal(true);
+                              }}
+                            >
+                              Ver Imagen
+                            </button>
+                          ) : (
+                            <p>No se encontraron resultados</p>
+                          )}
+                        </td>
+                      </tr>
+                    ) : null
+                  )}
+                </tbody>
+
+              </table>
+              <button onClick={closeModal} className="close-button">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Modal de Imagen */}
         {showImageModal && selectedUser && (
@@ -583,7 +604,7 @@ function Users() {
                   <img
                     src={`https://apimoneymover-pruebas.up.railway.app/Movements/image/${selectedMovement.mov_img}`}
                     alt="Imagen de Movimiento"
-                    width={300}
+                    style={{ width: "50%" }}
                   />
                 ) : (
                   <div className="user-image-placeholder">[Sin Imagen]</div>
@@ -602,143 +623,137 @@ function Users() {
             <div className="modal-content">
               <h3>Editar {selectedUser.use_name}</h3>
               <form onSubmit={handleSubmit}>
-                <form onSubmit={handleSubmit}>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <label>Nombre:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={use_name}
-                            onChange={(e) => setNombre(e.target.value)}
-                            required
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Apellido:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={use_lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                            required
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>DNI:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={use_dni}
-                            onChange={(e) => setDNI(e.target.value)}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Contraseña:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="password"
-                            value={use_password}
-                            onChange={(e) => setPassword(e.target.value)}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Teléfono:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={use_phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Correo:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="email"
-                            value={use_email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Saldo EUR:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            value={use_amountEur}
-                            onChange={(e) => setAmountEur(e.target.value)}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Saldo GBP:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            value={use_amountGbp}
-                            onChange={(e) => setAmountGbp(e.target.value)}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Saldo USD:</label>
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            value={use_amountUsd}
-                            onChange={(e) => setAmountUsd(e.target.value)}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label>Estado de verificación:</label>
-                        </td>
-                        <td>
-                          <select
-                            value={selectedUser.use_verif}
-                            onChange={handleUserVerificationChange}
-                          >
-                            {" "}
-                            <option value="S">Verificado</option>
-                            <option value="E">En espera</option>
-                            <option value="N">Rechazado</option>
-                          </select>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <button type="submit" className="btn btn-success">
-                    Guardar Usuario
-                  </button>
-                </form>
-
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <label>Nombre:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={use_name}
+                          onChange={(e) => setNombre(e.target.value)}
+                          required
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Apellido:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={use_lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          required
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>DNI:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={use_dni}
+                          onChange={(e) => setDNI(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Contraseña:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="password"
+                          defaultValue={use_password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Teléfono:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={use_phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Correo:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="email"
+                          defaultValue={use_email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Saldo EUR:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          defaultValue={use_amountEur}
+                          onChange={(e) => setAmountEur(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Saldo GBP:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          defaultValue={use_amountGbp}
+                          onChange={(e) => setAmountGbp(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Saldo USD:</label>
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          defaultValue={use_amountUsd}
+                          onChange={(e) => setAmountUsd(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label>Estado de verificación:</label>
+                      </td>
+                      <td>
+                        <select
+                          defaultValue={selectedUser.use_verif}
+                          onChange={(e) => setVerif(e.target.value)}
+                        >
+                          {" "}
+                          <option value="S">Verificado</option>
+                          <option value="E">En espera</option>
+                          <option value="N">Rechazado</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
                 <button type="submit" className="btn btn-success">
                   Guardar Cambios
                 </button>

@@ -163,5 +163,46 @@ export const banksByCountry = {
     "Banco Safra",
     "Banco BTG Pactual",
     "Banco Votorantim"
-  ]
+  ],
+  Peru: [
+    "Banco de Crédito del Perú",
+    "BBVA Continental",
+    "Interbank",
+    "Scotiabank",
+    "Banco Pichincha",
+    "Banco Falabella",
+    "Banco Ripley",
+    "Banco Azteca"
+  ],
+  Uruguay: [
+    "Banco de la República Oriental del Uruguay",
+    "Banco Itaú Uruguay",
+    "Banco Santander Uruguay",
+    "BROU",
+    "Scotiabank Uruguay",
+    "HSBC Uruguay",
+    "Citibank Uruguay"
+  ],
+  Paraguay: [
+    "Banco Nacional de Fomento",
+    "Banco Itaú Paraguay",
+    "Banco Continental",
+    "Banco Regional",
+    "Banco Familiar",
+    "Banco Sudameris Paraguay",
+    "Banco GNB Paraguay"
+  ],
+  Bolivia: [
+    "Banco de Crédito de Bolivia",
+    "Banco Nacional de Bolivia",
+    "Banco Mercantil Santa Cruz",
+    "Banco BISA",
+    "Banco Ganadero",
+    "Banco FIE",
+    "BancoSol",
+    "Banco Económico"
+  ],
+  "Estados Unidos": [
+    "Bank of America",
+  ],
 };

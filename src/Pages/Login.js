@@ -75,7 +75,9 @@ function Login() {
   return  (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
+        <a href="/">
         <img src={logo} alt="Logo" className="login-logo" />
+        </a>
         <div className="form-group">
           <input
             type="email"

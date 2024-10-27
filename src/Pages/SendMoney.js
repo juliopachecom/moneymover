@@ -7,6 +7,8 @@ import argentina from "../Assets/Images/argentina.png";
 import brasil from "../Assets/Images/square.png";
 import peru from "../Assets/Images/peru.png";
 import panama from "../Assets/Images/panama.png";
+import usa from "../Assets/Images/usa.png";
+
 import { NavBarUser } from "../Components/NavBarUser";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa"; // FaTimesCircle para el ícono de error // Icono de check para confirmación
 import { StepTracker } from "../Components/StepTracker"; // Importación del componente StepTracker
@@ -442,42 +444,6 @@ function SendMoney() {
           deliveryAddress +
           `\n <strong>Monto: </strong>` +
           amount
-      // `${
-      //   (sendOption === "Cuenta Bancaria" || sendOption === "Pago Movil") &&
-      //   `Banco: ` +
-      //     selectedAccount.accbsUser_bank +
-      //     `\n Propietario: ` +
-      //     selectedAccount.accbsUser_owner +
-      //     `\n Número de cuenta: ` +
-      //     selectedAccount.accbsUser_number +
-      //     `\n DNI: ` +
-      //     selectedAccount.accbsUser_dni +
-      //     `\n Teléfono: ` +
-      //     selectedAccount.accbsUser_phone +
-      //     `\n Tipo de cuenta: ` +
-      //     selectedAccount.accbsUser_type +
-      //     `\n` +
-      //     sendOption
-      // } ${
-      //   sendOption === "Transferencias por dólares" &&
-      //   accNumber + accBank + accOwner + accTlf + accDni + sendOption
-      // } ${
-      //   sendOption === "Efectivo" && porcent
-      //     ? `\n` +
-      //       porcent.por_stateLocation +
-      //       `\n` +
-      //       accNumber +
-      //       accBank +
-      //       accOwner +
-      //       accTlf +
-      //       accDni +
-      //       `\n`
-      //     : ""
-      // } ${
-      //   sendOption === "Efectivo" && porcent.por_comment !== ""
-      //     ? porcent.por_comment + "\n"
-      //     : ""
-      // }` + note
     );
     formData.append("mov_img", "Retiro de Divisa");
     formData.append("mov_typeOutflow", withdrawalMethod);
@@ -497,6 +463,8 @@ function SendMoney() {
             return coin.cur_EurToBs;
           case "Argentina":
             return coin.cur_EurToArg_Pes;
+            case "Estados Unidos":
+            return coin.cur_EurToUsd;
           case "Colombia":
             return coin.cur_EurToCol_Pes;
           case "Chile":
@@ -543,6 +511,8 @@ function SendMoney() {
             return coin.cur_GbpToBs;
           case "Argentina":
             return coin.cur_GbpToArg_Pes;
+            case "Estados Unidos":
+            return coin.cur_GbpToUsd;
           case "Colombia":
             return coin.cur_GbpToCol_Pes;
           case "Chile":
@@ -860,7 +830,7 @@ function SendMoney() {
               {withdrawalMethod === "efectivo" && (
                 <>
                   <div className="form-group">
-                    <label htmlFor="amount-send">Monto a recibir</label>
+                    <label htmlFor="amount-send">Monto USD a recibir</label>
                     <input
                       type="number"
                       id="amount-send"
@@ -883,7 +853,7 @@ function SendMoney() {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="amount-receive">Monto a enviar</label>
+                    <label htmlFor="amount-receive">Monto EUR a debitar</label>
                     <input
                       type="number"
                       id="amount-receive"
@@ -898,7 +868,11 @@ function SendMoney() {
               {selectedCurrency && (
                 <>
                   <div className="form-group">
-                    <label htmlFor="amount-send">{selectedCurrency === 'USD'? 'Monto en euros a debitar':'Monto a enviar'}</label>
+                    <label htmlFor="amount-send">
+                      {selectedCurrency === "USD"
+                        ? "Monto en euros a debitar"
+                        : "Monto a enviar"}
+                    </label>
                     {errors.amount && (
                       <span className="error">{errors.amount}</span>
                     )}{" "}
@@ -921,7 +895,11 @@ function SendMoney() {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="amount-receive">{selectedCurrency === 'USD'? 'Monto USD a recibir ': 'Monto a recibir'}</label>
+                    <label htmlFor="amount-receive">
+                      {selectedCurrency === "USD"
+                        ? "Monto USD a recibir "
+                        : "Monto a recibir"}
+                    </label>
                     <input
                       type="number"
                       id="amount-receive"
@@ -1277,6 +1255,12 @@ function SendMoney() {
                     </button>
                     <button
                       className="continue-button"
+                      disabled={
+                        !receiverName ||
+                        !receiverDni ||
+                        !phone ||
+                        !deliveryAddress
+                      }
                       onClick={() => setStep(3)}
                     >
                       Continúa
@@ -1314,6 +1298,9 @@ function SendMoney() {
                                 ? beneficiario.accbsUser_country === "Venezuela"
                                 : selectedCurrency === "ARS"
                                 ? beneficiario.accbsUser_country === "Argentina"
+                                : selectedCurrency === "USD"
+                                ? beneficiario.accbsUser_country ===
+                                  "Estados Unidos"
                                 : selectedCurrency === "COP"
                                 ? beneficiario.accbsUser_country === "Colombia"
                                 : selectedCurrency === "CLP"
@@ -1340,6 +1327,9 @@ function SendMoney() {
                                     : selectedCurrency === "ARS"
                                     ? beneficiario.accbsUser_country ===
                                       "Argentina"
+                                    : selectedCurrency === "USD"
+                                    ? beneficiario.accbsUser_country ===
+                                      "Estados Unidos"
                                     : selectedCurrency === "COP"
                                     ? beneficiario.accbsUser_country ===
                                       "Colombia"
@@ -1378,6 +1368,9 @@ function SendMoney() {
                                           "Argentina"
                                         ? argentina
                                         : beneficiary.accbsUser_country ===
+                                          "Estados Unidos"
+                                        ? usa
+                                        : beneficiary.accbsUser_country ===
                                           "Colombia"
                                         ? colombia
                                         : beneficiary.accbsUser_country ===
@@ -1397,7 +1390,7 @@ function SendMoney() {
                                         ? panama
                                         : null
                                     }
-                                    alt="Venezuela flag"
+                                    alt={beneficiary.accbsUser_country}
                                     className="flag-icon"
                                   />
                                   <div className="beneficiary-info">
@@ -1462,7 +1455,12 @@ function SendMoney() {
               {payment}
             </p>
             <p>
-              <strong>{withdrawalMethod === "efectivo" ? 'Monto USD a recibir' : 'Monto a recibir'} Monto a recibir:</strong>{" "}
+              <strong>
+                {withdrawalMethod === "efectivo"
+                  ? "Monto USD a recibir"
+                  : "Monto a recibir"}{" "}
+                Monto a recibir:
+              </strong>{" "}
               {withdrawalMethod === "efectivo"
                 ? amount + " USD"
                 : amountToReceive + " " + selectedCurrency}{" "}
@@ -1558,6 +1556,7 @@ function SendMoney() {
               >
                 <option value="">Seleccione un país</option>
                 <option value="Venezuela">Venezuela</option>
+                <option value="Estados Unidos">Estados Unidos</option>
                 <option value="Argentina">Argentina</option>
                 <option value="Colombia">Colombia</option>
                 <option value="Chile">Chile</option>
@@ -1565,6 +1564,7 @@ function SendMoney() {
                 <option value="Panama">Panamá</option>
                 <option value="Mexico">México</option>
                 <option value="Brasil">Brasil</option>
+                <option value="Peru">Perú</option>
               </select>
               {errors.accbsUser_country && (
                 <span className="error">{errors.accbsUser_country}</span>

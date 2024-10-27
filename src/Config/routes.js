@@ -108,7 +108,7 @@ const routes = [
   },
   {
     title: "Recover Update",
-    path: "/RecoverUpdate",
+    path: "/RecoverUpdate/:id/:email",
     component: RecoverUpdate,
   },
   {

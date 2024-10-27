@@ -75,7 +75,9 @@ function Register() {
     <div className="register-container">
       <form className="register-form" onSubmit={openModal}>
         <div className="text-center mb-4">
-          <img src={logo} alt="Logo" className="register-logo" />
+          <a href="/">
+            <img src={logo} alt="Logo" className="register-logo" />
+          </a>
         </div>
         <div className="form-group">
           <label htmlFor="email">Correo electrónico</label>

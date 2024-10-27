@@ -1041,4 +1041,71 @@
   .tooltip:hover .tooltiptext {
     visibility: visible;
   }
+
+  .rates-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .rates-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 90%;
+    width: 600px;
+    max-height: 90%;
+    overflow-y: auto;
+  }
+  
+  .rates-table {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .rates-column {
+    flex: 1 1 30%;
+    margin: 10px;
+  }
+  
+  .rates-column h3 {
+    margin-bottom: 10px;
+  }
+  
+  .rates-column p {
+    margin: 5px 0;
+  }
+  
+  .whatsapp-button,
+  .close-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    background-color: #25d366;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  .close-button {
+    background-color: #f44336;
+  }
+  
+  @media (max-width: 768px) {
+    .rates-column {
+      flex: 1 1 100%;
+    }
+  }
 }
