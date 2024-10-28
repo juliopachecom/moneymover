@@ -154,9 +154,7 @@ function SendMoney() {
       newErrors.accbsUser_owner = "El nombre es requerido.";
     }
 
-    if (!accbsUser_dni) {
-      newErrors.accbsUser_dni = "La cédula es requerida.";
-    }
+    
 
     if (accbsUser_type === "Pago Movil") {
       if (!accbsUser_phone) {
@@ -317,7 +315,7 @@ function SendMoney() {
     setAmount(inputAmount);
 
     let errorMessage = "";
-    
+
 
     // Validación para el método de retiro efectivo
     if (withdrawalMethod === "efectivo") {
@@ -1831,8 +1829,10 @@ function SendMoney() {
             <div className="alert-actions">
               <button
                 className="alert-button"
-                onClick={() => {                 setShowAlert(false); // Cerrar la alerta
-                (window.location.href = "/sendmoney")}}
+                onClick={() => {
+                  setShowAlert(false); // Cerrar la alerta
+                  (window.location.href = "/sendmoney")
+                }}
 
               >
                 Sí

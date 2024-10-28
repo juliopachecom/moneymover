@@ -273,13 +273,13 @@ function CurrencyPrice() {
                     <img src={usaFlag} alt="USD" className="flag" />
                   </label>
                   <label>
-                    <img src={usaFlag} alt="USDT" className="flag" /> USDT a Bs:
+                    <img src={usaFlag} alt="USD" className="flag" /> USD a Bs:
                     <input
                       type="number"
-                      name="cur_UsdtToBs"
+                      name="cur_UsdToBs"
                       value={
-                        formData.cur_UsdtToBs ||
-                        currencyPrice[0]?.cur_UsdtToBs ||
+                        formData.cur_UsdToBs ||
+                        currencyPrice[0]?.cur_UsdToBs ||
                         ""
                       }
                       onChange={handleInputChange}

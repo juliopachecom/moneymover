@@ -7,7 +7,7 @@ export function DataContextProvider(props) {
     const [logged, setLogged] = useLocalStorage('log', false);
     const [loggedAdm, setLoggedAdm] = useLocalStorage('logAdm', false);
     const [infoTkn, setInfoTkn] = useLocalStorage('tkn', '');
-    const url = 'https://apimoneymover-pruebas.up.railway.app';
+    const url = 'https://apimoneymover-production.up.railway.app';
     const value = {
         loggedAdm, setLoggedAdm,
         logged, setLogged,

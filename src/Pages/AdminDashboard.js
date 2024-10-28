@@ -43,6 +43,8 @@ function AdminDashboard() {
   const [selectedMovement, setSelectedMovement] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isRejectionVisible, setIsRejectionVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   // Fetch de usuarios y filtrado
   const fetchDataUsers = useCallback(async () => {
@@ -243,6 +245,7 @@ function AdminDashboard() {
 
   // Aprobar Recarga
   const handleSubmitVerify = async (event) => {
+    setIsLoading(true);  // Activa el estado de carga
     event.preventDefault();
     const formData = new FormData();
     const currentDate = new Date();
@@ -265,7 +268,7 @@ function AdminDashboard() {
       });
 
       await axios.post(
-        `${url}/Mailer/EmailVtransfer/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+        `${url}/Mailer/EmailVRecharge/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
         null,
         {
           headers: {
@@ -328,16 +331,20 @@ function AdminDashboard() {
     } catch (error) {
       console.error("Error:", error);
     }
+    finally {
+      setIsLoading(false);  // Desactiva el estado de carga
+    }
   };
 
   //Aprobar Remesa
   const handleSubmitSendVerify = async (event) => {
     event.preventDefault();
-  
+    setIsLoading(true);  // Activa el estado de carga
+
     const formData = new FormData();
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().slice(0, 10);
-  
+
     if (selectedMovement.mov_typeOutflow === "efectivo") {
       formData.append("mov_currency", "USD");
       formData.append("mov_accEurId", 0);
@@ -349,8 +356,8 @@ function AdminDashboard() {
       formData.append(
         "mov_currency",
         selectedMovement.mov_currency === "USD" ||
-        selectedMovement.mov_currency === "EUR" ||
-        selectedMovement.mov_currency === "GBP"
+          selectedMovement.mov_currency === "EUR" ||
+          selectedMovement.mov_currency === "GBP"
           ? payment
           : selectedMovement.mov_currency
       );
@@ -365,16 +372,16 @@ function AdminDashboard() {
           ? parseFloat(selectedMovement.mov_amount)
           : selectedMovement.mov_currency === "USD" &&
             selectedMovement.mov_currency !== payment
-          ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
-          : selectedMovement.mov_currency === "EUR"
-          ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
-          : selectedMovement.mov_currency === "GBP"
-          ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
-          : parseFloat(selectedMovement.mov_amount)
+            ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
+            : selectedMovement.mov_currency === "EUR"
+              ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
+              : selectedMovement.mov_currency === "GBP"
+                ? parseFloat(selectedMovement.mov_amount) * selectedMovement.mov_currencyPrice
+                : parseFloat(selectedMovement.mov_amount)
       );
       formData.append("mov_date", formattedDate);
     }
-  
+
     try {
       await axios.put(`${url}/Movements/${selectedMovement.mov_id}`, formData, {
         headers: {
@@ -382,14 +389,14 @@ function AdminDashboard() {
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-  
+
       await axios.get(`${url}/Movements/verif/${selectedMovement.mov_id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-  
+
       // Enviar correo dependiendo del tipo de retiro
       if (selectedMovement.mov_typeOutflow === "efectivo") {
         await axios.post(
@@ -412,7 +419,7 @@ function AdminDashboard() {
           }
         );
       }
-  
+
       // Registrar el cambio en TotalRegister dependiendo de la moneda
       if (selectedMovement.mov_currency === "EUR" && payment === "BS") {
         await axios.post(
@@ -498,7 +505,7 @@ function AdminDashboard() {
           }
         );
       }
-  
+
       // Colocamos el toast modal
       toast.success("¡Accion Realizada!", {
         position: "bottom-right",
@@ -509,18 +516,21 @@ function AdminDashboard() {
         draggable: true,
         progress: undefined,
       });
-  
+
       // Cerrar el modal
       closeModal();
       fetchDataMovemments();
-  
+
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
     }
+    finally {
+      setIsLoading(false);  // Desactiva el estado de carga
+    }
   };
-  
-  
+
+
 
   const handleReject = () => {
     setShowRejectionReason(true); // Muestra el campo de razón de rechazo
@@ -533,7 +543,7 @@ function AdminDashboard() {
   // Rechazar Movimiento
   const handleSendRejection = async (event) => {
     event.preventDefault();
-  
+
     try {
       // Rechazar el movimiento
       await axios.get(`${url}/Movements/reject/${selectedMovement.mov_id}`, {
@@ -542,7 +552,7 @@ function AdminDashboard() {
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-  
+
       // Actualizar comentario con la razón del rechazo
       await axios.put(
         `${url}/Movements/${selectedMovement.mov_id}`,
@@ -555,17 +565,17 @@ function AdminDashboard() {
           },
         }
       );
-  
+
       // Si es un retiro, ejecutar acciones adicionales
       if (selectedMovement.mov_type === "Retiro") {
         handleSubmitSummary();
       }
-  
+
       // Cerrar modales y actualizar los movimientos
       closeDetailModal();
       closeModal();
       fetchDataMovemments();
-  
+
       // Enviar correo de rechazo dependiendo del tipo de movimiento
       if (selectedMovement.mov_type === "Deposito") {
         // Enviar correo si es un depósito
@@ -601,7 +611,7 @@ function AdminDashboard() {
           }
         );
       }
-  
+
       // Mostrar notificación de éxito
       toast.success("¡Datos enviados con éxito!", {
         position: "bottom-right",
@@ -612,20 +622,20 @@ function AdminDashboard() {
         draggable: true,
         progress: undefined,
       });
-  
+
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  
-  
+
+
 
   const handleCancel = () => {
     setShowRejectionReason(false); // Oculta el cuadro de texto
   };
 
-  
+
   useEffect(() => {
     fetchDataAdm();
     fetchDataMovemments();
@@ -755,8 +765,8 @@ function AdminDashboard() {
                           {movement.mov_currency === "EUR"
                             ? "€"
                             : movement.mov_currency === "USD"
-                            ? "$"
-                            : "£"}{" "}
+                              ? "$"
+                              : "£"}{" "}
                           {movement.mov_amount}{" "}
                           {movement.mov_currency === "USD" && (
                             <img src={usaFlag} alt="USD" />
@@ -773,8 +783,8 @@ function AdminDashboard() {
                             movement.mov_status === "V"
                               ? "completed"
                               : movement.mov_status === "E"
-                              ? "en espera"
-                              : "cancelled"
+                                ? "en espera"
+                                : "cancelled"
                           }
                         >
                           En espera
@@ -840,11 +850,11 @@ function AdminDashboard() {
                           {movement.AccountsBsUser
                             ? movement.AccountsBsUser.accbsUser_owner
                             : movement.mov_typeOutflow === "efectivo"
-                            ? "Retiro en Efectivo"
-                            : "Sin beneficiario"}
+                              ? "Retiro en Efectivo"
+                              : "Sin beneficiario"}
                         </td>
                         <td>
-                        {movement.mov_typeOutflow === "efectivo"
+                          {movement.mov_typeOutflow === "efectivo"
                             ? movement.mov_oldAmount
                             : movement.mov_amount}
                           {movement.mov_currency === "USD" && (
@@ -867,8 +877,8 @@ function AdminDashboard() {
                             movement.mov_status === "S"
                               ? "completed"
                               : movement.mov_status === "E"
-                              ? "en espera"
-                              : "cancelled"
+                                ? "en espera"
+                                : "cancelled"
                           }
                         >
                           En espera
@@ -910,8 +920,8 @@ function AdminDashboard() {
                   {selectedMovement.mov_currency === "EUR"
                     ? "€"
                     : selectedMovement.mov_currency === "USD"
-                    ? "$"
-                    : "£"}{" "}
+                      ? "$"
+                      : "£"}{" "}
                   {selectedMovement.mov_amount}
                 </p>
                 <p>
@@ -920,10 +930,10 @@ function AdminDashboard() {
                     {selectedMovement.AccountsEur
                       ? selectedMovement.AccountsEur.acceur_Bank
                       : selectedMovement.AccountsUsd
-                      ? selectedMovement.AccountsUsd.accusd_Bank
-                      : selectedMovement.AccountsGbp
-                      ? selectedMovement.AccountsGbp.accgbp_Bank
-                      : "Sin banco"}
+                        ? selectedMovement.AccountsUsd.accusd_Bank
+                        : selectedMovement.AccountsGbp
+                          ? selectedMovement.AccountsGbp.accgbp_Bank
+                          : "Sin banco"}
                   </strong>
                 </p>
                 {selectedMovement.mov_code ? (
@@ -959,9 +969,14 @@ function AdminDashboard() {
                 )}
               </div>
               <div className="modal-buttons">
-                <button className="approve-btn" onClick={handleSubmitVerify}>
-                  Aprobar
+                <button
+                  className="approve-btn"
+                  onClick={handleSubmitVerify}
+                  disabled={isLoading}  // Deshabilita el botón cuando está en proceso
+                >
+                  {isLoading ? <span className="spinner"></span> : "Aprobar"}
                 </button>
+
                 <button className="reject-btn" onClick={handleReject1}>
                   Rechazar
                 </button>
@@ -1027,9 +1042,9 @@ function AdminDashboard() {
                             ? selectedMovement.AccountsBsUser.accbsUser_type ===
                               "Pago Movil"
                               ? "Teléfono: " +
-                                selectedMovement.AccountsBsUser.accbsUser_phone
+                              selectedMovement.AccountsBsUser.accbsUser_phone
                               : "Cuenta: " +
-                                selectedMovement.AccountsBsUser.accbsUser_number
+                              selectedMovement.AccountsBsUser.accbsUser_number
                             : "Sin información"}
                         </strong>
                       </p>
@@ -1111,9 +1126,11 @@ function AdminDashboard() {
                 <button
                   className="approve-btn"
                   onClick={handleSubmitSendVerify}
+                  disabled={isLoading}  // Deshabilita el botón cuando está en proceso
                 >
-                  Aprobar
+                  {isLoading ? <span className="spinner"></span> : "Aprobar"}
                 </button>
+
                 <button className="reject-btn" onClick={handleReject}>
                   Rechazar
                 </button>

@@ -134,7 +134,6 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background-color: #f7f9fc;
           border: 1px solid #d9e2ec; // Color de borde para resaltar pero mantener minimalismo
 
           padding: 10px 15px;
@@ -168,7 +167,6 @@
           }
 
           input[readonly=""] {
-            background-color: #eef3fc; // color de fondo diferente
             border-color: #003366; // borde destacado
             font-weight: bold; // texto más notorio
             cursor: not-allowed; // cursor diferenciado para inputs no editables

@@ -23,6 +23,7 @@ import protest from "../Assets/Images/protest.png";
 import verified1 from "../Assets/Images/verified1.png";
 import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
+import NavbarUsa from "../Components/NavBarUsa";
 
 function HomeUsa() {
   const { infoTkn, url } = useDataContext();
@@ -104,7 +105,10 @@ function HomeUsa() {
   ]);
 
   return (
-    <div className="home">
+    
+    
+        <div className="home">
+          <NavbarUsa/>
       <div className="home__message" data-aos="fade-down">
         ENVÍOS SIN COMISIONES
       </div>
@@ -368,6 +372,7 @@ function HomeUsa() {
         </div>
       </div>
     </div>
+    
   );
 }
 

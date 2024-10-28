@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaWhatsapp, FaFacebook, FaInstagram, FaBars, FaTimes } from 'react-icons/fa';
-import logo from '../Assets/Images/logo.png'; // Asegúrate de que la ruta sea correcta
+import logo from '../Assets/Images/logoeur.jpg'; // Asegúrate de que la ruta sea correcta
 
 function NavBar() {
   const [showMenu, setShowMenu] = useState(false);

@@ -50,6 +50,9 @@ export const loginRoutes = [
   "/TermsAndConditions",
   "/privacy",
   "/Privacy",
+  "/Homeusa",
+  "/homeusa",
+  "/HomeUsa",
 ];
 
 export const banksByCountry = {
