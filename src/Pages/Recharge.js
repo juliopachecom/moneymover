@@ -109,7 +109,7 @@ function Recharge() {
   //Enviar a espera una recarga
   const handleSubmitLoad = async (event) => {
     event.preventDefault();
-
+  
     const findBankName = () => {
       if (payment === "USD") {
         const bank = banksUSD.find(
@@ -136,7 +136,7 @@ function Recharge() {
         }
       }
     };
-
+  
     const formData = new FormData();
     formData.append("mov_currency", payment);
     formData.append("mov_amount", sendAmount);
@@ -166,20 +166,32 @@ function Recharge() {
       payment === "GBP" ? parseInt(bankOptionPay) : 0
     );
     formData.append("mov_userId", user.use_id);
-
+  
     try {
-      // setLoading(true);
-      axios.post(`${url}/Movements/create`, formData, {
+      // Crear el movimiento
+      const response = await axios.post(`${url}/Movements/create`, formData, {
         headers: {
           Authorization: `Bearer ${infoTkn}`,
           "Content-Type": "multipart/form-data",
         },
       });
-
+  
+      const movementId = response.data.mov_id; // Obtén el ID del movimiento recién creado
+  
+      // Enviar correo después de la creación del movimiento
+      await axios.post(
+        `${url}/Mailer/pendantIncome/Ingresosnuevo@hotmail.com/${movementId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+          },
+        }
+      );
+  
       fetchDataUser();
       handleNextStep();
       toast.success(
-        "Cambio realizado con exito!, En un momento se vera reflejado tu ingreso en la plataforma",
+        "Cambio realizado con éxito!, En un momento se verá reflejado tu ingreso en la plataforma",
         {
           position: "bottom-right",
           autoClose: 10000,
@@ -190,17 +202,27 @@ function Recharge() {
           progress: undefined,
         }
       );
-
-      // await sendPaymentNotification();
       setTransactionDone(true);
-      setTransactionError(false); // asegurarse de que el error esté en false
+      setTransactionError(false);
       console.log("Request sent successfully");
     } catch (error) {
       setTransactionDone(false);
       console.log(transactionDone);
       setTransactionError(true);
+      console.log(error);
+      toast.error("Error al procesar la recarga", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
+  
+  
 
   useEffect(() => {
     // fetchCurrencyData();

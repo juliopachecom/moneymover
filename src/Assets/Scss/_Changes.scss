@@ -539,6 +539,7 @@
       margin-top: 10px;
       margin-bottom: 10px;
       width: 100%;
+      align-items: center;
       /* Botón ancho completo */
       max-width: 300px;
       /* Limitar el ancho máximo */
@@ -553,6 +554,10 @@
 
     .close-button {
       background-color: #6c757d;
+      align-items: center;
+      padding: 12px 30px;
+      justify-content: center;
+      margin: auto;
       /* Color gris para el botón de cerrar */
     }
 

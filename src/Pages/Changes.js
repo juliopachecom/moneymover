@@ -23,7 +23,7 @@ import { useDataContext } from "../Context/dataContext";
 import axios from "axios";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 const apiKey = "bd2f01e809e6a946c92997f6dafa16e448db";
-const formId = "8358707b19257049490b9df5216b1ae5e3f8";
+const formId = "caa6d8bd0157c94736286c78fa42fafccc0d";
 
 function Changes() {
   useAxiosInterceptors();
@@ -90,6 +90,7 @@ function Changes() {
             },
           }
         );
+        console.log("Valor de user.use_id:", user.use_id);
 
         const data = await response.json();
         console.log("Respuesta de la API:", data);
@@ -99,7 +100,7 @@ function Changes() {
           const kycData = {
             kyc_link_status: "Pending",
             kyc_link_date: new Date().toISOString(), // Fecha actual
-            kyc_user_id: user.use_id, // ID del usuario actual
+            kyc_User_id: user.use_id, // ID del usuario actual
             form_id: data.form_id,
             form_url: data.form_url,
             verification_id: data.verification_id,
@@ -148,7 +149,7 @@ function Changes() {
           const kycData = {
             kyc_link_status: "Pending",
             kyc_link_date: new Date().toISOString(), // Fecha actual
-            kyc_user_id: user.use_id, // ID del usuario actual
+            kyc_User_id: user.use_id, // ID del usuario actual
             form_id: data.form_id,
             form_url: data.form_url,
             verification_id: data.verification_id,
@@ -896,10 +897,11 @@ function Changes() {
             )}
 
             <button
-              className="close-button"
+              className="button-kycaml"
+              style={{justifyContent: 'center'}}
               onClick={() => setIsVerificationModalOpen(false)}
             >
-              Cerrar
+              Cerrarr
             </button>
           </div>
         </div>

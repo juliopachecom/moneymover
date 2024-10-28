@@ -55,12 +55,22 @@ function Directory() {
   const openEditModal = (beneficiario) => {
     setSelectedBeneficiary(beneficiario);
     setIsEditModalOpen(true);
-    setAccbsUser_type(beneficiario.accbsUser_type); // Establecer el tipo de transacción actual al abrir el modal
-  setAccbsUser_phone(beneficiario.accbsUser_phone); // Establecer el teléfono si es Pago Móvil
-  setAccbsUser_number(beneficiario.accbsUser_number); // Establecer la cuenta si es Cuenta Bancaria
-  setTelefonoPrefix(beneficiario.accbsUser_phone.slice(0, 4)); // Extraer prefijo de teléfono si es Pago Móvil
-  setIsEditModalOpen(true);
+    setAccbsUser_type(beneficiario.accbsUser_type);
+
+    // Extraer el prefijo correctamente para Pago Móvil
+    if (beneficiario.accbsUser_type === "Pago Movil" && beneficiario.accbsUser_phone) {
+      const phone = beneficiario.accbsUser_phone;
+      setTelefonoPrefix(phone.slice(0, 4)); // Extrae los primeros 4 dígitos correctamente
+      setAccbsUser_phone(phone.slice(4));   // Extrae los 7 dígitos restantes correctamente
+    } else {
+      setAccbsUser_phone(beneficiario.accbsUser_phone); // Para otros casos como Zelle o cuenta bancaria
+    }
+
+    setAccbsUser_number(beneficiario.accbsUser_number);
   };
+
+
+
 
   const closeEditModal = () => {
     setSelectedBeneficiary(null);
@@ -108,29 +118,13 @@ function Directory() {
       newErrors.accbsUser_owner = "El nombre es requerido.";
     }
 
-    if (!accbsUser_dni) {
-      newErrors.accbsUser_dni = "La cédula es requerida.";
-    }
-
     if (accbsUser_type === "Pago Movil") {
+      const fullPhone = telefonoPrefix + accbsUser_phone;
       if (!accbsUser_phone) {
         newErrors.accbsUser_phone = "El número telefónico es requerido.";
-      } else if (!/^\d+$/.test(accbsUser_phone)) {
-        newErrors.accbsUser_phone =
-          "El número telefónico solo puede contener dígitos.";
-      } else if (accbsUser_phone.length !== 7) {
-        newErrors.accbsUser_phone =
-          "El número telefónico debe tener 7 dígitos.";
-      }
-    } else if (accbsUser_type === "Cuenta Bancaria") {
-      if (!accbsUser_number) {
-        newErrors.accbsUser_number = "El número de cuenta es requerido.";
-      } else if (!/^\d+$/.test(accbsUser_number)) {
-        newErrors.accbsUser_number =
-          "El número de cuenta solo puede contener dígitos.";
-      } else if (accbsUser_number.length !== 20) {
-        newErrors.accbsUser_number =
-          "El número de cuenta debe tener 20 dígitos.";
+      } else if (!/^\d+$/.test(fullPhone)) {
+        newErrors.accbsUser_phone = "El número telefónico solo puede contener dígitos.";
+
       }
     }
 
@@ -138,21 +132,26 @@ function Directory() {
       newErrors.accbsUser_bank = "El banco es requerido.";
     }
 
-    if (!accbsUser_type) {
-      newErrors.accbsUser_type = "Seleccione un tipo de transacción.";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+
+
   const handleAddAccountSubmit = async (event) => {
     event.preventDefault();
-
+  
     if (!validateForm()) {
       return;
     }
-
+  
+    // Concatenar prefijo y teléfono solo si es Pago Movil
+    const finalPhone =
+      accbsUser_type === "Pago Movil" ? telefonoPrefix + accbsUser_phone : accbsUser_phone;
+  
+    // Si accbsUser_dni es nulo o vacío, asignar "NA"
+    const finalDni = accbsUser_dni ? accbsUser_dni : "NA";
+  
     try {
       await axios.post(
         `${url}/AccBsUser/create`,
@@ -160,8 +159,8 @@ function Directory() {
           accbsUser_bank,
           accbsUser_owner,
           accbsUser_number,
-          accbsUser_dni,
-          accbsUser_phone: telefonoPrefix + accbsUser_phone,
+          accbsUser_dni: finalDni, // Usamos el DNI con "NA" si está vacío
+          accbsUser_phone: finalPhone, // Aquí usamos el número concatenado
           accbsUser_type,
           accbsUser_status: "Activo",
           accbsUser_userId: user.use_id,
@@ -173,9 +172,9 @@ function Directory() {
           },
         }
       );
-
+  
       window.location.reload();
-
+  
       toast.success("Cuenta agregada con éxito!", {
         position: "bottom-right",
         autoClose: 5000,
@@ -186,7 +185,7 @@ function Directory() {
         progress: undefined,
       });
     } catch (error) {
-      console.log(error);
+      console.log("Error al agregar la cuenta:", error.response || error);
       toast.error("Error al agregar la cuenta", {
         position: "bottom-right",
         autoClose: 5000,
@@ -198,9 +197,15 @@ function Directory() {
       });
     }
   };
+  
+  
+
+
+
 
   const handleEdit = async (event) => {
     event.preventDefault();
+    const finalPhone = accbsUser_type === "Pago Movil" ? telefonoPrefix + accbsUser_phone : accbsUser_phone;
 
     try {
       await axios.put(
@@ -208,10 +213,10 @@ function Directory() {
         {
           accbsUser_owner: accbsUser_owner ? accbsUser_owner : selectedBeneficiary.accbsUser_owner,
           accbsUser_bank: accbsUser_bank ? accbsUser_bank : selectedBeneficiary.accbsUser_bank,
-          accbsUser_number : accbsUser_number ? accbsUser_number : selectedBeneficiary.accbsUser_number,
-          accbsUser_dni : accbsUser_dni ? accbsUser_dni : selectedBeneficiary.accbsUser_dni,
-          accbsUser_phone : accbsUser_phone ? accbsUser_phone : selectedBeneficiary.accbsUser_phone,
-          accbsUser_type : accbsUser_type ? accbsUser_type : selectedBeneficiary.accbsUser_type,
+          accbsUser_number: accbsUser_number ? accbsUser_number : selectedBeneficiary.accbsUser_number,
+          accbsUser_dni: accbsUser_dni ? accbsUser_dni : selectedBeneficiary.accbsUser_dni,
+          accbsUser_phone: finalPhone, // Aquí se concatena el prefijo y el número de teléfono
+          accbsUser_type: accbsUser_type ? accbsUser_type : selectedBeneficiary.accbsUser_type,
         },
         {
           headers: {
@@ -220,10 +225,7 @@ function Directory() {
         }
       );
 
-      // Cerrar el modal después de editar
       closeEditModal();
-
-      // Recargar la página para mostrar los cambios
       window.location.reload();
 
       toast.success("Beneficiario editado con éxito!", {
@@ -248,6 +250,7 @@ function Directory() {
       });
     }
   };
+
 
   const handleStatus = async (beneficiario) => {
     try {
@@ -334,36 +337,44 @@ function Directory() {
                   beneficiario.accbsUser_country === "Venezuela"
                     ? venezuelaFlag
                     : beneficiario.accbsUser_country === "Argentina"
-                    ? argentina
-                    : beneficiario.accbsUser_country === "Colombia"
-                    ? colombia
-                    : beneficiario.accbsUser_country === "Chile"
-                    ? chile
-                    : beneficiario.accbsUser_country === "Ecuador"
-                    ? ecuador
-                    : beneficiario.accbsUser_country === "Brasil"
-                    ? brasil
-                    : beneficiario.accbsUser_country === "Peru"
-                    ? peru
-                    : beneficiario.accbsUser_country === "Panama"
-                    ? panama
-                    : beneficiario.accbsUser_country === "Estados Unidos"
-                    ? usa
-                    : //Falta agregar el de Mexico
-                      null
+                      ? argentina
+                      : beneficiario.accbsUser_country === "Colombia"
+                        ? colombia
+                        : beneficiario.accbsUser_country === "Chile"
+                          ? chile
+                          : beneficiario.accbsUser_country === "Ecuador"
+                            ? ecuador
+                            : beneficiario.accbsUser_country === "Brasil"
+                              ? brasil
+                              : beneficiario.accbsUser_country === "Peru"
+                                ? peru
+                                : beneficiario.accbsUser_country === "Panama"
+                                  ? panama
+                                  : beneficiario.accbsUser_country === "Estados Unidos"
+                                    ? usa
+                                    : //Falta agregar el de Mexico
+                                    null
                 }
                 alt="flag"
                 className="flag-icon"
               />
               <div className="beneficiario-info">
-                <h3>{beneficiario.accbsUser_owner}</h3>
-                <p>Transferencia bancaria</p>
-                <p>Cédula: {beneficiario.accbsUser_dni}</p>
-                <p>Banco: {beneficiario.accbsUser_bank}</p>
-                <p>Cuenta: {beneficiario.accbsUser_number}</p>
-                <p>Número teléfonico: {beneficiario.accbsUser_phone}</p>
-                <p>{beneficiario.accbsUser_type}</p>
-              </div>
+  <h3>{beneficiario.accbsUser_owner}</h3>
+  <p>Transferencia bancaria</p>
+  <p>Cédula: {beneficiario.accbsUser_dni}</p>
+  <p>Banco: {beneficiario.accbsUser_bank}</p>
+  <p>Télefono: {beneficiario.accbsUser_phone}</p>
+
+  {/* Condicional para mostrar "Correo" si es Zelle en Estados Unidos */}
+  {beneficiario.accbsUser_country === "Estados Unidos" && beneficiario.accbsUser_type === "Zelle" ? (
+    <p>Correo: {beneficiario.accbsUser_number}</p>
+  ) : (
+    <p>Cuenta: {beneficiario.accbsUser_number}</p>
+  )}
+
+  <p>{beneficiario.accbsUser_type}</p>
+</div>
+
               <button
                 className="remesa-button"
                 onClick={() => {
@@ -392,7 +403,6 @@ function Directory() {
           ))}
       </div>
 
-      {/* Modal para agregar nuevo beneficiario */}
       {/* Modal para agregar nuevo beneficiario */}
       {isModalOpen && (
         <div className={`modal ${isModalOpen ? "open" : "close"}`}>
@@ -425,246 +435,382 @@ function Directory() {
 
             {/* Mostrar el resto del formulario solo si se selecciona un país */}
             {accbsUser_country && (
-              <>
-                {/* Nombre y apellido */}
-                <label>Nombre y Apellido</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={accbsUser_owner}
-                  onChange={(e) => setAccbsUser_owner(e.target.value)}
-                  placeholder="Ingresa el nombre y apellido"
-                />
-                {errors.accbsUser_owner && (
-                  <span className="error">{errors.accbsUser_owner}</span>
-                )}
+  <>
+    {/* Nombre y apellido */}
+    <label>Nombre y Apellido</label>
+    <input
+      type="text"
+      name="nombre"
+      value={accbsUser_owner}
+      onChange={(e) => setAccbsUser_owner(e.target.value)}
+      placeholder="Ingresa el nombre y apellido"
+    />
+    {errors.accbsUser_owner && (
+      <span className="error">{errors.accbsUser_owner}</span>
+    )}
 
-                {/* Cédula */}
-                <label>Cédula</label>
-                <div className="cedula-input">
-                  <input
-                    type="text"
-                    name="cedula"
-                    value={accbsUser_dni}
-                    onChange={(e) => setAccbsUser_dni(e.target.value)}
-                    placeholder="Ingresa la cédula"
-                  />
-                </div>
-                {errors.accbsUser_dni && (
-                  <span className="error">{errors.accbsUser_dni}</span>
-                )}
+    {/* Campo de cédula */}
+    {accbsUser_country !== "Estados Unidos" && (
+      <>
+        <label>Cédula</label>
+        <div className="cedula-input">
+          <input
+            type="text"
+            name="cedula"
+            value={accbsUser_dni}
+            onChange={(e) => setAccbsUser_dni(e.target.value)}
+            placeholder="Ingresa la cédula"
+          />
+        </div>
+        {errors.accbsUser_dni && (
+          <span className="error">{errors.accbsUser_dni}</span>
+        )}
+      </>
+    )}
 
-                {/* Selección de tipo de transacción */}
-                <label>Seleccione el tipo de transacción</label>
-                <select
-                  value={accbsUser_type}
-                  onChange={(e) => setAccbsUser_type(e.target.value)}
-                >
-                  <option value="">Seleccione...</option>
-                  {accbsUser_country === "Venezuela" && (
-                    <option value="Pago Movil">Pago Móvil</option>
-                  )}
-                  <option value="Cuenta Bancaria">Cuenta Bancaria</option>
-                </select>
-                {errors.accbsUser_type && (
-                  <span className="error">{errors.accbsUser_type}</span>
-                )}
+    {/* Selección de tipo de transacción */}
+    <label>Seleccione el tipo de transacción</label>
+    <select
+      value={accbsUser_type}
+      onChange={(e) => setAccbsUser_type(e.target.value)}
+    >
+      <option value="">Seleccione...</option>
+      {accbsUser_country === "Venezuela" && (
+        <option value="Pago Movil">Pago Móvil</option>
+      )}
+      {accbsUser_country === "Estados Unidos" && (
+        <>
+          <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+          <option value="Zelle">Zelle</option>
+        </>
+      )}
+      {accbsUser_country !== "Estados Unidos" && (
+        <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+      )}
+    </select>
+    {errors.accbsUser_type && (
+      <span className="error">{errors.accbsUser_type}</span>
+    )}
 
-                {/* Campos dinámicos */}
-                {accbsUser_type === "Pago Movil" && (
-                  <>
-                    {/* Número de Teléfono */}
-                    <label>Número de Teléfono</label>
-                    <div className="telefono-input">
-                      <select
-                        name="prefijoTelefono"
-                        className="telefono-prefix"
-                        value={telefonoPrefix}
-                        onChange={(e) => setTelefonoPrefix(e.target.value)}
-                      >
-                        <option value="0414">0414</option>
-                        <option value="0424">0424</option>
-                        <option value="0412">0412</option>
-                        <option value="0416">0416</option>
-                        <option value="0426">0426</option>
-                      </select>
-                      <input
-                        type="text"
-                        name="telefono"
-                        value={accbsUser_phone}
-                        onChange={(e) => setAccbsUser_phone(e.target.value)}
-                        placeholder="Ingresa el número telefónico"
-                      />
-                    </div>
-                    {errors.accbsUser_phone && (
-                      <span className="error">{errors.accbsUser_phone}</span>
-                    )}
+    {/* Campos dinámicos para Pago Móvil en Venezuela */}
+    {accbsUser_country === "Venezuela" && accbsUser_type === "Pago Movil" && (
+      <>
+        {/* Número de Teléfono (Pago Móvil) */}
+        <label>Número de Teléfono (Pago Móvil)</label>
+        <div className="telefono-input">
+        <select
+  name="prefijoTelefono"
+  className="telefono-prefix"
+  value={telefonoPrefix} // El valor debe ser el prefijo que se haya extraído
+  onChange={(e) => setTelefonoPrefix(e.target.value)} // Cambiar el prefijo
+>
+  <option value="...">...</option> {/* Opción predeterminada */}
+  <option value="0414">0414</option>
+  <option value="0424">0424</option>
+  <option value="0412">0412</option>
+  <option value="0416">0416</option>
+  <option value="0426">0426</option>
+</select>
 
-                    <label>Banco</label>
-                    <select
-                      name="banco"
-                      value={accbsUser_bank}
-                      onChange={(e) => setAccbsUser_bank(e.target.value)}
-                    >
-                      <option value="">Selecciona el banco</option>
-                      {banksByCountry[accbsUser_country]?.map((bank) => (
-                        <option key={bank} value={bank}>
-                          {bank}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.accbsUser_bank && (
-                      <span className="error">{errors.accbsUser_bank}</span>
-                    )}
+          <input
+            type="text"
+            name="telefono"
+            value={accbsUser_phone} // El valor de los últimos 7 dígitos del teléfono
+            onChange={(e) => setAccbsUser_phone(e.target.value)} // Cambiar el número de teléfono
+            placeholder="Ingresa el número telefónico"
+          />
+        </div>
+        {errors.accbsUser_phone && (
+          <span className="error">{errors.accbsUser_phone}</span>
+        )}
 
-                    <button
-                      onClick={handleAddAccountSubmit}
-                      className="submit-button"
-                    >
-                      Guardar Beneficiario
-                    </button>
-                  </>
-                )}
+        {/* Selección del banco */}
+        <label>Banco</label>
+        <select
+          name="banco"
+          value={accbsUser_bank}
+          onChange={(e) => setAccbsUser_bank(e.target.value)}
+        >
+          <option value="">Selecciona el banco</option>
+          {banksByCountry[accbsUser_country]?.map((bank) => (
+            <option key={bank} value={bank}>
+              {bank}
+            </option>
+          ))}
+        </select>
+        {errors.accbsUser_bank && (
+          <span className="error">{errors.accbsUser_bank}</span>
+        )}
 
-                {accbsUser_type === "Cuenta Bancaria" && (
-                  <>
-                    <label>Cuenta Bancaria</label>
-                    <input
-                      type="text"
-                      name="cuenta"
-                      value={accbsUser_number}
-                      onChange={(e) => setAccbsUser_number(e.target.value)}
-                      placeholder="Ingresa el número de cuenta"
-                    />
-                    {errors.accbsUser_number && (
-                      <span className="error">{errors.accbsUser_number}</span>
-                    )}
+        <button onClick={handleAddAccountSubmit} className="submit-button">
+          Guardar Beneficiario
+        </button>
+      </>
+    )}
 
-                    <label>Banco</label>
-                    <select
-                      name="banco"
-                      value={accbsUser_bank}
-                      onChange={(e) => setAccbsUser_bank(e.target.value)}
-                    >
-                      <option value="">Selecciona el banco</option>
-                      {banksByCountry[accbsUser_country]?.map((bank) => (
-                        <option key={bank} value={bank}>
-                          {bank}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.accbsUser_bank && (
-                      <span className="error">{errors.accbsUser_bank}</span>
-                    )}
+    {/* Zelle - Solo para Estados Unidos */}
+    {accbsUser_type === "Zelle" && accbsUser_country === "Estados Unidos" && (
+      <>
+        <label>Correo Electrónico (Zelle)</label>
+        <input
+          type="email"
+          name="email"
+          value={accbsUser_number} // Usamos el campo phone para almacenar el correo
+          onChange={(e) => setAccbsUser_number(e.target.value)}
+          placeholder="Ingresa el correo electrónico"
+        />
+        {errors.accbsUser_number && (
+          <span className="error">{errors.accbsUser_number}</span>
+        )}
 
-                    <button
-                      onClick={handleAddAccountSubmit}
-                      className="submit-button"
-                    >
-                      Guardar Beneficiario
-                    </button>
-                  </>
-                )}
-              </>
-            )}
+        {/* Selección del banco */}
+        <label>Banco</label>
+        <select
+          name="banco"
+          value={accbsUser_bank}
+          onChange={(e) => setAccbsUser_bank(e.target.value)}
+        >
+          <option value="">Selecciona el banco</option>
+          {banksByCountry[accbsUser_country]?.map((bank) => (
+            <option key={bank} value={bank}>
+              {bank}
+            </option>
+          ))}
+        </select>
+        {errors.accbsUser_bank && (
+          <span className="error">{errors.accbsUser_bank}</span>
+        )}
+
+        <button onClick={handleAddAccountSubmit} className="submit-button">
+          Guardar Beneficiario
+        </button>
+      </>
+    )}
+
+    {/* Cuenta Bancaria - Solo para Estados Unidos */}
+    {accbsUser_type === "Cuenta Bancaria" && accbsUser_country === "Estados Unidos" && (
+      <>
+        <label>Número de Cuenta</label>
+        <input
+          type="text"
+          name="cuenta"
+          value={accbsUser_number}
+          onChange={(e) => setAccbsUser_number(e.target.value)}
+          placeholder="Ingresa el número de cuenta"
+        />
+        {errors.accbsUser_number && (
+          <span className="error">{errors.accbsUser_number}</span>
+        )}
+
+        {/* Selección del banco */}
+        <label>Banco</label>
+        <select
+          name="banco"
+          value={accbsUser_bank}
+          onChange={(e) => setAccbsUser_bank(e.target.value)}
+        >
+          <option value="">Selecciona el banco</option>
+          {banksByCountry[accbsUser_country]?.map((bank) => (
+            <option key={bank} value={bank}>
+              {bank}
+            </option>
+          ))}
+        </select>
+        {errors.accbsUser_bank && (
+          <span className="error">{errors.accbsUser_bank}</span>
+        )}
+
+        <button onClick={handleAddAccountSubmit} className="submit-button">
+          Guardar Beneficiario
+        </button>
+      </>
+    )}
+
+    {/* Campos dinámicos para Cuenta Bancaria en otros países */}
+    {accbsUser_type === "Cuenta Bancaria" && accbsUser_country !== "Estados Unidos" && (
+      <>
+        <label>Cuenta Bancaria</label>
+        <input
+          type="text"
+          name="cuenta"
+          value={accbsUser_number}
+          onChange={(e) => setAccbsUser_number(e.target.value)}
+          placeholder="Ingresa el número de cuenta"
+        />
+        {errors.accbsUser_number && (
+          <span className="error">{errors.accbsUser_number}</span>
+        )}
+
+        <label>Banco</label>
+        <select
+          name="banco"
+          value={accbsUser_bank}
+          onChange={(e) => setAccbsUser_bank(e.target.value)}
+        >
+          <option value="">Selecciona el banco</option>
+          {banksByCountry[accbsUser_country]?.map((bank) => (
+            <option key={bank} value={bank}>
+              {bank}
+            </option>
+          ))}
+        </select>
+        {errors.accbsUser_bank && (
+          <span className="error">{errors.accbsUser_bank}</span>
+        )}
+
+        <button onClick={handleAddAccountSubmit} className="submit-button">
+          Guardar Beneficiario
+        </button>
+      </>
+    )}
+  </>
+)}
+
+
+
+
           </div>
         </div>
       )}
 
       {/* Modal para editar beneficiario */}
       {isEditModalOpen && selectedBeneficiary && (
-  <div className="modal-overlay fadeIn">
-    <div className="modal-content fadeIn">
-      <button className="modal-close" onClick={closeEditModal}>
-        &times;
-      </button>
-      <h2>Editar Beneficiario</h2>
+        <div className="modal-overlay fadeIn">
+          <div className="modal-content fadeIn">
+            <button className="modal-close" onClick={closeEditModal}>
+              &times;
+            </button>
+            <h2>Editar Beneficiario</h2>
 
-      <form onSubmit={handleEdit}>
-        <label>País</label>
-        <select disabled value={selectedBeneficiary.accbsUser_country}>
-          <option>{selectedBeneficiary.accbsUser_country}</option>
-        </select>
-
-        <label>Nombre y Apellido</label>
-        <input
-          type="text"
-          defaultValue={selectedBeneficiary.accbsUser_owner}
-          onChange={(e) => setAccbsUser_owner(e.target.value)}
-        />
-
-        <label>Cédula</label>
-        <input
-          type="text"
-          defaultValue={selectedBeneficiary.accbsUser_dni}
-          onChange={(e) => setAccbsUser_dni(e.target.value)}
-        />
-
-        <label>Seleccione el tipo de transacción</label>
-        <select
-          value={accbsUser_type} // Asegúrate de que el valor se mantenga actualizado
-          onChange={(e) => setAccbsUser_type(e.target.value)}
-        >
-          {selectedBeneficiary.accbsUser_country === "Venezuela" && (
-            <option value="Pago Movil">Pago Móvil</option>
-          )}
-          <option value="Cuenta Bancaria">Cuenta Bancaria</option>
-        </select>
-
-        {/* Mostrar los campos según el tipo de transacción seleccionado */}
-        {accbsUser_type === "Pago Movil" && (
-          <>
-            <label>Número de Teléfono</label>
-            <div className="telefono-input">
-              <select
-                value={telefonoPrefix} // Mostrar el prefijo actual
-                onChange={(e) => setTelefonoPrefix(e.target.value)}
-              >
-                <option value="0414">0414</option>
-                <option value="0424">0424</option>
-                <option value="0412">0412</option>
-                <option value="0416">0416</option>
-                <option value="0426">0426</option>
+            <form onSubmit={handleEdit}>
+              {/* Mostrar el país del beneficiario */}
+              <label>País</label>
+              <select disabled value={selectedBeneficiary.accbsUser_country}>
+                <option>{selectedBeneficiary.accbsUser_country}</option>
               </select>
+
+              {/* Campo de nombre y apellido */}
+              <label>Nombre y Apellido</label>
               <input
                 type="text"
-                value={accbsUser_phone ? accbsUser_phone.slice(-7) : ""} // Mantener el valor del teléfono
-                onChange={(e) => setAccbsUser_phone(e.target.value)}
+                defaultValue={selectedBeneficiary.accbsUser_owner}
+                onChange={(e) => setAccbsUser_owner(e.target.value)}
               />
-            </div>
-          </>
-        )}
 
-        {accbsUser_type === "Cuenta Bancaria" && (
-          <>
-            <label>Número de Cuenta</label>
-            <input
-              type="text"
-              value={accbsUser_number || ""} // Mantener el valor de la cuenta bancaria
-              onChange={(e) => setAccbsUser_number(e.target.value)}
-            />
-          </>
-        )}
+              {/* Ocultar cédula si el país es Estados Unidos */}
+              {selectedBeneficiary.accbsUser_country !== "Estados Unidos" && (
+                <>
+                  <label>Cédula</label>
+                  <input
+                    type="text"
+                    defaultValue={selectedBeneficiary.accbsUser_dni}
+                    onChange={(e) => setAccbsUser_dni(e.target.value)}
+                  />
+                </>
+              )}
 
-        <label>Banco</label>
-        <select
-          value={accbsUser_bank || selectedBeneficiary.accbsUser_bank}
-          onChange={(e) => setAccbsUser_bank(e.target.value)}
-        >
-          {banksByCountry[selectedBeneficiary.accbsUser_country]?.map((bank) => (
-            <option key={bank} value={bank}>
-              {bank}
-            </option>
-          ))}
-        </select>
+              {/* Selección del tipo de transacción */}
+              <label>Seleccione el tipo de transacción</label>
+              <select
+                value={accbsUser_type} // Mantener actualizado el tipo de transacción seleccionado
+                onChange={(e) => setAccbsUser_type(e.target.value)}
+              >
+                {selectedBeneficiary.accbsUser_country === "Venezuela" && (
+                  <option value="Pago Movil">Pago Móvil</option>
+                )}
+                {selectedBeneficiary.accbsUser_country === "Estados Unidos" && (
+                  <>
+                    <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+                    <option value="Zelle">Zelle</option>
+                  </>
+                )}
+                {selectedBeneficiary.accbsUser_country !== "Estados Unidos" && (
+                  <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+                )}
+              </select>
 
-        <button type="submit" className="submit-button">
-          Guardar Cambios
-        </button>
-      </form>
-    </div>
-  </div>
-)}
+              {/* Mostrar campos dinámicos según el tipo de transacción */}
+
+              {/* Campos para "Pago Móvil" (solo para Venezuela) */}
+              {selectedBeneficiary.accbsUser_country === "Venezuela" && accbsUser_type === "Pago Movil" && (
+                <>
+                  {/* Número de Teléfono (Pago Móvil) */}
+                  <label>Número de Teléfono (Pago Móvil)</label>
+                  <div className="telefono-input">
+                    <select
+                      name="prefijoTelefono"
+                      className="telefono-prefix"
+                      value={telefonoPrefix} // El valor debe ser el prefijo que se haya extraído
+                      onChange={(e) => setTelefonoPrefix(e.target.value)} // Cambiar el prefijo
+                    >
+                      <option value="0414">0414</option>
+                      <option value="0424">0424</option>
+                      <option value="0412">0412</option>
+                      <option value="0416">0416</option>
+                      <option value="0426">0426</option>
+                    </select>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={accbsUser_phone} // El valor de los últimos 7 dígitos del teléfono
+                      onChange={(e) => setAccbsUser_phone(e.target.value)} // Cambiar el número de teléfono
+                      placeholder="Ingresa el número telefónico"
+                    />
+                  </div>
+                  {errors.accbsUser_phone && (
+                    <span className="error">{errors.accbsUser_phone}</span>
+                  )}
+
+                </>
+              )}
+
+              {/* Campos para "Cuenta Bancaria" */}
+              {(accbsUser_type === "Cuenta Bancaria" || selectedBeneficiary.accbsUser_country !== "Estados Unidos") && (
+                <>
+                  <label>Número de Cuenta</label>
+                  <input
+                    type="text"
+                    value={accbsUser_number || ""}
+                    onChange={(e) => setAccbsUser_number(e.target.value)}
+                  />
+                </>
+              )}
+
+              {/* Campos para "Zelle" (solo para Estados Unidos) */}
+              {accbsUser_type === "Zelle" && selectedBeneficiary.accbsUser_country === "Estados Unidos" && (
+                <>
+                  <label>Correo Electrónico (Zelle)</label>
+                  <input
+                    type="email"
+                    value={accbsUser_number} // Usar accbsUser_phone para almacenar el correo de Zelle
+                    onChange={(e) => setAccbsUser_number(e.target.value)}
+                  />
+                </>
+              )}
+
+              {/* Campo de selección del banco (aplicable para cualquier tipo de transacción) */}
+              <label>Banco</label>
+              <select
+                value={accbsUser_bank || selectedBeneficiary.accbsUser_bank}
+                onChange={(e) => setAccbsUser_bank(e.target.value)}
+              >
+                {banksByCountry[selectedBeneficiary.accbsUser_country]?.map((bank) => (
+                  <option key={bank} value={bank}>
+                    {bank}
+                  </option>
+                ))}
+              </select>
+
+              {/* Botón para guardar cambios */}
+              <button type="submit" className="submit-button">
+                Guardar Cambios
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+
     </div>
   ) : (
     <Redirect to="/login" />

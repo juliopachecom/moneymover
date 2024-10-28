@@ -333,11 +333,11 @@ function AdminDashboard() {
   //Aprobar Remesa
   const handleSubmitSendVerify = async (event) => {
     event.preventDefault();
-
+  
     const formData = new FormData();
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().slice(0, 10);
-
+  
     if (selectedMovement.mov_typeOutflow === "efectivo") {
       formData.append("mov_currency", "USD");
       formData.append("mov_accEurId", 0);
@@ -349,8 +349,8 @@ function AdminDashboard() {
       formData.append(
         "mov_currency",
         selectedMovement.mov_currency === "USD" ||
-          selectedMovement.mov_currency === "EUR" ||
-          selectedMovement.mov_currency === "GBP"
+        selectedMovement.mov_currency === "EUR" ||
+        selectedMovement.mov_currency === "GBP"
           ? payment
           : selectedMovement.mov_currency
       );
@@ -374,7 +374,7 @@ function AdminDashboard() {
       );
       formData.append("mov_date", formattedDate);
     }
-
+  
     try {
       await axios.put(`${url}/Movements/${selectedMovement.mov_id}`, formData, {
         headers: {
@@ -382,24 +382,38 @@ function AdminDashboard() {
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-
+  
       await axios.get(`${url}/Movements/verif/${selectedMovement.mov_id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-
-      await axios.post(
-        `${url}/Mailer/EmailVtransfer/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-          },
-        }
-      );
-
+  
+      // Enviar correo dependiendo del tipo de retiro
+      if (selectedMovement.mov_typeOutflow === "efectivo") {
+        await axios.post(
+          `${url}/Mailer/EmailVCashWithdraw/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else {
+        await axios.post(
+          `${url}/Mailer/EmailVWithdraw/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+  
+      // Registrar el cambio en TotalRegister dependiendo de la moneda
       if (selectedMovement.mov_currency === "EUR" && payment === "BS") {
         await axios.post(
           `${url}/TotalRegister/create`,
@@ -484,7 +498,7 @@ function AdminDashboard() {
           }
         );
       }
-
+  
       // Colocamos el toast modal
       toast.success("¡Accion Realizada!", {
         position: "bottom-right",
@@ -495,16 +509,18 @@ function AdminDashboard() {
         draggable: true,
         progress: undefined,
       });
-
+  
       // Cerrar el modal
       closeModal();
       fetchDataMovemments();
-
-      console.log("Request send successfully");
+  
+      console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
     }
   };
+  
+  
 
   const handleReject = () => {
     setShowRejectionReason(true); // Muestra el campo de razón de rechazo
@@ -517,59 +533,76 @@ function AdminDashboard() {
   // Rechazar Movimiento
   const handleSendRejection = async (event) => {
     event.preventDefault();
-
+  
     try {
+      // Rechazar el movimiento
       await axios.get(`${url}/Movements/reject/${selectedMovement.mov_id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${infoTkn}`,
         },
       });
-
-      if (selectedMovement.mov_type === "Retiro") {
-        await axios.put(
-          `${url}/Movements/${selectedMovement.mov_id}`,
-          {
-            mov_comment: rejectionReason,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${infoTkn}`,
-            },
-          }
-        );
-        handleSubmitSummary();
-      }
-
-      if (selectedMovement.mov_type === "Deposito") {
-        await axios.put(
-          `${url}/Movements/${selectedMovement.mov_id}`,
-          {
-            mov_comment: rejectionReason,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${infoTkn}`,
-            },
-          }
-        );
-      }
-
-      closeDetailModal();
-      closeModal();
-      fetchDataMovemments();
-
-      await axios.post(
-        `${url}/Mailer/EmailRtransfer/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
-        null,
+  
+      // Actualizar comentario con la razón del rechazo
+      await axios.put(
+        `${url}/Movements/${selectedMovement.mov_id}`,
+        {
+          mov_comment: rejectionReason,
+        },
         {
           headers: {
             Authorization: `Bearer ${infoTkn}`,
           },
         }
       );
-
-      // Cerrar el modal
+  
+      // Si es un retiro, ejecutar acciones adicionales
+      if (selectedMovement.mov_type === "Retiro") {
+        handleSubmitSummary();
+      }
+  
+      // Cerrar modales y actualizar los movimientos
+      closeDetailModal();
+      closeModal();
+      fetchDataMovemments();
+  
+      // Enviar correo de rechazo dependiendo del tipo de movimiento
+      if (selectedMovement.mov_type === "Deposito") {
+        // Enviar correo si es un depósito
+        await axios.post(
+          `${url}/Mailer/EmailRRecharge/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else if (selectedMovement.mov_typeOutflow === "efectivo") {
+        // Enviar correo si es un retiro en efectivo
+        await axios.post(
+          `${url}/Mailer/EmailRCashWithdraw/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      } else {
+        // Enviar correo si no es efectivo ni depósito (retiro por transferencia)
+        await axios.post(
+          `${url}/Mailer/EmailRWithdraw/${selectedMovement.User.use_email}/${selectedMovement.mov_id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+      }
+  
+      // Mostrar notificación de éxito
       toast.success("¡Datos enviados con éxito!", {
         position: "bottom-right",
         autoClose: 10000,
@@ -579,12 +612,14 @@ function AdminDashboard() {
         draggable: true,
         progress: undefined,
       });
-
+  
       console.log("Request sent successfully");
     } catch (error) {
       console.error("Error:", error);
     }
   };
+  
+  
 
   const handleCancel = () => {
     setShowRejectionReason(false); // Oculta el cuadro de texto
@@ -997,6 +1032,12 @@ function AdminDashboard() {
                                 selectedMovement.AccountsBsUser.accbsUser_number
                             : "Sin información"}
                         </strong>
+                      </p>
+                      <p>
+                        <strong>PAIS:</strong>{" "}
+                        {selectedMovement.AccountsBsUser
+                          ? selectedMovement.AccountsBsUser.accbsUser_country
+                          : "Sin información"}
                       </p>
                       <p>
                         <strong>

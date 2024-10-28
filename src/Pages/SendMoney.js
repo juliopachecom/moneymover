@@ -200,6 +200,13 @@ function SendMoney() {
       return;
     }
 
+    // Concatenar prefijo y teléfono solo si es Pago Movil
+    const finalPhone =
+      accbsUser_type === "Pago Movil" ? telefonoPrefix + accbsUser_phone : accbsUser_phone;
+
+    // Si accbsUser_dni es nulo o vacío, asignar "NA"
+    const finalDni = accbsUser_dni ? accbsUser_dni : "NA";
+
     try {
       await axios.post(
         `${url}/AccBsUser/create`,
@@ -207,8 +214,8 @@ function SendMoney() {
           accbsUser_bank,
           accbsUser_owner,
           accbsUser_number,
-          accbsUser_dni,
-          accbsUser_phone,
+          accbsUser_dni: finalDni, // Usamos el DNI con "NA" si está vacío
+          accbsUser_phone: finalPhone, // Aquí usamos el número concatenado
           accbsUser_type,
           accbsUser_status: "Activo",
           accbsUser_userId: user.use_id,
@@ -221,13 +228,31 @@ function SendMoney() {
         }
       );
 
-      // Refresh the page after adding account
-      fetchDataUser();
-      closeModal();
+      window.location.reload();
+
+      toast.success("Cuenta agregada con éxito!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } catch (error) {
-      console.log(error);
+      console.log("Error al agregar la cuenta:", error.response || error);
+      toast.error("Error al agregar la cuenta", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
+
 
   const handleCurrencyChange = (e) => {
     setPayment(e.target.value);
@@ -292,6 +317,7 @@ function SendMoney() {
     setAmount(inputAmount);
 
     let errorMessage = "";
+    
 
     // Validación para el método de retiro efectivo
     if (withdrawalMethod === "efectivo") {
@@ -314,8 +340,8 @@ function SendMoney() {
       payment === "EUR"
         ? user.use_amountEur
         : payment === "USD"
-        ? user.use_amountUsd
-        : user.use_amountGbp;
+          ? user.use_amountUsd
+          : user.use_amountGbp;
 
     if (inputAmount > availableBalance) {
       errorMessage =
@@ -425,25 +451,21 @@ function SendMoney() {
         : amount
     );
 
-    // const selectedAccount = userDirectory.find(
-    //   (account) =>
-    //     parseInt(account.accbsUser_id) === parseInt(selectedIdAccount)
-    // );
     formData.append(
       "mov_comment",
       `${withdrawalMethod === "efectivo"}` &&
-        `<strong>Retiro de divisa en efectivo \n  Ciudad: </strong>` +
-          porcent.por_stateLocation +
-          `\n <strong>Persona que recibe: </strong>` +
-          receiverName +
-          `\n <strong>DNI de quien recibe: </strong>` +
-          receiverDni +
-          `\n <strong>Teléfono: </strong>` +
-          phone +
-          `\n <strong>Dirección: </strong>` +
-          deliveryAddress +
-          `\n <strong>Monto: </strong>` +
-          amount
+      `<strong>Retiro de divisa en efectivo \n  Ciudad: </strong>` +
+      porcent.por_stateLocation +
+      `\n <strong>Persona que recibe: </strong>` +
+      receiverName +
+      `\n <strong>DNI de quien recibe: </strong>` +
+      receiverDni +
+      `\n <strong>Teléfono: </strong>` +
+      phone +
+      `\n <strong>Dirección: </strong>` +
+      deliveryAddress +
+      `\n <strong>Monto: </strong>` +
+      amount
     );
     formData.append("mov_img", "Retiro de Divisa");
     formData.append("mov_typeOutflow", withdrawalMethod);
@@ -463,7 +485,7 @@ function SendMoney() {
             return coin.cur_EurToBs;
           case "Argentina":
             return coin.cur_EurToArg_Pes;
-            case "Estados Unidos":
+          case "Estados Unidos":
             return coin.cur_EurToUsd;
           case "Colombia":
             return coin.cur_EurToCol_Pes;
@@ -511,7 +533,7 @@ function SendMoney() {
             return coin.cur_GbpToBs;
           case "Argentina":
             return coin.cur_GbpToArg_Pes;
-            case "Estados Unidos":
+          case "Estados Unidos":
             return coin.cur_GbpToUsd;
           case "Colombia":
             return coin.cur_GbpToCol_Pes;
@@ -548,65 +570,53 @@ function SendMoney() {
     formData.append("mov_oldCurrency", payment);
 
     const formDataUser = new FormData();
-    // if (sendOption === "Efectivo") {
-    //   formDataUser.append(
-    //     "use_amountUsd",
-    //     payment === "USD"
-    //       ? user.use_amountUsd - amountToReceive
-    //       : user.use_amountUsd
-    //   );
-    //   formDataUser.append(
-    //     "use_amountGbp",
-    //     payment === "GBP"
-    //       ? user.use_amountGbp - amountToReceive
-    //       : user.use_amountGbp
-    //   );
-    //   formDataUser.append(
-    //     "use_amountEur",
-    //     payment === "EUR"
-    //       ? user.use_amountEur - amountToReceive
-    //       : user.use_amountEur
-    //   );
-    // } else {
-    // }
     formDataUser.append(
       "use_amountUsd",
-      // payment === "USD" ? user.use_amountUsd - amount : user.use_amountUsd
       payment === "USD" && withdrawalMethod === "efectivo"
         ? user.use_amountUsd - calculateValue(amount, payment, porcent)
         : payment === "USD" && withdrawalMethod !== "efectivo"
-        ? user.use_amountUsd - amount
-        : user.use_amountUsd
+          ? user.use_amountUsd - amount
+          : user.use_amountUsd
     );
     formDataUser.append(
       "use_amountGbp",
       payment === "GBP" && withdrawalMethod === "efectivo"
         ? user.use_amountGbp - calculateValue(amount, payment, porcent)
         : payment === "GBP" && withdrawalMethod !== "efectivo"
-        ? user.use_amountGbp - amount
-        : user.use_amountGbp
+          ? user.use_amountGbp - amount
+          : user.use_amountGbp
     );
     formDataUser.append(
       "use_amountEur",
       payment === "EUR" && withdrawalMethod === "efectivo"
         ? user.use_amountEur - calculateValue(amount, payment, porcent)
         : payment === "EUR" && withdrawalMethod !== "efectivo"
-        ? user.use_amountEur - amount
-        : user.use_amountEur
+          ? user.use_amountEur - amount
+          : user.use_amountEur
     );
 
     try {
-      // setLoading(true);
-      axios.post(`${url}/Movements/create`, formData, {
+      // Crear el movimiento
+      const response = await axios.post(`${url}/Movements/create`, formData, {
         headers: {
           Authorization: `Bearer ${infoTkn}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
-      // await sendPaymentNotification();
-      // await sendApprovalNotification();
+      const movementId = response.data.mov_id; // Extraemos el ID del movimiento
+      console.log("Movement ID:", movementId); // Asegúrate de que 'movementId' sea correcto
 
+      // Enviar correo según el método de retiro
+      if (withdrawalMethod === "efectivo") {
+        // Enviar correo a "Egresosnuevo@hotmail.com" si es retiro en efectivo
+        await axios.post(`${url}/Mailer/pendantCashWithdraw/Egresosnuevo@hotmail.com/${movementId}`);
+      } else {
+        // Enviar correo a "Egresosnuevo@hotmail.com" si es una transferencia
+        await axios.post(`${url}/Mailer/pendantWithdraw/Egresosnuevo@hotmail.com/${movementId}`);
+      }
+
+      // Actualizar saldo del usuario
       await axios.put(`${url}/Users/${user.use_id}`, formDataUser, {
         headers: {
           Authorization: `Bearer ${infoTkn}`,
@@ -615,7 +625,7 @@ function SendMoney() {
       });
 
       toast.success(
-        "Cambio realizado con exito!, En un momento tu egreso será procesado",
+        "Cambio realizado con éxito! En un momento tu egreso será procesado",
         {
           position: "bottom-right",
           autoClose: 10000,
@@ -638,6 +648,8 @@ function SendMoney() {
       setLoading(false);
     }
   };
+
+
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -843,8 +855,8 @@ function SendMoney() {
                       {payment === "EUR"
                         ? `€${user.use_amountEur}`
                         : payment === "USD"
-                        ? `$${user.use_amountUsd}`
-                        : `£${user.use_amountGbp}`}
+                          ? `$${user.use_amountUsd}`
+                          : `£${user.use_amountGbp}`}
                     </small>
                     {errors.amount && (
                       <span className="error">{errors.amount}</span>
@@ -853,7 +865,7 @@ function SendMoney() {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="amount-receive">Monto EUR a debitar</label>
+                    <label htmlFor="amount-receive">Monto {payment === "EUR" ? "EUR" : payment === "USD" ? "USD" : "GBP"} a debitar</label>
                     <input
                       type="number"
                       id="amount-receive"
@@ -870,7 +882,7 @@ function SendMoney() {
                   <div className="form-group">
                     <label htmlFor="amount-send">
                       {selectedCurrency === "USD"
-                        ? "Monto en euros a debitar"
+                        ? "Monto a debitar"
                         : "Monto a enviar"}
                     </label>
                     {errors.amount && (
@@ -889,8 +901,8 @@ function SendMoney() {
                       {payment === "EUR"
                         ? `€${user.use_amountEur}`
                         : payment === "USD"
-                        ? `$${user.use_amountUsd}`
-                        : `£${user.use_amountGbp}`}
+                          ? `$${user.use_amountUsd}`
+                          : `£${user.use_amountGbp}`}
                     </small>
                   </div>
 
@@ -1297,25 +1309,25 @@ function SendMoney() {
                               (selectedCurrency === "BS"
                                 ? beneficiario.accbsUser_country === "Venezuela"
                                 : selectedCurrency === "ARS"
-                                ? beneficiario.accbsUser_country === "Argentina"
-                                : selectedCurrency === "USD"
-                                ? beneficiario.accbsUser_country ===
-                                  "Estados Unidos"
-                                : selectedCurrency === "COP"
-                                ? beneficiario.accbsUser_country === "Colombia"
-                                : selectedCurrency === "CLP"
-                                ? beneficiario.accbsUser_country === "Chile"
-                                : selectedCurrency === "MXN"
-                                ? beneficiario.accbsUser_country === "Mexico"
-                                : selectedCurrency === "PEN"
-                                ? beneficiario.accbsUser_country === "Peru"
-                                : selectedCurrency === "BRL"
-                                ? beneficiario.accbsUser_country === "Brasil"
-                                : selectedCurrency === "USD-EC"
-                                ? beneficiario.accbsUser_country === "Ecuador"
-                                : selectedCurrency === "USD-PA"
-                                ? beneficiario.accbsUser_country === "Panama"
-                                : null)
+                                  ? beneficiario.accbsUser_country === "Argentina"
+                                  : selectedCurrency === "USD"
+                                    ? beneficiario.accbsUser_country ===
+                                    "Estados Unidos"
+                                    : selectedCurrency === "COP"
+                                      ? beneficiario.accbsUser_country === "Colombia"
+                                      : selectedCurrency === "CLP"
+                                        ? beneficiario.accbsUser_country === "Chile"
+                                        : selectedCurrency === "MXN"
+                                          ? beneficiario.accbsUser_country === "Mexico"
+                                          : selectedCurrency === "PEN"
+                                            ? beneficiario.accbsUser_country === "Peru"
+                                            : selectedCurrency === "BRL"
+                                              ? beneficiario.accbsUser_country === "Brasil"
+                                              : selectedCurrency === "USD-EC"
+                                                ? beneficiario.accbsUser_country === "Ecuador"
+                                                : selectedCurrency === "USD-PA"
+                                                  ? beneficiario.accbsUser_country === "Panama"
+                                                  : null)
                           ).length > 0 ? (
                             userDirectory
                               .filter(
@@ -1323,33 +1335,33 @@ function SendMoney() {
                                   beneficiario.accbsUser_status === "Activo" &&
                                   (selectedCurrency === "BS"
                                     ? beneficiario.accbsUser_country ===
-                                      "Venezuela"
+                                    "Venezuela"
                                     : selectedCurrency === "ARS"
-                                    ? beneficiario.accbsUser_country ===
+                                      ? beneficiario.accbsUser_country ===
                                       "Argentina"
-                                    : selectedCurrency === "USD"
-                                    ? beneficiario.accbsUser_country ===
-                                      "Estados Unidos"
-                                    : selectedCurrency === "COP"
-                                    ? beneficiario.accbsUser_country ===
-                                      "Colombia"
-                                    : selectedCurrency === "CLP"
-                                    ? beneficiario.accbsUser_country === "Chile"
-                                    : selectedCurrency === "MXN"
-                                    ? beneficiario.accbsUser_country ===
-                                      "Mexico"
-                                    : selectedCurrency === "PEN"
-                                    ? beneficiario.accbsUser_country === "Peru"
-                                    : selectedCurrency === "BRL"
-                                    ? beneficiario.accbsUser_country ===
-                                      "Brasil"
-                                    : selectedCurrency === "USD-EC"
-                                    ? beneficiario.accbsUser_country ===
-                                      "Ecuador"
-                                    : selectedCurrency === "USD-PA"
-                                    ? beneficiario.accbsUser_country ===
-                                      "Panama"
-                                    : null)
+                                      : selectedCurrency === "USD"
+                                        ? beneficiario.accbsUser_country ===
+                                        "Estados Unidos"
+                                        : selectedCurrency === "COP"
+                                          ? beneficiario.accbsUser_country ===
+                                          "Colombia"
+                                          : selectedCurrency === "CLP"
+                                            ? beneficiario.accbsUser_country === "Chile"
+                                            : selectedCurrency === "MXN"
+                                              ? beneficiario.accbsUser_country ===
+                                              "Mexico"
+                                              : selectedCurrency === "PEN"
+                                                ? beneficiario.accbsUser_country === "Peru"
+                                                : selectedCurrency === "BRL"
+                                                  ? beneficiario.accbsUser_country ===
+                                                  "Brasil"
+                                                  : selectedCurrency === "USD-EC"
+                                                    ? beneficiario.accbsUser_country ===
+                                                    "Ecuador"
+                                                    : selectedCurrency === "USD-PA"
+                                                      ? beneficiario.accbsUser_country ===
+                                                      "Panama"
+                                                      : null)
                               )
                               .map((beneficiary) => (
                                 <div
@@ -1362,33 +1374,33 @@ function SendMoney() {
                                   <img
                                     src={
                                       beneficiary.accbsUser_country ===
-                                      "Venezuela"
+                                        "Venezuela"
                                         ? venezuelaFlag
                                         : beneficiary.accbsUser_country ===
                                           "Argentina"
-                                        ? argentina
-                                        : beneficiary.accbsUser_country ===
-                                          "Estados Unidos"
-                                        ? usa
-                                        : beneficiary.accbsUser_country ===
-                                          "Colombia"
-                                        ? colombia
-                                        : beneficiary.accbsUser_country ===
-                                          "Chile"
-                                        ? chile
-                                        : beneficiary.accbsUser_country ===
-                                          "Ecuador"
-                                        ? ecuador
-                                        : beneficiary.accbsUser_country ===
-                                          "Brasil"
-                                        ? brasil
-                                        : beneficiary.accbsUser_country ===
-                                          "Peru"
-                                        ? peru
-                                        : beneficiary.accbsUser_country ===
-                                          "Panama"
-                                        ? panama
-                                        : null
+                                          ? argentina
+                                          : beneficiary.accbsUser_country ===
+                                            "Estados Unidos"
+                                            ? usa
+                                            : beneficiary.accbsUser_country ===
+                                              "Colombia"
+                                              ? colombia
+                                              : beneficiary.accbsUser_country ===
+                                                "Chile"
+                                                ? chile
+                                                : beneficiary.accbsUser_country ===
+                                                  "Ecuador"
+                                                  ? ecuador
+                                                  : beneficiary.accbsUser_country ===
+                                                    "Brasil"
+                                                    ? brasil
+                                                    : beneficiary.accbsUser_country ===
+                                                      "Peru"
+                                                      ? peru
+                                                      : beneficiary.accbsUser_country ===
+                                                        "Panama"
+                                                        ? panama
+                                                        : null
                                     }
                                     alt={beneficiary.accbsUser_country}
                                     className="flag-icon"
@@ -1399,11 +1411,11 @@ function SendMoney() {
                                     <p>Banco: {beneficiary.accbsUser_bank}</p>
                                     <p>
                                       {beneficiary.accbsUser_type ===
-                                      "Pago Movil"
+                                        "Pago Movil"
                                         ? "Teléfono: " +
-                                          beneficiary.accbsUser_phone
+                                        beneficiary.accbsUser_phone
                                         : "Cuenta: " +
-                                          beneficiary.accbsUser_number}
+                                        beneficiary.accbsUser_number}
                                     </p>
                                   </div>
                                 </div>
@@ -1556,7 +1568,6 @@ function SendMoney() {
               >
                 <option value="">Seleccione un país</option>
                 <option value="Venezuela">Venezuela</option>
-                <option value="Estados Unidos">Estados Unidos</option>
                 <option value="Argentina">Argentina</option>
                 <option value="Colombia">Colombia</option>
                 <option value="Chile">Chile</option>
@@ -1564,7 +1575,7 @@ function SendMoney() {
                 <option value="Panama">Panamá</option>
                 <option value="Mexico">México</option>
                 <option value="Brasil">Brasil</option>
-                <option value="Peru">Perú</option>
+                <option value="Estados Unidos">Estados Unidos</option>
               </select>
               {errors.accbsUser_country && (
                 <span className="error">{errors.accbsUser_country}</span>
@@ -1586,19 +1597,23 @@ function SendMoney() {
                     <span className="error">{errors.accbsUser_owner}</span>
                   )}
 
-                  {/* Cédula */}
-                  <label>Cédula</label>
-                  <div className="cedula-input">
-                    <input
-                      type="text"
-                      name="cedula"
-                      value={accbsUser_dni}
-                      onChange={(e) => setAccbsUser_dni(e.target.value)}
-                      placeholder="Ingresa la cédula"
-                    />
-                  </div>
-                  {errors.accbsUser_dni && (
-                    <span className="error">{errors.accbsUser_dni}</span>
+                  {/* Campo de cédula */}
+                  {accbsUser_country !== "Estados Unidos" && (
+                    <>
+                      <label>Cédula</label>
+                      <div className="cedula-input">
+                        <input
+                          type="text"
+                          name="cedula"
+                          value={accbsUser_dni}
+                          onChange={(e) => setAccbsUser_dni(e.target.value)}
+                          placeholder="Ingresa la cédula"
+                        />
+                      </div>
+                      {errors.accbsUser_dni && (
+                        <span className="error">{errors.accbsUser_dni}</span>
+                      )}
+                    </>
                   )}
 
                   {/* Selección de tipo de transacción */}
@@ -1608,38 +1623,48 @@ function SendMoney() {
                     onChange={(e) => setAccbsUser_type(e.target.value)}
                   >
                     <option value="">Seleccione...</option>
-                    {accbsUser_country === "venezuela" && (
+                    {accbsUser_country === "Venezuela" && (
                       <option value="Pago Movil">Pago Móvil</option>
                     )}
-                    <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+                    {accbsUser_country === "Estados Unidos" && (
+                      <>
+                        <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+                        <option value="Zelle">Zelle</option>
+                      </>
+                    )}
+                    {accbsUser_country !== "Estados Unidos" && (
+                      <option value="Cuenta Bancaria">Cuenta Bancaria</option>
+                    )}
                   </select>
                   {errors.accbsUser_type && (
                     <span className="error">{errors.accbsUser_type}</span>
                   )}
 
-                  {/* Campos dinámicos */}
-                  {accbsUser_type === "Pago Movil" && (
+                  {/* Campos dinámicos para Pago Móvil en Venezuela */}
+                  {accbsUser_country === "Venezuela" && accbsUser_type === "Pago Movil" && (
                     <>
-                      {/* Número de Teléfono */}
-                      <label>Número de Teléfono</label>
+                      {/* Número de Teléfono (Pago Móvil) */}
+                      <label>Número de Teléfono (Pago Móvil)</label>
                       <div className="telefono-input">
                         <select
                           name="prefijoTelefono"
                           className="telefono-prefix"
-                          value={telefonoPrefix}
-                          onChange={(e) => setTelefonoPrefix(e.target.value)}
+                          value={telefonoPrefix} // El valor debe ser el prefijo que se haya extraído
+                          onChange={(e) => setTelefonoPrefix(e.target.value)} // Cambiar el prefijo
                         >
+                          <option value="...">...</option>
                           <option value="0414">0414</option>
                           <option value="0424">0424</option>
                           <option value="0412">0412</option>
                           <option value="0416">0416</option>
                           <option value="0426">0426</option>
                         </select>
+
                         <input
                           type="text"
                           name="telefono"
-                          value={accbsUser_phone}
-                          onChange={(e) => setAccbsUser_phone(e.target.value)}
+                          value={accbsUser_phone} // El valor de los últimos 7 dígitos del teléfono
+                          onChange={(e) => setAccbsUser_phone(e.target.value)} // Cambiar el número de teléfono
                           placeholder="Ingresa el número telefónico"
                         />
                       </div>
@@ -1647,6 +1672,7 @@ function SendMoney() {
                         <span className="error">{errors.accbsUser_phone}</span>
                       )}
 
+                      {/* Selección del banco */}
                       <label>Banco</label>
                       <select
                         name="banco"
@@ -1664,16 +1690,92 @@ function SendMoney() {
                         <span className="error">{errors.accbsUser_bank}</span>
                       )}
 
-                      <button
-                        onClick={handleAddAccountSubmit}
-                        className="submit-button"
-                      >
+                      <button onClick={handleAddAccountSubmit} className="submit-button">
                         Guardar Beneficiario
                       </button>
                     </>
                   )}
 
-                  {accbsUser_type === "Cuenta Bancaria" && (
+                  {/* Zelle - Solo para Estados Unidos */}
+                  {accbsUser_type === "Zelle" && accbsUser_country === "Estados Unidos" && (
+                    <>
+                      <label>Correo Electrónico (Zelle)</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={accbsUser_number} // Usamos el campo phone para almacenar el correo
+                        onChange={(e) => setAccbsUser_number(e.target.value)}
+                        placeholder="Ingresa el correo electrónico"
+                      />
+                      {errors.accbsUser_number && (
+                        <span className="error">{errors.accbsUser_number}</span>
+                      )}
+
+                      {/* Selección del banco */}
+                      <label>Banco</label>
+                      <select
+                        name="banco"
+                        value={accbsUser_bank}
+                        onChange={(e) => setAccbsUser_bank(e.target.value)}
+                      >
+                        <option value="">Selecciona el banco</option>
+                        {banksByCountry[accbsUser_country]?.map((bank) => (
+                          <option key={bank} value={bank}>
+                            {bank}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.accbsUser_bank && (
+                        <span className="error">{errors.accbsUser_bank}</span>
+                      )}
+
+                      <button onClick={handleAddAccountSubmit} className="submit-button">
+                        Guardar Beneficiario
+                      </button>
+                    </>
+                  )}
+
+                  {/* Cuenta Bancaria - Solo para Estados Unidos */}
+                  {accbsUser_type === "Cuenta Bancaria" && accbsUser_country === "Estados Unidos" && (
+                    <>
+                      <label>Número de Cuenta</label>
+                      <input
+                        type="text"
+                        name="cuenta"
+                        value={accbsUser_number}
+                        onChange={(e) => setAccbsUser_number(e.target.value)}
+                        placeholder="Ingresa el número de cuenta"
+                      />
+                      {errors.accbsUser_number && (
+                        <span className="error">{errors.accbsUser_number}</span>
+                      )}
+
+                      {/* Selección del banco */}
+                      <label>Banco</label>
+                      <select
+                        name="banco"
+                        value={accbsUser_bank}
+                        onChange={(e) => setAccbsUser_bank(e.target.value)}
+                      >
+                        <option value="">Selecciona el banco</option>
+                        {banksByCountry[accbsUser_country]?.map((bank) => (
+                          <option key={bank} value={bank}>
+                            {bank}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.accbsUser_bank && (
+                        <span className="error">{errors.accbsUser_bank}</span>
+                      )}
+
+                      <button onClick={handleAddAccountSubmit} className="submit-button">
+                        Guardar Beneficiario
+                      </button>
+                    </>
+                  )}
+
+                  {/* Campos dinámicos para Cuenta Bancaria en otros países */}
+                  {accbsUser_type === "Cuenta Bancaria" && accbsUser_country !== "Estados Unidos" && (
                     <>
                       <label>Cuenta Bancaria</label>
                       <input
@@ -1704,19 +1806,21 @@ function SendMoney() {
                         <span className="error">{errors.accbsUser_bank}</span>
                       )}
 
-                      <button
-                        onClick={handleAddAccountSubmit}
-                        className="submit-button"
-                      >
+                      <button onClick={handleAddAccountSubmit} className="submit-button">
                         Guardar Beneficiario
                       </button>
                     </>
                   )}
                 </>
               )}
+
+
+
+
             </div>
           </div>
         )}
+
 
         {/* Alerta de confirmación */}
         {showAlert && (
@@ -1727,13 +1831,9 @@ function SendMoney() {
             <div className="alert-actions">
               <button
                 className="alert-button"
-                onClick={() => {
-                  setStep(1); // Volver al paso inicial
-                  setAmount(""); // Limpiar el monto a enviar
-                  setAmountToReceive(""); // Limpiar el monto a recibir
-                  setSelectedBeneficiary(null); // Limpiar beneficiario
-                  setShowAlert(false); // Cerrar la alerta
-                }}
+                onClick={() => {                 setShowAlert(false); // Cerrar la alerta
+                (window.location.href = "/sendmoney")}}
+
               >
                 Sí
               </button>

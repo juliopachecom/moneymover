@@ -16,6 +16,8 @@ import brasilFlag from "../Assets/Images/square.png";
 import peruFlag from "../Assets/Images/peru.png";
 import chileFlag from "../Assets/Images/chile.png";
 import ecuadorFlag from "../Assets/Images/ecuador.png";
+import mexico from "../Assets/Images/mexico.png";
+
 
 import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 
@@ -184,16 +186,21 @@ const calculateDailyTotals = (date) => {
   const flagMap = {
     Argentina: argentinaFlag,
     Colombia: colombiaFlag,
-    Panamá: panamaFlag,
+    Panama: panamaFlag,
     venezuela: venezuelaFlag,
     Venezuela: venezuelaFlag,
+    
 
     Brasil: brasilFlag,
-    Perú: peruFlag,
+    Peru: peruFlag,
     Chile: chileFlag,
     Ecuador: ecuadorFlag,
     Usa: usaFlag,
+    Mexico: mexico,
+    "Estados Unidos": usaFlag,
   };
+
+  
 
   // Estado de filtro
   const [filtro, setFiltro] = useState("TODOS");
@@ -246,6 +253,13 @@ const calculateDailyTotals = (date) => {
     let totalDepositoEur = 0;
     let totalDepositoUsd = 0;
     let totalDepositoGbp = 0;
+
+    // Totales de retiros en las monedas originales (EUR, USD, GBP)
+    let totalRetiroOriginalEur = 0;
+    let totalRetiroOriginalUsd = 0;
+    let totalRetiroOriginalGbp = 0;
+
+    // Totales de retiros equivalentes en las monedas nuevas (ARS, COP, CLP, etc.)
     let totalRetiroBolivares = 0;
     let totalRetiroArs = 0;
     let totalRetiroCop = 0;
@@ -260,11 +274,11 @@ const calculateDailyTotals = (date) => {
 
     movements
       .filter(
-        (mov) =>
-          mov.mov_date.slice(0, 10) === fechaFiltro && mov.mov_status === "V"
+        (mov) => mov.mov_date.slice(0, 10) === fechaFiltro && mov.mov_status === "V"
       )
       .forEach((mov) => {
         if (mov.mov_type === "Deposito") {
+          // Calcular los depósitos según la moneda en el campo mov_currency
           if (mov.mov_currency === "EUR") {
             totalDepositoEur += mov.mov_amount;
           } else if (mov.mov_currency === "USD") {
@@ -273,9 +287,17 @@ const calculateDailyTotals = (date) => {
             totalDepositoGbp += mov.mov_amount;
           }
         } else if (mov.mov_type === "Retiro") {
+          // Calcular los retiros utilizando mov_oldCurrency (moneda original)
           if (mov.mov_oldCurrency === "EUR") {
-            totalRetiroEur += mov.mov_oldAmount;
-          } else if (mov.mov_currency === "BS") {
+            totalRetiroOriginalEur += mov.mov_oldAmount;
+          } else if (mov.mov_oldCurrency === "USD") {
+            totalRetiroOriginalUsd += mov.mov_oldAmount;
+          } else if (mov.mov_oldCurrency === "GBP") {
+            totalRetiroOriginalGbp += mov.mov_oldAmount;
+          }
+
+          // Calcular el total equivalente del retiro en la nueva moneda (mov_currency)
+          if (mov.mov_currency === "" || mov.mov_currency === "Bs") {
             totalRetiroBolivares += mov.mov_amount;
           } else if (mov.mov_currency === "ARS") {
             totalRetiroArs += mov.mov_amount;
@@ -295,14 +317,24 @@ const calculateDailyTotals = (date) => {
             totalRetiroMex += mov.mov_amount;
           } else if (mov.mov_currency === "USD") {
             totalRetiroUsd += mov.mov_amount;
+          } else if (mov.mov_currency === "EUR") {
+            totalRetiroEur += mov.mov_amount;
           }
         }
       });
 
     return {
+      // Depósitos
       totalDepositoEur,
       totalDepositoUsd,
       totalDepositoGbp,
+
+      // Retiros originales (antes de la conversión)
+      totalRetiroOriginalEur,
+      totalRetiroOriginalUsd,
+      totalRetiroOriginalGbp,
+
+      // Retiros equivalentes después de la conversión
       totalRetiroBolivares,
       totalRetiroArs,
       totalRetiroCop,
@@ -311,13 +343,19 @@ const calculateDailyTotals = (date) => {
       totalRetiroEcu,
       totalRetiroPan,
       totalRetiroBrl,
-      totalRetiroEur,
       totalRetiroMex,
       totalRetiroUsd,
+      totalRetiroEur,
     };
-  };
+};
+
+
+
 
   const {
+    totalRetiroOriginalEur,
+    totalRetiroOriginalUsd,
+    totalRetiroOriginalGbp,
     totalDepositoEur,
     totalDepositoUsd,
     totalDepositoGbp,
@@ -330,8 +368,6 @@ const calculateDailyTotals = (date) => {
     totalRetiroPan,
     totalRetiroBrl,
     totalRetiroMex,
-    totalRetiroUsd,
-    totalRetiroEur,
   } = calcularTotales();
 
   return loggedAdm ? (
@@ -560,55 +596,63 @@ const calculateDailyTotals = (date) => {
         </div>
         <br />
 
-        <h2>Retiros</h2>
-        <div className="transactions-section">
-          <table className="transactions-table">
-            <tr>
-              <td>Bolívares</td>
-              <td>Bs {totalRetiroBolivares.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Pesos Argentinos</td>
-              <td>ARS {totalRetiroArs.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Pesos Colombianos</td>
-              <td>COP {totalRetiroCop.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Pesos Chilenos</td>
-              <td>CLP {totalRetiroClp.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Soles Peruanos</td>
-              <td>PEN {totalRetiroPen.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Dólares Ecuatorianos</td>
-              <td>USD {totalRetiroEcu.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Dólares Panameños</td>
-              <td>USD {totalRetiroPan.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Reales Brasileños</td>
-              <td>BRL {totalRetiroBrl.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Pesos Mexicanos</td>
-              <td>MEX {totalRetiroMex.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Dólares</td>
-              <td>USD {totalRetiroUsd.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Retiros en Euros</td>
-              <td>€ {totalRetiroEur.toFixed(2)}</td>
-            </tr>
-          </table>
-        </div>
+     
+
+<h2>Retiros</h2>
+<div className="transactions-section">
+  <table className="transactions-table">
+  <tr>
+      <td>Retiros en Euros</td>
+      <td>€ {totalRetiroOriginalEur.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Retiros en Dólares </td>
+      <td>${totalRetiroOriginalUsd.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Retiros en Libras </td>
+      <td>£ {totalRetiroOriginalGbp.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Bolívares</td>
+      <td>Bs {totalRetiroBolivares.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Pesos Argentinos</td>
+      <td>ARS {totalRetiroArs.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Pesos Colombianos</td>
+      <td>COP {totalRetiroCop.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Pesos Chilenos</td>
+      <td>CLP {totalRetiroClp.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Soles Peruanos</td>
+      <td>PEN {totalRetiroPen.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Dólares Ecuatorianos</td>
+      <td>USD {totalRetiroEcu.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Dólares Panameños</td>
+      <td>USD {totalRetiroPan.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Reales Brasileños</td>
+      <td>BRL {totalRetiroBrl.toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td>Pesos Mexicanos</td>
+      <td>MEX {totalRetiroMex.toFixed(2)}</td>
+    </tr>
+  </table>
+</div>
+
+
 
         {/* Botón para abrir el modal */}
         <button onClick={() => setShowModal(true)} className="buttonmodal">
