@@ -579,7 +579,7 @@ const calculateDailyTotals = (date) => {
         <br />
 
         {/* Sección de Totales */}
-        <h2>Depostios</h2>
+        <h2>Depositos</h2>
         <div className="transactions-section">
           <table className="transactions-table">
             <tr>

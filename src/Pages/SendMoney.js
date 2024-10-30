@@ -248,7 +248,7 @@ function SendMoney() {
         draggable: true,
         progress: undefined,
       });
-    }
+    }console.log(setShowAlert)
   };
 
 
@@ -605,14 +605,7 @@ function SendMoney() {
       const movementId = response.data.mov_id; // Extraemos el ID del movimiento
       console.log("Movement ID:", movementId); // Asegúrate de que 'movementId' sea correcto
 
-      // Enviar correo según el método de retiro
-      if (withdrawalMethod === "efectivo") {
-        // Enviar correo a "Egresosnuevo@hotmail.com" si es retiro en efectivo
-        await axios.post(`${url}/Mailer/pendantCashWithdraw/Egresosnuevo@hotmail.com/${movementId}`);
-      } else {
-        // Enviar correo a "Egresosnuevo@hotmail.com" si es una transferencia
-        await axios.post(`${url}/Mailer/pendantWithdraw/Egresosnuevo@hotmail.com/${movementId}`);
-      }
+     
 
       // Actualizar saldo del usuario
       await axios.put(`${url}/Users/${user.use_id}`, formDataUser, {
@@ -621,6 +614,16 @@ function SendMoney() {
           "Content-Type": "multipart/form-data",
         },
       });
+
+
+       // Enviar correo según el método de retiro
+       if (withdrawalMethod === "efectivo") {
+        // Enviar correo a "Egresosnuevo@hotmail.com" si es retiro en efectivo
+        await axios.post(`${url}/Mailer/pendantCashWithdraw/Egresosnuevo@hotmail.com/${movementId}`);
+      } else {
+        // Enviar correo a "Egresosnuevo@hotmail.com" si es una transferencia
+        await axios.post(`${url}/Mailer/pendantWithdraw/Egresosnuevo@hotmail.com/${movementId}`);
+      }
 
       toast.success(
         "Cambio realizado con éxito! En un momento tu egreso será procesado",
@@ -1830,7 +1833,6 @@ function SendMoney() {
               <button
                 className="alert-button"
                 onClick={() => {
-                  setShowAlert(false); // Cerrar la alerta
                   (window.location.href = "/sendmoney")
                 }}
 

@@ -665,18 +665,18 @@ function AdminDashboard() {
 
       <div className="cards-section totales">
         <div className="card">
-          <h3>Total de Euros cambiados</h3>
+          <h3>Total de Euros ingresados</h3>
           <div className="value">€{totalEur.totalIn}</div>
           <a href="/relation">Ver detalles</a>
         </div>
         <div className="card">
-          <h3>Total de Libras cambiadas</h3>
+          <h3>Total de Libras ingresados</h3>
           <div className="value">£{totalGbp.totalIn}</div>
           <a href="/relation">Ver detalles</a>
         </div>
         <div className="card">
-          <h3>Total de Dólares cambiados</h3>
-          <div className="value">${totalUsd.totalIn - totalUsd.totalOut}</div>
+          <h3>Total de Dólares ingresados</h3>
+          <div className="value">${totalUsd.totalIn}</div>
           <a href="/relation">Ver detalles</a>
         </div>
       </div>

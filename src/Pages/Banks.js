@@ -358,46 +358,45 @@ function Banks() {
                         {bank.acceur_Bank
                           ? bank.acceur_Bank
                           : bank.accusd_Bank
-                          ? bank.accusd_Bank
-                          : bank.accgbp_Bank}
+                            ? bank.accusd_Bank
+                            : bank.accgbp_Bank}
                       </td>
                       <td>
                         {bank.acceur_number
                           ? bank.acceur_number
                           : bank.accusd_number
-                          ? bank.accusd_number
-                          : bank.accgbp_number}
+                            ? bank.accusd_number
+                            : bank.accgbp_number}
                       </td>
                       <td>
                         {bank.acceur_swift
                           ? bank.acceur_swift
                           : bank.accusd_email
-                          ? bank.accusd_email
-                          : bank.accgbp_swift}
+                            ? bank.accusd_email
+                            : bank.accgbp_swift}
                       </td>
                       <td>
                         {bank.acceur_owner
                           ? bank.acceur_owner
                           : bank.accusd_owner
-                          ? bank.accusd_owner
-                          : bank.accgbp_owner}
+                            ? bank.accusd_owner
+                            : bank.accgbp_owner}
                       </td>
                       <td>
                         {bank.acceur_status
                           ? bank.acceur_status
                           : bank.accusd_status
-                          ? bank.accusd_status
-                          : bank.accgbp_status}
+                            ? bank.accusd_status
+                            : bank.accgbp_status}
                       </td>
                       <td>
                         <button
-                          className={`btn ${
-                            bank.acceur_status === "Activo" ||
-                            bank.accusd_status === "Activo" ||
-                            bank.accgbp_status === "Activo"
+                          className={`btn ${bank.acceur_status === "Activo" ||
+                              bank.accusd_status === "Activo" ||
+                              bank.accgbp_status === "Activo"
                               ? "btn-danger"
                               : "btn-success"
-                          }`}
+                            }`}
                           onClick={() => handleStatus(bank)}
                         >
                           {bank.acceur_status && bank.acceur_id
@@ -405,14 +404,14 @@ function Banks() {
                               ? "Desactivar"
                               : "Activar"
                             : bank.accusd_status && bank.accusd_id
-                            ? bank.accusd_status === "Activo"
-                              ? "Desactivar"
-                              : "Activar"
-                            : bank.accgbp_status && bank.accgbp_id
-                            ? bank.accgbp_status === "Activo"
-                              ? "Desactivar"
-                              : "Activar"
-                            : "Activar"}
+                              ? bank.accusd_status === "Activo"
+                                ? "Desactivar"
+                                : "Activar"
+                              : bank.accgbp_status && bank.accgbp_id
+                                ? bank.accgbp_status === "Activo"
+                                  ? "Desactivar"
+                                  : "Activar"
+                                : "Activar"}
                         </button>
                       </td>
                     </tr>
@@ -489,7 +488,7 @@ function Banks() {
                       />
                     </label>
                     <label>
-                      SWIFT/BIC:
+                      CONCEPTO                      
                       <input
                         type="text"
                         name="acceur_swift"
@@ -552,7 +551,7 @@ function Banks() {
                       />
                     </label>
                     <label>
-                      SWIFT/BIC:
+                      CONCEPTO
                       <input
                         type="text"
                         name="accgbp_swift"
@@ -635,7 +634,7 @@ function Banks() {
                       />
                     </label>
                     <label>
-                      Teléfono:
+                      CONCEPTO
                       <input
                         type="text"
                         name="accusd_phone"

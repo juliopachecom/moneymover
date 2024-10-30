@@ -21,7 +21,7 @@ function Footer() {
         <div className="footer__section">
           <h3>Contacto</h3>
           <p>Teléfono: +34 602 679 774</p>
-          <p>Email: info@moneymoveroficial.com</p>
+          <p>Email: hello@moneymoveroficial.com</p>
         </div>
         <div className="footer__section">
           <h3>Redes Sociales</h3>

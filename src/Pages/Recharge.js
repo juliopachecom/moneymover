@@ -491,65 +491,74 @@ function Recharge() {
               selectedMethod === "transferenciaUK") && (
               <div className="bank-details">
                 <label>Selecciona el banco:</label>
-                <select
-                  onChange={handleBankChange}
-                  className="custom-bank-select"
-                >
-                  <option value="">Selecciona un banco</option>
-                  {payment === "EUR"
-                    ? banksEUR
-                        .filter((bank) => bank.acceur_status === "Activo")
-                        .map((bank) => {
-                          return bank.acceur_Bank ? (
-                            <option value={bank.acceur_id}>
-                              {bank.acceur_Bank}
-                            </option>
-                          ) : null;
-                        })
-                    : payment === "USD"
-                    ? banksUSD
-                        .filter((bank) => bank.accusd_status === "Activo")
-                        .map((bank) => {
-                          return bank.accusd_Bank ? (
-                            <option value={bank.accusd_id}>
-                              {bank.accusd_Bank}
-                            </option>
-                          ) : null;
-                        })
-                    : payment === "GBP"
-                    ? banksGBP
-                        .filter((bank) => bank.accgbp_status === "Activo")
-                        .map((bank) => {
-                          return bank.accgbp_Bank ? (
-                            <option value={bank.accgbp_id}>
-                              {bank.accgbp_Bank}
-                            </option>
-                          ) : null;
-                        })
-                    : null}
-                </select>
-                {bankOptionPay &&
-                  (payment === "EUR"
-                    ? banksEUR.map((bank) => {
-                        return (
-                          bank.acceur_id === parseInt(bankOptionPay) && (
-                            <p className="iban-info">{bank.acceur_number}</p>
-                          )
-                        );
-                      })
-                    : payment === "USD"
-                    ? banksUSD.map((bank) => {
-                        return bank.accusd_id === parseInt(bankOptionPay) ? (
-                          <p className="iban-info">{bank.accusd_number}</p>
-                        ) : null;
-                      })
-                    : payment === "GBP"
-                    ? banksGBP.map((bank) => {
-                        return bank.accgbp_id === parseInt(bankOptionPay) ? (
-                          <p className="iban-info">{bank.accgbp_number}</p>
-                        ) : null;
-                      })
-                    : null)}
+                <select onChange={handleBankChange} className="custom-bank-select">
+  <option value="">Selecciona un banco</option>
+  {payment === "EUR"
+    ? banksEUR
+        .filter((bank) => bank.acceur_status === "Activo")
+        .map((bank) => {
+          return bank.acceur_Bank ? (
+            <option value={bank.acceur_id} key={bank.acceur_id}>
+              {bank.acceur_Bank}
+            </option>
+          ) : null;
+        })
+    : payment === "USD"
+    ? banksUSD
+        .filter((bank) => bank.accusd_status === "Activo")
+        .map((bank) => {
+          return bank.accusd_Bank ? (
+            <option value={bank.accusd_id} key={bank.accusd_id}>
+              {bank.accusd_Bank}
+            </option>
+          ) : null;
+        })
+    : payment === "GBP"
+    ? banksGBP
+        .filter((bank) => bank.accgbp_status === "Activo")
+        .map((bank) => {
+          return bank.accgbp_Bank ? (
+            <option value={bank.accgbp_id} key={bank.accgbp_id}>
+              {bank.accgbp_Bank}
+            </option>
+          ) : null;
+        })
+    : null}
+</select>
+
+{bankOptionPay &&
+  (payment === "EUR"
+    ? banksEUR.map((bank) => {
+        return (
+          bank.acceur_id === parseInt(bankOptionPay) && (
+            <div className="iban-info" key={bank.acceur_id}>
+              <p>Número de cuenta: {bank.acceur_number}</p>
+              <p>CONCEPTO: {bank.acceur_swift}</p>
+            </div>
+          )
+        );
+      })
+    : payment === "USD"
+    ? banksUSD.map((bank) => {
+        return bank.accusd_id === parseInt(bankOptionPay) ? (
+          <div className="iban-info" key={bank.accusd_id}>
+            <p>Número de cuenta: {bank.accusd_number}</p>
+            <p>Correo para Zelle: {bank.accusd_email}</p>
+            <p>CONCEPTO: {bank.accusd_phone}</p>
+          </div>
+        ) : null;
+      })
+    : payment === "GBP"
+    ? banksGBP.map((bank) => {
+        return bank.accgbp_id === parseInt(bankOptionPay) ? (
+          <div className="iban-info" key={bank.accgbp_id}>
+            <p>Número de cuenta: {bank.accgbp_number}</p>
+            <p>CONCEPTO: {bank.accgbp_swift}</p>
+          </div>
+        ) : null;
+      })
+    : null)}
+
                 <div className="form-group">
                   <label>
                     Monto a transferir{" "}
