@@ -58,78 +58,40 @@ function Changes() {
   const fetchKycLink = async () => {
     try {
       console.log("Solicitando KYC para el usuario ID:", user.use_id);
-
-      // 1. Verificar si ya existe un kyc_link para este usuario
-      const existingKycLinkResponse = await axios.get(
-        `${url}/kyclink/user/${user.use_id}`,
+  
+      // Actualizar el campo use_verif del usuario
+      user.use_verif = "E";
+      await axios.put(
+        `${url}/users/${user.use_id}`,
+        { use_verif: "E" },
         {
           headers: {
-            Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+            Authorization: `Bearer ${infoTkn}`,
             "Content-Type": "application/json",
           },
         }
       );
-
-      const existingKycLink = existingKycLinkResponse.data;
-
-      if (existingKycLink) {
-        // Si existe un kyc_link, hacemos un PUT para actualizar los datos
-        console.log(
-          "KYC link existente encontrado para el usuario:",
-          user.use_id
-        );
-
-        // 2. Obtener el link de verificación KYC de AMLBot
-        const response = await fetch(
-          `https://kyc-api.amlbot.com/forms/${formId}/urls`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Token " + apiKey,
-            },
-          }
-        );
-        console.log("Valor de user.use_id:", user.use_id);
-
-        const data = await response.json();
-        console.log("Respuesta de la API:", data);
-
-        if (data && data.form_url) {
-          // Crear el objeto kycData para actualizar
-          const kycData = {
-            kyc_link_status: "Pending",
-            kyc_link_date: new Date().toISOString(), // Fecha actual
-            kyc_User_id: user.use_id, // ID del usuario actual
-            form_id: data.form_id,
-            form_url: data.form_url,
-            verification_id: data.verification_id,
-            form_token: data.form_token,
-            verification_attempts_left: data.verification_attempts_left,
-          };
-
-          // Realizar PUT para actualizar el enlace KYC
-          await axios.put(
-            `${url}/kyclink/${existingKycLink.kyc_link_id}`,
-            kycData,
-            {
-              headers: {
-                Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          console.log(
-            "KYC link existente actualizado para el usuario:",
-            user.use_id
-          );
-          setKycLink(data.form_url); // Guardar el nuevo enlace KYC
-        } else {
-          setKycLink("No se pudo obtener el enlace de verificación");
+      console.log("Campo use_verif actualizado a 'E' para el usuario:", user.use_id);
+  
+      // 2. Verificar si ya existe un kyc_link
+      const existingKycLinkResponse = await axios.get(
+        `${url}/kyclink/user/${user.use_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
+  
+      const existingKycLink = existingKycLinkResponse.data;
+  
+      if (existingKycLink) {
+        console.log("KYC link existente encontrado para el usuario:", user.use_id);
+        window.location.href = existingKycLink.form_url;
+
       } else {
-        // 3. Si no existe, obtener el link de verificación KYC de AMLBot
+        // 3. Si no existe un link, obtener uno nuevo
         const response = await fetch(
           `https://kyc-api.amlbot.com/forms/${formId}/urls`,
           {
@@ -140,35 +102,33 @@ function Changes() {
             },
           }
         );
-
+  
         const data = await response.json();
         console.log("Respuesta de la API:", data);
-
+  
         if (data && data.form_url) {
-          // Crear el objeto kycData para crear un nuevo enlace KYC
           const kycData = {
             kyc_link_status: "Pending",
-            kyc_link_date: new Date().toISOString(), // Fecha actual
-            kyc_User_id: user.use_id, // ID del usuario actual
+            kyc_link_date: new Date().toISOString(),
+            kyc_User_id: user.use_id,
             form_id: data.form_id,
             form_url: data.form_url,
             verification_id: data.verification_id,
             form_token: data.form_token,
             verification_attempts_left: data.verification_attempts_left,
           };
-
-          // Realizar POST para crear un nuevo enlace KYC
+  
           await axios.post(`${url}/kyclink/create`, kycData, {
             headers: {
-              Authorization: `Bearer ${infoTkn}`, // Utiliza el token adecuado
+              Authorization: `Bearer ${infoTkn}`,
               "Content-Type": "application/json",
             },
           });
-
+  
           console.log("Nuevo KYC link creado para el usuario:", user.use_id);
-          setKycLink(data.form_url); // Guardar el nuevo enlace KYC
-        } else {
-          setKycLink("No se pudo obtener el enlace de verificación");
+  
+          // Redirigir inmediatamente al nuevo kycLink
+          window.location.href = data.form_url;
         }
       }
     } catch (error) {

@@ -69,7 +69,12 @@ function Home() {
         selectedRate = exchangeRate[0].cur_EurToBra_Rea;
       } else if (receiveCountry === "USD") {
         selectedRate = exchangeRate[0].cur_EurToUsd;
+      }  else if (receiveCountry === "PAB") {
+        selectedRate = exchangeRate[0].cur_EurToUsd_Pa;
+      } else if (receiveCountry === "USD_ECU") {
+        selectedRate = exchangeRate[0].cur_EurToUsd_Ecu;
       }
+
     } else if (sendCountry === "USD") {
       if (receiveCountry === "VEF") {
         selectedRate = exchangeRate[0].cur_UsdToBs;
@@ -87,6 +92,10 @@ function Home() {
         selectedRate = exchangeRate[0].cur_UsdToBra_Rea;
       } else if (receiveCountry === "USD") {
         selectedRate = exchangeRate[0].cur_UsdToUsd;
+      } else if (receiveCountry === "PAB") {
+        selectedRate = exchangeRate[0].cur_UsdToUsd_Pa;
+      } else if (receiveCountry === "USD_ECU") {
+        selectedRate = exchangeRate[0].cur_UsdToUsd_Ecu;
       }
     } else if (sendCountry === "GBP") {
       if (receiveCountry === "VEF") {
@@ -105,6 +114,10 @@ function Home() {
         selectedRate = exchangeRate[0].cur_GbpToBra_Rea;
       } else if (receiveCountry === "USD") {
         selectedRate = exchangeRate[0].cur_GbpToUsd;
+      } else if (receiveCountry === "PAB") {
+        selectedRate = exchangeRate[0].cur_GbpToUsd_Pa;
+      } else if (receiveCountry === "USD_ECU") {
+        selectedRate = exchangeRate[0].cur_GbpToUsd_Ecu;
       }
     }
 
