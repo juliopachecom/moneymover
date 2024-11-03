@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.50621abe.css",
-    "main.js": "/static/js/main.6e483054.js",
+    "main.js": "/static/js/main.8d6dab9f.js",
     "static/media/MoneyMover.mp4": "/static/media/MoneyMover.6403070d38d0168edd04.mp4",
     "static/media/featurevideo.mp4": "/static/media/featurevideo.f6a98e3e5912d40c5cfe.mp4",
     "static/media/abuelo1.jpeg": "/static/media/abuelo1.b44ca4cc61f797635a64.jpeg",
@@ -12,10 +12,10 @@
     "static/media/logoeur.jpg": "/static/media/logoeur.dbf57cc77345cd6a3e67.jpg",
     "index.html": "/index.html",
     "main.50621abe.css.map": "/static/css/main.50621abe.css.map",
-    "main.6e483054.js.map": "/static/js/main.6e483054.js.map"
+    "main.8d6dab9f.js.map": "/static/js/main.8d6dab9f.js.map"
   },
   "entrypoints": [
     "static/css/main.50621abe.css",
-    "static/js/main.6e483054.js"
+    "static/js/main.8d6dab9f.js"
   ]
 }
