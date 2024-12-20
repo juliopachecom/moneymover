@@ -951,7 +951,7 @@ function AdminDashboard() {
                 {selectedMovement.mov_img ? (
                   selectedMovement.mov_img.endsWith(".pdf") ? (
                     <a
-                      href={`${url}/download/${selectedMovement.mov_img}`}
+                      href={`${url}/Movements/image/${selectedMovement.mov_img}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

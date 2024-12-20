@@ -522,28 +522,39 @@ function Users() {
 
                         {/* Mostrar la información basada en el tipo de movimiento */}
                         <td>
-                          {move.mov_typeOutflow === "transferencia" ? (
-                            <div>
-                              <strong>Banco:</strong> {move.AccountsBsUser.accbsUser_bank}
-                              <br />
-                              <strong>Propietario:</strong> {move.AccountsBsUser.accbsUser_owner}
-                              <br />
-                              <strong>Número de cuenta:</strong>{" "}
-                              {move.AccountsBsUser.accbsUser_number
-                                ? move.AccountsBsUser.accbsUser_number
-                                : move.AccountsBsUser.accbsUser_phone}
-                              <br />
-                              <strong>DNI:</strong> {move.AccountsBsUser.accbsUser_dni}
-                            </div>
-                          ) : (
-                            // Si no es transferencia, mostrar el comentario
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html: move.mov_comment.replace(/\n/g, "<br/>"),
-                              }}
-                            />
-                          )}
-                        </td>
+  {move.mov_type === "transferencia" ? (
+    <div>
+      <strong>Banco:</strong> {move.AccountsBsUser.accbsUser_bank}
+      <br />
+      <strong>Propietario:</strong> {move.AccountsBsUser.accbsUser_owner}
+      <br />
+      <strong>Número de cuenta:</strong>{" "}
+      {move.AccountsBsUser.accbsUser_number
+        ? move.AccountsBsUser.accbsUser_number
+        : move.AccountsBsUser.accbsUser_phone}
+      <br />
+      <strong>DNI:</strong> {move.AccountsBsUser.accbsUser_dni}
+    </div>
+  ) : move.mov_type === "Deposito" ? (
+    <div>
+      <strong>Código:</strong> {move.mov_code}
+      <br />
+      {move.mov_phone && (
+        <>
+          <strong>Teléfono:</strong> {move.mov_phone}
+          <br />
+        </>
+      )}
+    </div>
+  ) : (
+    // Si no es transferencia ni ingreso, mostrar el comentario
+    <div
+      dangerouslySetInnerHTML={{
+        __html: move.mov_comment.replace(/\n/g, "<br/>"),
+      }}
+    />
+  )}
+</td>
 
                         <td>
                           {move.mov_img ? (
@@ -581,7 +592,7 @@ function Users() {
               <h3>Imagen de {selectedUser.nombre}</h3>
               {selectedUser.use_img ? (
                 <img
-                  src={`https://apimoneymover-pruebas.up.railway.app/Users/image/${selectedUser.use_img}`}
+                  src={`https://apimoneymover-production.up.railway.app/Users/image/${selectedUser.use_img}`}
                   alt="Imagen del Usuario"
                 />
               ) : (
@@ -600,14 +611,25 @@ function Users() {
             <div className="modal-content">
               <h3>Imagen del Movimiento</h3>
               <div className="user-image-placeholder">
-                {selectedMovement.mov_img ? (
-                  <img
-                    src={`https://apimoneymover-pruebas.up.railway.app/Movements/image/${selectedMovement.mov_img}`}
-                    alt="Imagen de Movimiento"
-                    style={{ width: "50%" }}
-                  />
+               {/* Muestra una imagen o un enlace de descarga si es PDF */}
+               {selectedMovement.mov_img ? (
+                  selectedMovement.mov_img.endsWith(".pdf") ? (
+                    <a
+                      href={`${url}/Movements/image/${selectedMovement.mov_img}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Descargar PDF
+                    </a>
+                  ) : (
+                    <img
+                      src={`${url}/Movements/image/${selectedMovement.mov_img}`}
+                      alt="Documento"
+                      style={{ width: "200px" }}
+                    />
+                  )
                 ) : (
-                  <div className="user-image-placeholder">[Sin Imagen]</div>
+                  <p>No hay documento adjunto.</p>
                 )}
               </div>
               <button onClick={closeModal} className="close-button">

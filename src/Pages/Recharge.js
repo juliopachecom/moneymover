@@ -12,7 +12,7 @@ import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 function Recharge() {
   useAxiosInterceptors();
   const { logged, infoTkn, url } = useDataContext();
-  // const [loading, setLoading] = useState(false);
+   const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1);
   // const [file, setFile] = useState(null);
@@ -205,6 +205,7 @@ function Recharge() {
       setTransactionDone(true);
       setTransactionError(false);
       console.log("Request sent successfully");
+      await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (error) {
       setTransactionDone(false);
       console.log(transactionDone);
@@ -219,6 +220,8 @@ function Recharge() {
         draggable: true,
         progress: undefined,
       });
+    }finally {
+      setLoading(false);
     }
   };
   
@@ -775,9 +778,9 @@ function Recharge() {
               <button className="back-button" onClick={handlePreviousStep}>
                 Volver
               </button>
-              <button className="continue-button" disabled={mov_img === null} onClick={handleSubmitLoad}>
-                Confirmar
-              </button>
+              <button className="continue-button" disabled={mov_img === null || loading} onClick={handleSubmitLoad}>
+        {loading ? <span className="spinner"></span> : 'Confirmar'}
+      </button>
             </div>
           </div>
         </CSSTransition>

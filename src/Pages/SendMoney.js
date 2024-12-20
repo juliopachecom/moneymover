@@ -24,7 +24,6 @@ import { useAxiosInterceptors } from "../Hooks/useAxiosInterceptors";
 function SendMoney() {
   useAxiosInterceptors();
   const { logged, infoTkn, url } = useDataContext();
-  // const [loading, setLoading] = useState(false);
 
   const [step, setStep] = useState(1); // Controla los pasos del formulario
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
